@@ -1,0 +1,27 @@
+swagger: '2.0'
+info:
+  version: '0.1'
+  title: Test
+schemes: [ http ]
+basePath: "/api"
+paths:
+  /billing:
+    get:
+      x-mojo-to: "billing#list"
+      operationId: billingList
+      consumes:
+        - application/json
+      parameters:
+      - in: body
+        name: body
+        schema:
+          type: object
+      responses:
+        200:
+          description: Ok status
+          schema:
+            type: array
+        500:
+          description: Internal server error
+          schema:
+            type: object

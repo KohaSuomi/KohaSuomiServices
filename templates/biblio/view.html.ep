@@ -1,0 +1,38 @@
+% layout 'default';
+% title 'Welcome';
+<div class="container-fluid">
+  <div class="row">
+    %= include '_sidebar'
+
+    <main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
+      <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+        <h1 class="h2">Reports</h1>
+      </div>
+      <div id="app">
+      </div>
+    </main>
+  </div>
+</div>
+<script>
+  new Vue({
+    el: '#app',
+    created() {
+        this.fetchData();	
+    },
+    data: {
+        results: [],
+    },
+    methods: {
+        fetchData() {
+        axios.get('http://10.0.3.13:3000/api/biblio', {
+          params: {
+            pars: {isbn: "8822243013"},
+            host: {servername: "MELINDA", id: "8"}
+          }
+        }).then(response => {
+            this.configs = response.data;
+            });
+        },
+    }
+});
+</script>

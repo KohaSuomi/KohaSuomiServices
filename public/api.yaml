@@ -1,0 +1,100 @@
+swagger: '2.0'
+info:
+  version: '0.1'
+  title: Test
+schemes: [ http ]
+basePath: "/api"
+paths:
+  /config:
+    get:
+      x-mojo-to: "config#get"
+      operationId: configGet
+      consumes:
+        - application/json
+      parameters:
+      - in: body
+        name: body
+        schema:
+          type: object
+      responses:
+        200:
+          description: Ok status
+          schema:
+            type: array
+        404:
+          description: Not found
+          schema:
+            type: object
+        500:
+          description: Internal server error
+          schema:
+            type: object
+    post:
+      x-mojo-to: "config#add"
+      operationId: configAdd
+      consumes:
+        - application/json
+      parameters:
+      - in: body
+        name: body
+        schema:
+          type: object
+      responses:
+        200:
+          description: Ok status
+          schema:
+            type: object
+        404:
+          description: Not found
+          schema:
+            type: object
+        500:
+          description: Internal server error
+          schema:
+            type: object
+    put:
+      x-mojo-to: "config#update"
+      operationId: configUpdate
+      consumes:
+        - application/json
+      parameters:
+      - in: body
+        name: body
+        schema:
+          type: object
+      responses:
+        200:
+          description: Ok status
+          schema:
+            type: object
+        404:
+          description: Not found
+          schema:
+            type: object
+        500:
+          description: Internal server error
+          schema:
+            type: object
+    delete:
+      x-mojo-to: "config#delete"
+      operationId: configDelete
+      consumes:
+        - application/json
+      parameters:
+      - in: body
+        name: body
+        schema:
+          type: object
+      responses:
+        200:
+          description: Ok status
+          schema:
+            type: object
+        404:
+          description: Not found
+          schema:
+            type: object
+        500:
+          description: Internal server error
+          schema:
+            type: object
