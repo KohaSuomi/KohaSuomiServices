@@ -27,18 +27,27 @@ Add config file to root directory. Decide which services you want to use and add
   services => [
     { 
       route => 'biblio',
-      schema => 'biblioservice'
+      koha_basepath => 'http://example.com',
+      database => {
+        host => '0.0.0.0',
+        user => 'user',
+        password => 'pass',
+        port => '3306',
+        schema => 'biblioservice'
+      }
     }, 
     { 
       route => 'billing',
-      schema => 'billingservice'
-  }],
-  database => {
-    host => '0.0.0.0',
-    user => 'username',
-    password => 'password',
-  }
+      database => {
+        host => '0.0.0.0',
+        user => 'user',
+        password => 'pass',
+        port => '3306',
+        schema => 'billingservice'
+      }
+  }]
 }
+
 
 ```
 
