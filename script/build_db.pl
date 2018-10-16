@@ -34,7 +34,7 @@ foreach my $service (@{$config->{services}}) {
     my $route = $service->{route};
     my $schemapath = $db->$route;
     my $path = "share/".$route."-schema/";
-    $config->{servicename} = $route;
-    my $schema = $db->client();
+    $config->{service} = $route;
+    my $schema = $db->client($service);
     $schemapath->build($schema, $path);
 }

@@ -18,13 +18,12 @@ sub get {
         $c->{app}->{config}->{servicename} = $req->{service};
 
         my $table = ucfirst $req->{table};
-        my $db = KohaSuomiServices::Database::Client->new({config => $c->{app}->{config}});
-        my $schema = $db->client();
-        my @rs = $schema->resultset($table)->all();
+        my $client = $c->schema->client($c->configs->get($req->{service}));
+        my @rs = $client->resultset($table)->all();
 
-        my @data = $db->get_columns(@rs);
+        my @data = $c->schema->get_columns(@rs);
 
-        if ($schema) {
+        if ($client) {
             $c->render(status => 200, openapi => @data);
         } else {
             $c->render(status => 404, openapi => {message => "Not found"});
@@ -45,13 +44,12 @@ sub add {
         my $params = $req->{params};
         my $table = ucfirst $req->{table};
 
-        my $db = KohaSuomiServices::Database::Client->new({config => $c->{app}->{config}});
-        my $schema = $db->client();
+        my $client = $c->schema->client($c->configs->get($req->{service}));
 
-        my $data = $schema->resultset($table)->new($params);
+        my $data = $client->resultset($table)->new($params);
         $data->insert();
 
-        if ($schema) {
+        if ($client) {
             $c->render(status => 200, openapi => {data => $data});
         } else {
             $c->render(status => 404, openapi => {message => "Not found"});
@@ -66,20 +64,18 @@ sub update {
     my $c = shift->openapi->valid_input or return;
 
     try {
-        my $req  = $c->req->body;
-        $req = decode_json($req);
+        my $req  = $c->req->json;
         $c->{app}->{config}->{servicename} = $req->{service};
         my $params = $req->{params};
         my $id = $req->{id};
         my $table = ucfirst $req->{table};
 
-        my $db = KohaSuomiServices::Database::Client->new({config => $c->{app}->{config}});
-        my $schema = $db->client();
+        my $client = $c->schema->client($c->configs->get($req->{service}));
 
-        my $data = $schema->resultset($table)->find($id);
+        my $data = $client->resultset($table)->find($id);
         $data->update($params);
 
-        if ($schema) {
+        if ($client) {
             $c->render(status => 200, openapi => {data => $data});
         } else {
             $c->render(status => 404, openapi => {message => "Not found"});
@@ -99,13 +95,12 @@ sub delete {
         my $id = $req->{id};
         my $table = ucfirst $req->{table};
 
-        my $db = KohaSuomiServices::Database::Client->new({config => $c->{app}->{config}});
-        my $schema = $db->client();
+        my $client = $c->schema->client($c->configs->get($req->{service}));
 
-        my $data = $schema->resultset($table)->find($id);
+        my $data = $client->resultset($table)->find($id);
         $data->delete();
 
-        if ($schema) {
+        if ($client) {
             $c->render(status => 200, openapi => {data => $data});
         } else {
             $c->render(status => 404, openapi => {message => "Not found"});

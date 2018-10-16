@@ -53,8 +53,7 @@ sub export {
     my $c = shift->openapi->valid_input or return;
 
     try {
-        my $req  = $c->req->body;
-        $req = decode_json($req);
+        my $req  = $c->req->json;
         my $schema = $c->schema->client($c->configs->get("biblio"));
 
         my $data = $c->biblio->export($schema, $req);
