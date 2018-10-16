@@ -96,6 +96,7 @@
       </tr>
     </template>
     <script>
+      var baseendpoint = '<%= $baseendpoint %>';
       new Vue({
         el: '#app',
         created() {
@@ -112,7 +113,7 @@
         },
         methods: {
             fetchData() {
-            axios.get('http://10.0.3.13:3000/api/config', {
+            axios.get(baseendpoint+'config', {
               params: {
                 service: 'biblio',
                 table: 'interface'
@@ -122,7 +123,7 @@
                 });
             },
             addConfig() {
-            axios.post('http://10.0.3.13:3000/api/config',
+            axios.post(baseendpoint+'config',
               {
                 service: 'biblio',
                 table: 'interface',
@@ -133,7 +134,7 @@
                 });
             },
             updateConfig(config) {
-              axios.put('http://10.0.3.13:3000/api/config',
+              axios.put(baseendpoint+'config',
               {
                 service: 'biblio',
                 table: 'interface',
@@ -145,7 +146,7 @@
                 });
             },
             deleteConfig(config) {
-              axios.delete('http://10.0.3.13:3000/api/config',
+              axios.delete(baseendpoint+'config',
               {
                 params: {
                   service: 'biblio',

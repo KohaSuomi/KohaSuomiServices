@@ -80,6 +80,8 @@ paths:
       operationId: configDelete
       consumes:
         - application/json
+      produces:
+        - application/json
       parameters:
       - in: body
         name: body
@@ -90,6 +92,73 @@ paths:
           description: Ok status
           schema:
             type: object
+        404:
+          description: Not found
+          schema:
+            type: object
+        500:
+          description: Internal server error
+          schema:
+            type: object
+  /auth:
+    post:
+      x-mojo-to: "auth#add"
+      operationId: authAdd
+      consumes:
+        - application/json
+      parameters:
+      - in: body
+        name: body
+        schema:
+          type: object
+      responses:
+        200:
+          description: Ok status
+          schema:
+            type: object
+        404:
+          description: Not found
+          schema:
+            type: object
+        500:
+          description: Internal server error
+          schema:
+            type: object
+  /sru:
+    get:
+      x-mojo-to: "SRU#get"
+      operationId: SRUGet
+      consumes:
+        - application/json
+      parameters:
+      - in: query
+        name: url
+        type: string
+        required: true
+        description: Url of the SRU service
+      - in: query
+        name: version
+        type: string
+        description: Version of the SRU server, default is 1.1
+      - in: query
+        name: operation
+        required: true
+        type: string
+        description: Operation of the SRU service
+      - in: query
+        name: query
+        required: true
+        type: string
+        description: Search query
+      - in: query
+        name: maxrecords
+        type: integer
+        description: Maximum records to be fetched, default is 1
+      responses:
+        200:
+          description: Ok status
+          schema:
+            type: array
         404:
           description: Not found
           schema:

@@ -20,53 +20,26 @@ paths:
         200:
           description: Ok status
           schema:
+            type: array
+        404:
+          description: Not found
+          schema:
             type: object
         500:
           description: Internal server error
           schema:
             type: object
-  /biblio/{biblionumber}:
+  /biblio/export:
     post:
-      x-mojo-to: "biblio#add"
-      operationId: biblioAdd
+      x-mojo-to: "biblio#export"
+      operationId: biblioExport
       consumes:
         - application/json
       parameters:
-        - in: path
-          name: biblionumber
-          type: integer
-          required: true
-        - in: query
-          name: userid
-          type: string
-        - in: query
-          name: password
-          type: string
-      responses:
-        200:
-          description: Ok status
-          schema:
-            type: object
-        500:
-          description: Internal server error
-          schema:
-            type: object
-    put:
-      x-mojo-to: "biblio#update"
-      operationId: biblioUpdate
-      consumes:
-        - application/json
-      parameters:
-        - in: path
-          name: biblionumber
-          type: integer
-          required: true
-        - in: query
-          name: userid
-          type: string
-        - in: query
-          name: password
-          type: string
+      - in: body
+        name: body
+        schema:
+          type: object
       responses:
         200:
           description: Ok status

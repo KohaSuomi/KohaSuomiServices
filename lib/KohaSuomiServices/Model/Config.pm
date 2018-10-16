@@ -1,17 +1,9 @@
 package KohaSuomiServices::Model::Config;
+use Mojo::Base -base;
 
 use Modern::Perl;
 
-use JSON;
 use Try::Tiny;
-
-sub new {
-    my ($class, $self) = @_;
-    $self = {} unless(ref($self) eq 'HASH');
-    bless $self, $class;
-
-    return $self;
-}
 
 sub get {
     my ($self, $name) = @_;

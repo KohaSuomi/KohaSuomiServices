@@ -9,10 +9,46 @@
         <h1 class="h2">Reports</h1>
       </div>
       <div id="app">
+        <h2>Biblio exports</h2>
+          <div class="table-responsive">
+            <table class="table table-striped table-sm">
+              <thead>
+                <tr>
+                  <th>Timestamp</th>
+                  <th>Status</th>
+                  <th>Type</th>
+                  <th>Biblio</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr is="result-list"
+                  v-for="(result, index) in results"
+                  v-bind:result="result">
+                </tr>
+              </tbody>
+            </table>
+          </div>
       </div>
     </main>
   </div>
 </div>
+<template id="list-items">
+  <tr>
+    <td>
+      {{result.timestamp}}
+    </td>
+    <td>
+      {{result.status}}
+    </td>
+    <td>
+      {{result.type}}
+    </td>
+    <td>
+      {{result.biblio.author}}
+      {{result.biblio.title}}
+    </td>
+  </tr>
+</template>
 <script>
   new Vue({
     el: '#app',
@@ -25,14 +61,14 @@
     methods: {
         fetchData() {
         axios.get('http://10.0.3.13:3000/api/biblio', {
-          params: {
-            pars: {isbn: "8822243013"},
-            host: {servername: "MELINDA", id: "8"}
-          }
         }).then(response => {
-            this.configs = response.data;
+            this.results = response.data;
             });
         },
     }
+});
+Vue.component('result-list', {
+  template: "#list-items",
+  props: ['result']
 });
 </script>

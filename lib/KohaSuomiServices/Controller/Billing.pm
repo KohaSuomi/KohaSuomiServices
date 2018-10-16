@@ -3,9 +3,10 @@ use Mojo::Base 'Mojolicious::Controller';
 
 use Mojo::UserAgent;
 
-use JSON;
 use Try::Tiny;
-use Koha::Checkouts;
+use KohaSuomiServices::Model::Config;
+use KohaSuomiServices::Model::Billing;
+use Mojo::JSON qw(decode_json encode_json);
 
 # This action will render a template
 sub view {
@@ -20,18 +21,16 @@ sub list {
   try {
     my $body =  $c->req->body;
 
-    my $start = '2018-01-01';
-    my $end   = '2018-01-07';
-    my $branchcode = 'MLI_PK';
+    my $params  = $c->req->params->to_hash;
+    my $service = KohaSuomiServices::Model::Config->new({config => $c->{app}->{config}});
+    my $config = $service->get('billing');
 
-    my $checkouts = Koha::Checkouts->search({
-        date_due => { '-between' => [$start, $end] },
-        branchcode => $branchcode
-    });
-    
+    my $billing = KohaSuomiServices::Model::Billing->new({config => $config});
+    my $checkouts = $billing->search($params);
+
     $c->render(status => 200, openapi => $checkouts);
   } catch {
-    $c->render(status => 501, openapi => {message => "Failure"});
+    $c->render(status => 500, openapi => {message => $_});
   }
 
 }
