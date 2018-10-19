@@ -36,20 +36,19 @@ paths:
       consumes:
         - application/json
       parameters:
-      - in: query
-        name: interface_id
-        type: integer
-        required: true
-        description: Interface id
-      - in: query
-        name: localnumber
-        type: integer
-        required: true
-        description: Local biblionumber
-      - in: query
-        name: remotenumber
-        type: integer
-        description: Remote biblionumber
+      - in: body
+        name: body
+        schema:
+          type: object
+          required:
+            - localnumber
+            - interface
+          properties:
+            localnumber:
+              type: integer
+            interface:
+              type: integer
+
       responses:
         200:
           description: Ok status

@@ -4,6 +4,7 @@ use Mojo::Base -base;
 use Modern::Perl;
 
 use Try::Tiny;
+use Digest::SHA qw(hmac_sha256_hex);
 
 use Mojo::JSON qw(decode_json encode_json);
 
@@ -38,7 +39,7 @@ sub login {
     my ($self, $params) = @_;
 
     try {
-        my $path = $self->{config}->{kohabasepath}.'/api/v1/auth/session';
+        my $path = $self->{config}->{internalloginpath};
         my $ua = Mojo::UserAgent->new;
         my $tx = $ua->build_tx(POST => $path => form => $params);
         $tx = $ua->start($tx);
@@ -47,6 +48,21 @@ sub login {
     } catch {
         my $e = $_;
         return $e;
+    }
+}
+
+sub api_auth {
+    my ($self, $local, $method) = @_;
+    
+    # TODO ADD THIS TO INTERFACES
+    if ($local eq "local") {
+        my $date = Mojo::Date->new;
+        my $message = join(' ', uc($method), $self->{config}->{apiuserid}, $date->to_string);
+        my $digest = Digest::SHA::hmac_sha256_hex($message, $self->{config}->{apikey});
+        my $signature = "Koha ".$self->{config}->{apiuserid}.":".$digest;
+        return {"Authorization" => $signature, "X-Koha-Date" => $date->to_string};
+    } else {
+        return;
     }
 }
 

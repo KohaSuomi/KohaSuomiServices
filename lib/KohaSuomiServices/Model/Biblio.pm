@@ -8,7 +8,7 @@ use Mojo::UserAgent;
 use KohaSuomiServices::Model::Convert;
 use Mojo::JSON qw(decode_json encode_json);
 
-has "sru";
+has "schema";
 
 sub export {
     my ($self, $schema, $params) = @_;
@@ -36,15 +36,16 @@ sub get_inteface {
     
 }
 
-sub find_local {
-    my ($self, $biblionumber) = @_;
-
+sub find {
+    my ($self, $auth, $interface, $params) = @_;
+    
     try {
-        my $path = $self->{config}->{kohabasepath}.'/api/v1/biblios/'.$biblionumber;
+        my $path = $self->create_path($interface, $params);
+        $auth = $auth->api_auth("local", "GET");
         my $ua = Mojo::UserAgent->new;
-        my $tx = $ua->build_tx(GET => $path);
+        my $tx = $ua->build_tx(GET => $path => $auth);
         $tx = $ua->start($tx);
-        return $tx->res->body;
+        return decode_json($tx->res->body);
     } catch {
         my $e = $_;
         return $e;
@@ -52,36 +53,31 @@ sub find_local {
     
 }
 
-sub find_remote {
-    my ($self, $biblionumber, $sessionid) = @_;
+sub create_path {
+    my ($self, $interface, $params) = @_;
+    my @matches = $interface->{endpoint_url} =~ /{(.*?)}/g;
 
-    try {
-        
-        my $path = $self->{config}->{kohabasepath}.'/api/v1/records/'.$biblionumber;
-        my $ua = Mojo::UserAgent->new;
-        my $tx = $ua->build_tx(GET => $path);
-        $tx->req->cookies({ name => 'CGISESSID', value => $sessionid });
-        $tx = $ua->start($tx);
-        return $tx->res->body;
-    } catch {
-        my $e = $_;
-        return $e;
+    foreach my $match (@matches) {
+        my $m = $params->{$match};
+        $interface->{endpoint_url} =~ s/{$match}/$m/g;
     }
-    
+    return $interface->{endpoint_url};
 }
 
-sub search {
-    my ($self, $params) = @_;
+sub load_interface {
+    my ($self, $schema, $local, $type) = @_;
 
     try {
-        
-        my $path = $self->{config}->{koha_basepath}.'/api/v1/reports/batchOverlays/records';
-        my $ua = Mojo::UserAgent->new;
-        my $tx = $ua->build_tx(GET => $path => form => $params);
-        $tx = $ua->start($tx);
-        return $tx->res->body;
+        $local = $local eq "local" ? 1 : 0;
+        my $localInterface = $schema->resultset("Interface")->search({local => $local, type => $type})->next;
+        my @p = $schema->resultset("Parameter")->search({interface_id => $localInterface->id});
+        my $interfaceParams = $self->schema->get_columns(@p);
+        my $interface->{endpoint_url} = $localInterface->endpoint_url;
+        $interface->{params} = $interfaceParams;
+        return $interface;
     } catch {
         my $e = $_;
+        warn Data::Dumper::Dumper $e;
         return $e;
     }
 }

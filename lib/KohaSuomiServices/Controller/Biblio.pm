@@ -4,6 +4,7 @@ use Mojo::Base 'Mojolicious::Controller';
 use Modern::Perl;
 
 use Try::Tiny;
+
 use Mojo::JSON qw(decode_json encode_json);
 
 use KohaSuomiServices::Model::Biblio;
@@ -30,9 +31,11 @@ sub get {
         my @rs = $schema->resultset("Exporter")->all();
 
         my $exports = $c->schema->get_columns(@rs);
+        my $interface = $c->biblio->load_interface($schema, "local", "get");
+
         my @data;
         foreach my $export (@{$exports}) {
-            my $biblio = $c->biblio->find_local($export->{localnumber});
+            my $biblio = $c->biblio->find($interface, $export->{localnumber});
             $export->{biblio} = decode_json($biblio);
             push @data, $export;
         }
@@ -44,6 +47,7 @@ sub get {
         }
     } catch {
         my $e = $_;
+        warn Data::Dumper::Dumper $e;
         $c->render(status => 500, openapi => {message => $e});
     }
     
@@ -55,8 +59,15 @@ sub export {
     try {
         my $req  = $c->req->json;
         my $schema = $c->schema->client($c->configs->get("biblio"));
-
-        my $data = $c->biblio->export($schema, $req);
+        my $interface = $c->biblio->load_interface($schema, "local", "get");
+        my $auth = $c->auth;
+        my $params = {
+            biblionumber => $req->{localnumber}
+        };
+        my $biblio = $c->biblio->find($auth, $interface, $params);
+        $biblio = $c->convert->formatjson($biblio->{marcxml});
+        warn Data::Dumper::Dumper $biblio;
+        my $data;# = $c->biblio->export($schema, $req);
         
         if ($schema) {
             $c->render(status => 200, openapi => {message => $data});

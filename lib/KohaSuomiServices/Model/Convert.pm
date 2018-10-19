@@ -102,4 +102,26 @@ sub formatcontrolfields {
     return \%tags;
 }
 
+sub formatjson {
+    my ($self, $marcxml) = @_;
+
+    warn Data::Dumper::Dumper $marcxml;
+    my $data;
+    if (ref($marcxml) eq "HASH") {
+        $data = $marcxml;
+    } else {
+        $data = $self->xmltohash($marcxml);
+    }
+    my %fields;
+
+    push @{ $fields{"fields"} }, $self->formatcontrolfields($data->{"controlfield"});
+    push @{ $fields{"fields"} }, $self->formatdatafields($data->{"datafield"});
+
+    my $format;
+    $format = \%fields;
+    $format->{leader} = $data->{"leader"};
+    
+    return $format;
+}
+
 1;

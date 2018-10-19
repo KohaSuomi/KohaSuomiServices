@@ -19,8 +19,13 @@ sub get {
 
         my $table = ucfirst $req->{table};
         my $client = $c->schema->client($c->configs->get($req->{service}));
-        my @rs = $client->resultset($table)->all();
-
+        my @rs;
+        if (defined $req->{id}) {
+            @rs = $client->resultset($table)->search({interface_id => $req->{id}});
+        } else {
+            @rs = $client->resultset($table)->all();
+        }
+        
         my @data = $c->schema->get_columns(@rs);
 
         if ($client) {
@@ -39,6 +44,7 @@ sub add {
 
     try {
         my $req  = $c->req->body;
+        warn Data::Dumper::Dumper $req;
         $req = decode_json($req);
         $c->{app}->{config}->{servicename} = $req->{service};
         my $params = $req->{params};

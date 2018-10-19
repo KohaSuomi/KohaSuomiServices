@@ -32,9 +32,9 @@ sub startup {
     
   $self->helper(
     sru => sub { state $sru = KohaSuomiServices::Model::SRU->new(config => $self->configs->get("biblio"), convert => shift->convert) });
-
+    
   $self->helper(
-    biblio => sub { state $biblio = KohaSuomiServices::Model::Biblio->new(config => $config, sru => shift->sru) });
+    biblio => sub { state $biblio = KohaSuomiServices::Model::Biblio->new(config => $config, schema => shift->schema) });
 
   $self->helper(
     billing => sub { state $billing = KohaSuomiServices::Model::Billing->new(config => $self->configs->get("billing")) });
