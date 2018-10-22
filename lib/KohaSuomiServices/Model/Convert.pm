@@ -16,112 +16,59 @@ sub xmltohash {
     return $xml;
 }
 
-sub formatdatafields {
-    my ($self, $res) = @_;
-
-    my %tags;
-    foreach my $datafield (@{$res}) {
-        my $tag = $datafield->{"tag"};
-        if (ref($datafield->{"subfield"}) eq "HASH"){
-            if( exists $tags{$tag} ) { 
-                my $newtag = {
-                    subfields => {$datafield->{"subfield"}->{"code"} => $datafield->{"subfield"}->{"content"}},
-                    ind1 => $datafield->{"ind1"},
-                    ind2 => $datafield->{"ind2"}
-                };
-                if (ref($tags{$tag}) eq "ARRAY") {
-                    push @{ $tags{$tag} }, $newtag;
-                } else {
-                    my $temp = delete $tags{$tag};
-                    push @{ $tags{$tag} }, $temp , $newtag;
-                }
-            } else {
-                $tags{$tag} = {
-                    subfields => {$datafield->{"subfield"}->{"code"} => $datafield->{"subfield"}->{"content"}},
-                    ind1 => $datafield->{"ind1"},
-                    ind2 => $datafield->{"ind2"}
-                };
-            }
-
-        } else {
-            my %f;
-            foreach my $subfield (@{$datafield->{"subfield"}}) {
-                if( exists $f{$subfield->{"code"}} ) {
-                    if (ref($f{$subfield->{"code"}}) eq "ARRAY") {
-                        push @{ $f{$subfield->{"code"}} }, $subfield->{"content"};
-                    } else {
-                        my $temp = delete $f{$subfield->{"code"}};
-                        push @{ $f{$subfield->{"code"}} }, $temp , $subfield->{"content"};
-                    }
-                } else {
-                    $f{$subfield->{"code"}} = $subfield->{"content"};
-                }
-            }
-
-            if( exists $tags{$tag} ) { 
-                my $newtag = {
-                    subfields => \%f,
-                    ind1 => $datafield->{"ind1"},
-                    ind2 => $datafield->{"ind2"}
-                };
-                if (ref($tags{$tag}) eq "ARRAY") {
-                    push @{ $tags{$tag} }, $newtag;
-                } else {
-                    my $temp = delete $tags{$tag};
-                    push @{ $tags{$tag} }, $temp , $newtag;
-                }
-            } else {
-                $tags{$tag} = {
-                    subfields => \%f,
-                    ind1 => $datafield->{"ind1"},
-                    ind2 => $datafield->{"ind2"} 
-                };
-            }
-        }
-    }
-    return \%tags;
-}
-
-sub formatcontrolfields {
-    my ($self, $res) = @_;
-    my $formated;
-    my %tags;
-    foreach my $controlfield (@{$res}) {
-        my $tag = $controlfield->{"tag"};
-        if( exists $tags{$tag} ) { 
-            if (ref($tags{$tag}) eq "ARRAY") {
-                push @{ $tags{$tag} }, $controlfield->{"content"};
-            } else {
-                my $temp = delete $tags{$tag};
-                push @{ $tags{$tag} }, $temp , $controlfield->{"content"};
-            }
-        } else {
-            $tags{$tag} = $controlfield->{"content"};
-        }
-    }
-    return \%tags;
-}
-
 sub formatjson {
     my ($self, $marcxml) = @_;
 
-    warn Data::Dumper::Dumper $marcxml;
-    my $data;
-    if (ref($marcxml) eq "HASH") {
-        $data = $marcxml;
-    } else {
-        $data = $self->xmltohash($marcxml);
+    try {
+        my $data;
+        if (ref($marcxml) eq "HASH") {
+            $data = $marcxml;
+        } else {
+            $data = $self->xmltohash($marcxml);
+        }
+
+        my $format;
+        $format->{leader} = $data->{"leader"};
+        $format->{fields} = $self->formatfields($data->{"controlfield"}, $data->{"datafield"});
+        
+        return $format;
+
+    } catch {
+        my $e = $_;
+        return $e->{message};
     }
-    my %fields;
+}
 
-    push @{ $fields{"fields"} }, $self->formatcontrolfields($data->{"controlfield"});
-    push @{ $fields{"fields"} }, $self->formatdatafields($data->{"datafield"});
+sub formatfields {
+    my ($self, $controlfields, $datafields) = @_;
 
-    my $format;
-    $format = \%fields;
-    $format->{leader} = $data->{"leader"};
-    
-    return $format;
+    my @fields;
+
+    foreach my $controlfield (@{$controlfields}) {
+        my $formated;
+        $formated->{tag} = $controlfield->{"tag"};
+        $formated->{value} = $controlfield->{"content"};
+        push @fields, $formated;
+    }
+
+    foreach my $datafield (@{$datafields}) {
+        my $formated;
+        my @subfields;
+        $formated->{tag} = $datafield->{"tag"};
+        $formated->{ind1} = $datafield->{"ind1"};
+        $formated->{ind2} = $datafield->{"ind2"};
+        if (ref($datafield->{"subfield"}) eq "HASH"){
+            push @subfields, {code => $datafield->{"subfield"}->{"code"}, value => $datafield->{"subfield"}->{"content"}}
+        } else {
+            foreach my $subfield (@{$datafield->{"subfield"}}) {
+                push @subfields, {code => $subfield->{"code"}, value => $subfield->{"content"}}
+            }
+        }
+        $formated->{subfields} = \@subfields;
+        push @fields, $formated;
+    }
+
+    return \@fields;
 }
 
 1;

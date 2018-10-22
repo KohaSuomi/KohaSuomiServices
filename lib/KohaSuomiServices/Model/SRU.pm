@@ -36,17 +36,11 @@ sub getRecords {
         my @records;
         if (ref($xml->{"zs:records"}->{"zs:record"}) eq "HASH") {
             my $data = $xml->{"zs:records"}->{"zs:record"}->{"zs:recordData"}->{"record"};
-            $fields->{leader} = $data->{"leader"};
-            $fields->{controlfields} = $self->convert->formatcontrolfields($data->{"controlfield"});
-            $fields->{datafields} = $self->convert->formatdatafields($data->{"datafield"});
-            push @records, $fields;
+            push @records, $self->convert->formatjson($data);
         } else {
             foreach my $record (@{$xml->{"zs:records"}->{"zs:record"}}) {
                 my $data = $record->{"zs:recordData"}->{"record"};
-                $fields->{leader} = $data->{"leader"};
-                $fields->{controlfields} = $self->convert->formatcontrolfields($data->{"controlfield"});
-                $fields->{datafields} = $self->convert->formatdatafields($data->{"datafield"});;
-                push @records, $fields;
+                push @records, $self->convert->formatjson($data);
             }
         }
 
