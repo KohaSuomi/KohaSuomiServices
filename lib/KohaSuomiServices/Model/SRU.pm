@@ -5,8 +5,11 @@ use Modern::Perl;
 use Try::Tiny;
 
 use Mojo::JSON qw(decode_json encode_json);
+use Mojo::UserAgent;
+use KohaSuomiServices::Model::Convert;
 
-has "convert";
+has ua => sub {Mojo::UserAgent->new};
+has convert => sub {KohaSuomiServices::Model::Convert->new};
 
 sub search {
     my ($self, $params) = @_;
@@ -14,13 +17,30 @@ sub search {
     try {
 
         my $path = $params->{url}."?operation=".$params->{operation}."&query=".$params->{query};
-        $path .= defined $params->{maxrecords} ? "&version=".$params->{version} : "&version=1.1";
+        $path .= defined $params->{version} ? "&version=".$params->{version} : "&version=1.1";
         $path .= defined $params->{maxrecords} ? "&maximumRecords=".$params->{maxrecords} : "&maximumRecords=1";
-        my $ua = Mojo::UserAgent->new;
-        my $tx = $ua->build_tx(GET => $path);
-        $tx = $ua->start($tx);
+        my $tx = $self->ua->build_tx(GET => $path);
+        $tx = $self->ua->start($tx);
         my $records = $self->getRecords($tx->res->body);
         return $records;
+        
+    } catch {
+        my $e = $_;
+        return $e;
+    }
+}
+
+sub explain {
+    my ($self, $params) = @_;
+
+    try {
+
+        my $path = $params->{url}."?operation=explain";
+        $path .= defined $params->{version} ? "&version=".$params->{version} : "&version=1.1";
+        my $tx = $self->ua->build_tx(GET => $path);
+        $tx = $self->ua->start($tx);
+        my $xml = $self->convert->xmltohash($tx->res->body);
+        return $xml;
         
     } catch {
         my $e = $_;

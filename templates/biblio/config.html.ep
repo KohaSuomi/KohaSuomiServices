@@ -131,7 +131,8 @@
             endpoint_url: "",
             local: "",
             parametername: "",
-            parametertype: ""
+            parametertype: "",
+            parametervalue: ""
         },
         methods: {
             fetchData() {
@@ -270,13 +271,14 @@
       data: function() {
         return {
           parametername: "",
-          parametertype: ""
+          parametertype: "",
+          parametervalue: ""
         }
       },
       methods: {
         addParameter(interface_id, e) {
           e.preventDefault();
-          var params = {interface_id: interface_id, name: this.parametername, type: this.parametertype};
+          var params = {interface_id: interface_id, name: this.parametername, type: this.parametertype, value: this.parametervalue};
           this.$parent.$parent.addParameter(params);
           this.$parent.$parent.fetchParameters(interface_id);
         },

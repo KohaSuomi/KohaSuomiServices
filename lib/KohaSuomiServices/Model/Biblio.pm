@@ -8,15 +8,18 @@ use Mojo::UserAgent;
 use KohaSuomiServices::Model::Convert;
 use Mojo::JSON qw(decode_json encode_json);
 
+has sru => sub {KohaSuomiServices::Model::SRU->new};
+has ua => sub {Mojo::UserAgent->new};
 has "schema";
+has "config";
 
 sub export {
-    my ($self, $schema, $params) = @_;
+    my ($self, $params) = @_;
 
     try {
-        my $interface_id = $self->get_inteface($schema, $params->{interface}, $params->{type});
+        my $schema = $self->schema->client($self->config);
+        $params->{interface_id} = $params->{interface};
         delete $params->{interface};
-        $params->{interface_id} = $interface_id;
         $params->{status} = "pending";
         my $data = $schema->resultset('Exporter')->new($params);
         $data->insert();
@@ -28,24 +31,62 @@ sub export {
     
 }
 
-sub get_inteface {
-    my ($self, $schema, $name, $type) = @_;
-    my $params = {name => $name, type => $type};
-    my $data = $schema->resultset("Interface")->search($params)->next;
-    return $data->id;
-    
-}
-
 sub find {
     my ($self, $auth, $interface, $params) = @_;
     
     try {
         my $path = $self->create_path($interface, $params);
         $auth = $auth->api_auth("local", "GET");
-        my $ua = Mojo::UserAgent->new;
-        my $tx = $ua->build_tx(GET => $path => $auth);
-        $tx = $ua->start($tx);
+        my $tx = $self->ua->build_tx(GET => $path => $auth);
+        $tx = $self->ua->start($tx);
         return decode_json($tx->res->body);
+    } catch {
+        my $e = $_;
+        return $e;
+    }
+    
+}
+
+sub search_remote {
+    my ($self, $remote_interface, $record) = @_;
+
+    try {
+        my $search;
+        my $interface = $self->load_interface({id => $remote_interface});
+        if ($interface->{interface} eq "SRU" && $interface->{type} eq "search") {
+            my $matcher = $self->search_fields($record);
+            my $path = $self->create_query($interface->{params}, $matcher);
+            $path->{url} = $interface->{endpoint_url};
+            $search = $self->sru->search($path);
+        } else {
+            my $params = {};
+            my $results = $self->find(undef, $interface, $params);
+        }
+        return $search;
+    } catch {
+        my $e = $_;
+        return $e;
+    }
+    
+}
+
+sub search_fields {
+    my ($self, $record) = @_;
+
+    try {
+        my $matcher;
+        my %matchers = ("020" => "a", "022" => "a");
+        foreach my $field (@{$record->{fields}}) {
+            if ($matchers{$field->{tag}}) {
+                foreach my $subfield (@{$field->{subfields}}) {
+                    if ($subfield->{code} eq $matchers{$field->{tag}}) {
+                        $matcher->{$field->{tag}.$matchers{$field->{tag}}} = $subfield->{value};
+                    }
+                }
+            }
+        }
+        return $matcher;
+
     } catch {
         my $e = $_;
         return $e;
@@ -64,20 +105,45 @@ sub create_path {
     return $interface->{endpoint_url};
 }
 
+sub create_query {
+    my ($self, $params, $matcher) = @_;
+
+    my $query;
+    foreach my $param (@{$params}) {
+        if($param->{type} eq "query") {
+            my @valuematch = $param->{value} =~ /{(.*?)}/g;
+            if (defined $valuematch[0]) {
+                if ($matcher->{$valuematch[0]}) {
+                    $param->{value} =~ s/{$valuematch[0]}/$matcher->{$valuematch[0]}/g;
+                } else {
+                    delete $param->{name};
+                    delete $param->{value};
+                }
+            }
+            if (defined $param->{name} && defined $param->{value}) {
+                $query->{$param->{name}} = $param->{value};
+            }
+        }
+    }
+    return $query;
+}
+
 sub load_interface {
-    my ($self, $schema, $local, $type) = @_;
+    my ($self, $params) = @_;
 
     try {
-        $local = $local eq "local" ? 1 : 0;
-        my $localInterface = $schema->resultset("Interface")->search({local => $local, type => $type})->next;
-        my @p = $schema->resultset("Parameter")->search({interface_id => $localInterface->id});
+        my $client = $self->schema->client($self->config);
+        my $localInterface = $client->resultset("Interface")->search($params)->next;
+        my @p = $client->resultset("Parameter")->search({interface_id => $localInterface->id});
         my $interfaceParams = $self->schema->get_columns(@p);
         my $interface->{endpoint_url} = $localInterface->endpoint_url;
+        $interface->{interface} = $localInterface->interface;
+        $interface->{type} = $localInterface->type;
         $interface->{params} = $interfaceParams;
         return $interface;
     } catch {
         my $e = $_;
-        warn Data::Dumper::Dumper $e;
+        warn Data::Dumper::Dumper $e->{message};
         return $e;
     }
 }

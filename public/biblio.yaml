@@ -34,7 +34,7 @@ paths:
       x-mojo-to: "biblio#export"
       operationId: biblioExport
       consumes:
-        - application/json
+        - application/x-www-form-urlencoded
       parameters:
       - in: body
         name: body

@@ -31,10 +31,10 @@ sub startup {
     convert => sub { state $convert = KohaSuomiServices::Model::Convert->new(config => $config) });
     
   $self->helper(
-    sru => sub { state $sru = KohaSuomiServices::Model::SRU->new(config => $self->configs->get("biblio"), convert => shift->convert) });
+    sru => sub { state $sru = KohaSuomiServices::Model::SRU->new() });
     
   $self->helper(
-    biblio => sub { state $biblio = KohaSuomiServices::Model::Biblio->new(config => $config, schema => shift->schema) });
+    biblio => sub { state $biblio = KohaSuomiServices::Model::Biblio->new(config => $self->configs->get("biblio"), schema => shift->schema) });
 
   $self->helper(
     billing => sub { state $billing = KohaSuomiServices::Model::Billing->new(config => $self->configs->get("billing")) });

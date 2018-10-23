@@ -31,7 +31,7 @@ sub get {
         my @rs = $schema->resultset("Exporter")->all();
 
         my $exports = $c->schema->get_columns(@rs);
-        my $interface = $c->biblio->load_interface($schema, "local", "get");
+        my $interface = $c->biblio->load_interface({local => 1, type => "get"});
 
         my @data;
         foreach my $export (@{$exports}) {
@@ -40,7 +40,7 @@ sub get {
             push @data, $export;
         }
         
-        if (length(@data)) {
+        if (scalar(@data)) {
             $c->render(status => 200, openapi => \@data);
         } else {
             $c->render(status => 404, openapi => {error => "Not found"});
@@ -59,23 +59,32 @@ sub export {
     try {
         my $req  = $c->req->json;
         my $schema = $c->schema->client($c->configs->get("biblio"));
-        my $interface = $c->biblio->load_interface($schema, "local", "get");
+        my $interface = $c->biblio->load_interface({local => 1, type => "get"});
         my $auth = $c->auth;
         my $params = {
             biblionumber => $req->{localnumber}
         };
         my $biblio = $c->biblio->find($auth, $interface, $params);
         $biblio = $c->convert->formatjson($biblio->{marcxml});
-        warn Data::Dumper::Dumper $biblio;
-        my $data;# = $c->biblio->export($schema, $req);
-        
+        my $remote = $c->biblio->search_remote($req->{interface}, $biblio);
+        my $data;
+        my $message;
+        if (scalar(@$remote)) {
+            $data = $remote;
+            $message = "Match found";
+        } else {
+            $data = {biblionumber => $req->{localnumber}};
+            $message = "Adding to queue";
+            #$c->biblio->export($req);
+        }
         if ($schema) {
-            $c->render(status => 200, openapi => {message => $data});
+            $c->render(status => 200, openapi => {data => $data, message => $message});
         } else {
             $c->render(status => 404, openapi => {message => "Not found"});
         }
     } catch {
         my $e = $_;
+        warn Data::Dumper::Dumper $e;
         $c->render(status => 500, openapi => {message => $e});
     }
     
