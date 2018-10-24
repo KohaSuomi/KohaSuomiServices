@@ -14,12 +14,12 @@ use KohaSuomiServices::Model::Config;
 sub view {
     my $self = shift;
     my $valid = $self->auth->valid($self->cookie('CGISESSID'));
-    $self->render(baseendpoint => $self->configs->get("biblio")->{baseendpoint});
+    $self->render(baseendpoint => $self->configs->service("biblio")->load->{baseendpoint});
 }
 
 sub config {
     my $self = shift;
-    $self->render(baseendpoint => $self->configs->get("biblio")->{baseendpoint});
+    $self->render(baseendpoint => $self->configs->service("biblio")->load->{baseendpoint});
 }
 
 sub get {
@@ -27,11 +27,11 @@ sub get {
 
     try {
         my $req  = $c->req->params->to_hash;
-        my $schema = $c->schema->client($c->configs->get("biblio"));
+        my $schema = $c->schema->client($c->configs->service($req->{service})->load);
         my @rs = $schema->resultset("Exporter")->all();
 
         my $exports = $c->schema->get_columns(@rs);
-        my $interface = $c->biblio->load_interface({local => 1, type => "get"});
+        my $interface = $c->bibliointerface->load({local => 1, type => "get"});
 
         my @data;
         foreach my $export (@{$exports}) {

@@ -8,6 +8,7 @@ use KohaSuomiServices::Model::SRU;
 use KohaSuomiServices::Model::Biblio;
 use KohaSuomiServices::Model::Billing;
 use KohaSuomiServices::Model::Auth;
+use KohaSuomiServices::Model::Biblio::Interface;
 
 # This method will run once at server start
 sub startup {
@@ -19,25 +20,25 @@ sub startup {
 
   # Models
   $self->helper(
-    configs => sub { state $configs = KohaSuomiServices::Model::Config->new(config => $config) });
+    configs => sub { my $configs = KohaSuomiServices::Model::Config->new(config => $config) });
 
   $self->helper(
-    auth => sub { state $auth = KohaSuomiServices::Model::Auth->new(config => $config) });
+    auth => sub { state $auth = KohaSuomiServices::Model::Auth->new() });
   
   $self->helper(
-    schema => sub { state $schema = KohaSuomiServices::Database::Client->new(config => $config) });
+    schema => sub { my $schema = KohaSuomiServices::Database::Client->new() });
   
   $self->helper(
-    convert => sub { state $convert = KohaSuomiServices::Model::Convert->new(config => $config) });
+    convert => sub { state $convert = KohaSuomiServices::Model::Convert->new() });
     
   $self->helper(
     sru => sub { state $sru = KohaSuomiServices::Model::SRU->new() });
     
   $self->helper(
-    biblio => sub { state $biblio = KohaSuomiServices::Model::Biblio->new(config => $self->configs->get("biblio"), schema => shift->schema) });
+    biblio => sub { state $biblio = KohaSuomiServices::Model::Biblio->new(schema => shift->schema) });
 
   $self->helper(
-    billing => sub { state $billing = KohaSuomiServices::Model::Billing->new(config => $self->configs->get("billing")) });
+    billing => sub { state $billing = KohaSuomiServices::Model::Billing->new() });
 
   $self->plugin(OpenAPI => {spec => $self->static->file("api.yaml")->path});
 
@@ -47,10 +48,10 @@ sub startup {
 
   $r->get('/login')->to('auth#login');
 
-  foreach my $service (@{$config->{services}}) {
-    $self->plugin(OpenAPI => {spec => $self->static->file($service->{route}.".yaml")->path});
-    $r->get('/'.$service->{route})->to($service->{route}.'#view');
-    $r->get('/'.$service->{route}.'/config')->to($service->{route}.'#config');
+  foreach my $service (keys %{$config->{newservices}}) {
+    $self->plugin(OpenAPI => {spec => $self->static->file($service.".yaml")->path});
+    $r->get('/'.$service)->to($service.'#view');
+    $r->get('/'.$service.'/config')->to($service.'#config');
   }
 }
 

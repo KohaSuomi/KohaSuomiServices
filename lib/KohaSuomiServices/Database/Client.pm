@@ -9,8 +9,6 @@ use KohaSuomiServices::Model::Config;
 use KohaSuomiServices::Database::Biblio::Schema;
 use KohaSuomiServices::Database::Billing::Schema;
 
-has "schema";
-
 sub connect {
     my ($self) = @_;
     

@@ -15,10 +15,9 @@ sub get {
 
     try {
         my $req  = $c->req->params->to_hash;
-        $c->{app}->{config}->{servicename} = $req->{service};
 
         my $table = ucfirst $req->{table};
-        my $client = $c->schema->client($c->configs->get($req->{service}));
+        my $client = $c->schema->client($c->configs->service($req->{service})->load);
         my @rs;
         if (defined $req->{id}) {
             @rs = $client->resultset($table)->search({interface_id => $req->{id}});
@@ -44,13 +43,11 @@ sub add {
 
     try {
         my $req  = $c->req->body;
-        warn Data::Dumper::Dumper $req;
         $req = decode_json($req);
-        $c->{app}->{config}->{servicename} = $req->{service};
         my $params = $req->{params};
         my $table = ucfirst $req->{table};
 
-        my $client = $c->schema->client($c->configs->get($req->{service}));
+        my $client = $c->schema->client($c->configs->service($req->{service})->load);
 
         my $data = $client->resultset($table)->new($params);
         $data->insert();
@@ -71,12 +68,11 @@ sub update {
 
     try {
         my $req  = $c->req->json;
-        $c->{app}->{config}->{servicename} = $req->{service};
         my $params = $req->{params};
         my $id = $req->{id};
         my $table = ucfirst $req->{table};
 
-        my $client = $c->schema->client($c->configs->get($req->{service}));
+        my $client = $c->schema->client($c->configs->service($req->{service})->load);
 
         my $data = $client->resultset($table)->find($id);
         $data->update($params);
@@ -97,11 +93,10 @@ sub delete {
 
     try {
         my $req  = $c->req->params->to_hash;
-        $c->{app}->{config}->{servicename} = $req->{service};
         my $id = $req->{id};
         my $table = ucfirst $req->{table};
 
-        my $client = $c->schema->client($c->configs->get($req->{service}));
+        my $client = $c->schema->client($c->configs->service($req->{service})->load);
 
         my $data = $client->resultset($table)->find($id);
         $data->delete();

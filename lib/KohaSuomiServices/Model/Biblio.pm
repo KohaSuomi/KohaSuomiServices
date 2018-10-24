@@ -12,13 +12,12 @@ has sru => sub {KohaSuomiServices::Model::SRU->new};
 has interface => sub {KohaSuomiServices::Model::Biblio::Interface->new};
 has ua => sub {Mojo::UserAgent->new};
 has "schema";
-has "config";
 
 sub export {
     my ($self, $params) = @_;
 
     try {
-        my $schema = $self->schema->client($self->config);
+        my $schema = $self->schema->client("biblio");
         $params->{interface_id} = $params->{interface};
         delete $params->{interface};
         $params->{status} = "pending";
