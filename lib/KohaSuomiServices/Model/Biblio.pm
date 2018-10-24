@@ -9,6 +9,7 @@ use KohaSuomiServices::Model::Convert;
 use Mojo::JSON qw(decode_json encode_json);
 
 has sru => sub {KohaSuomiServices::Model::SRU->new};
+has interface => sub {KohaSuomiServices::Model::Biblio::Interface->new};
 has ua => sub {Mojo::UserAgent->new};
 has "schema";
 has "config";
@@ -52,8 +53,8 @@ sub search_remote {
 
     try {
         my $search;
-        my $interface = $self->load_interface({id => $remote_interface});
-        if ($interface->{interface} eq "SRU" && $interface->{type} eq "search") {
+        my $interface = $self->interface->load({name => $remote_interface, type => "search"});
+        if ($interface->{interface} eq "SRU") {
             my $matcher = $self->search_fields($record);
             my $path = $self->create_query($interface->{params}, $matcher);
             $path->{url} = $interface->{endpoint_url};
@@ -127,27 +128,6 @@ sub create_query {
     }
     return $query;
 }
-
-sub load_interface {
-    my ($self, $params) = @_;
-
-    try {
-        my $client = $self->schema->client($self->config);
-        my $localInterface = $client->resultset("Interface")->search($params)->next;
-        my @p = $client->resultset("Parameter")->search({interface_id => $localInterface->id});
-        my $interfaceParams = $self->schema->get_columns(@p);
-        my $interface->{endpoint_url} = $localInterface->endpoint_url;
-        $interface->{interface} = $localInterface->interface;
-        $interface->{type} = $localInterface->type;
-        $interface->{params} = $interfaceParams;
-        return $interface;
-    } catch {
-        my $e = $_;
-        warn Data::Dumper::Dumper $e->{message};
-        return $e;
-    }
-}
-
 
 sub update {
     my ($self, $res) = @_;

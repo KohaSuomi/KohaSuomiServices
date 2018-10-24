@@ -58,14 +58,7 @@ sub export {
 
     try {
         my $req  = $c->req->json;
-        my $schema = $c->schema->client($c->configs->get("biblio"));
-        my $interface = $c->biblio->load_interface({local => 1, type => "get"});
-        my $auth = $c->auth;
-        my $params = {
-            biblionumber => $req->{localnumber}
-        };
-        my $biblio = $c->biblio->find($auth, $interface, $params);
-        $biblio = $c->convert->formatjson($biblio->{marcxml});
+        my $biblio = $c->convert->formatjson($req->{marcxml});
         my $remote = $c->biblio->search_remote($req->{interface}, $biblio);
         my $data;
         my $message;
@@ -77,15 +70,15 @@ sub export {
             $message = "Adding to queue";
             #$c->biblio->export($req);
         }
-        if ($schema) {
+        if ($req) {
             $c->render(status => 200, openapi => {data => $data, message => $message});
         } else {
             $c->render(status => 404, openapi => {message => "Not found"});
         }
     } catch {
         my $e = $_;
-        warn Data::Dumper::Dumper $e;
-        $c->render(status => 500, openapi => {message => $e});
+        warn Data::Dumper::Dumper $e->{message};
+        $c->render(status => 500, openapi => {message => $e->{message}});
     }
     
 }

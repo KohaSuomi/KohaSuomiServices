@@ -43,11 +43,14 @@ paths:
           required:
             - localnumber
             - interface
+            - marcxml
           properties:
             localnumber:
               type: integer
             interface:
-              type: integer
+              type: string
+            marcxml:
+              type: string
 
       responses:
         200:
