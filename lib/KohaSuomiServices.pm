@@ -48,7 +48,7 @@ sub startup {
 
   $r->get('/login')->to('auth#login');
 
-  foreach my $service (keys %{$config->{newservices}}) {
+  foreach my $service (keys %{$config->{services}}) {
     $self->plugin(OpenAPI => {spec => $self->static->file($service.".yaml")->path});
     $r->get('/'.$service)->to($service.'#view');
     $r->get('/'.$service.'/config')->to($service.'#config');
