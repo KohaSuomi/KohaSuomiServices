@@ -58,20 +58,45 @@ sub export {
 
     try {
         my $req  = $c->req->json;
+        my $response;
+        # my $xml = $c->convert->formatxml($req->{marc});
+        # warn Data::Dumper::Dumper $xml;
+        $response = $c->biblio->export($req);
+        #$response = {message => "Success"};
+        if ($req) {
+            $c->render(status => 200, openapi => $response);
+        } else {
+            $c->render(status => 404, openapi => {message => "Not found"});
+        }
+    } catch {
+        my $e = $_;
+        warn Data::Dumper::Dumper $e->{message};
+        $c->render(status => 500, openapi => {message => $e->{message}});
+    }
+    
+}
+
+sub check {
+    my $c = shift->openapi->valid_input or return;
+
+    try {
+        my $req  = $c->req->params->to_hash;
+        my $response;
         my $biblio = $c->convert->formatjson($req->{marcxml});
         my $remote = $c->biblio->search_remote($req->{interface}, $biblio);
+        warn Data::Dumper::Dumper $remote;
         my $data;
         my $message;
         if (scalar(@$remote)) {
             $data = $remote;
             $message = "Match found";
         } else {
-            $data = {biblionumber => $req->{localnumber}};
-            $message = "Adding to queue";
-            #$c->biblio->export($req);
+            $message = "Export";
         }
+        $response = {record => $data, localrecord => $biblio, message => $message};
+        
         if ($req) {
-            $c->render(status => 200, openapi => {data => $data, message => $message});
+            $c->render(status => 200, openapi => $response);
         } else {
             $c->render(status => 404, openapi => {message => "Not found"});
         }

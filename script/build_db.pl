@@ -26,15 +26,15 @@ use Mojolicious::Plugin::Config;
 use Mojolicious::Lite;
 use KohaSuomiServices::Database::Biblio::Schema;
 use KohaSuomiServices::Database::Billing::Schema;
+use KohaSuomiServices::Model::Config;
 
 my $config = plugin Config => {file => '../koha_suomi_services.conf'};
 
-foreach my $service (@{$config->{services}}) {
-    my $db = KohaSuomiServices::Database::Client->new({config => $config});
-    my $route = $service->{route};
-    my $schemapath = $db->$route;
-    my $path = "share/".$route."-schema/";
-    $config->{service} = $route;
-    my $schema = $db->client($service);
+foreach my $service (keys %{$config->{services}}) {
+    my $sconfig = KohaSuomiServices::Model::Config->new->service($service)->load;
+    my $db = KohaSuomiServices::Database::Client->new();
+    my $schemapath = $db->$service;
+    my $path = "share/".$service."-schema/";
+    my $schema = $db->client($sconfig);
     $schemapath->build($schema, $path);
 }

@@ -7,25 +7,32 @@ use Try::Tiny;
 use Mojo::UserAgent;
 use KohaSuomiServices::Model::Convert;
 use Mojo::JSON qw(decode_json encode_json);
+use KohaSuomiServices::Model::Biblio::Interface;
+use KohaSuomiServices::Model::Biblio::Fields;
+use KohaSuomiServices::Model::Config;
 
 has sru => sub {KohaSuomiServices::Model::SRU->new};
 has interface => sub {KohaSuomiServices::Model::Biblio::Interface->new};
+has fields => sub {KohaSuomiServices::Model::Biblio::Fields->new};
 has ua => sub {Mojo::UserAgent->new};
+has config => sub {KohaSuomiServices::Model::Config->new->service("biblio")->load};
 has "schema";
 
 sub export {
     my ($self, $params) = @_;
 
     try {
-        my $schema = $self->schema->client("biblio");
-        $params->{interface_id} = $params->{interface};
-        delete $params->{interface};
-        $params->{status} = "pending";
-        my $data = $schema->resultset('Exporter')->new($params);
-        $data->insert();
-        return "Success";
+        my $schema = $self->schema->client($self->config);
+        my $interface = $self->interface->load({name => $params->{interface}, type => "add"});
+        my $exporter->{interface_id} = $interface->{id};
+        $exporter->{status} = "pending";
+        $exporter->{localnumber} = $params->{localnumber};
+        my $data = $schema->resultset('Exporter')->new($exporter)->insert();
+        $self->fields->store($data->id, $params->{marc});
+        return {message => "Success"};
     } catch {
         my $e = $_;
+        warn Data::Dumper::Dumper $e->{message};
         return $e;
     }
     

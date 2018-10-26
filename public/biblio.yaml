@@ -30,6 +30,30 @@ paths:
           schema:
             type: object
   /biblio/export:
+    get:
+      x-mojo-to: "biblio#check"
+      operationId: biblioCheck
+      consumes:
+        - application/json
+      parameters:
+      - in: query
+        name: marcxml
+        type: string
+        required: true
+        description: Marcxml as string
+      - in: query
+        name: interface
+        type: string
+        description: Interface name
+      responses:
+        200:
+          description: Ok status
+          schema:
+            type: object
+        500:
+          description: Internal server error
+          schema:
+            type: object
     post:
       x-mojo-to: "biblio#export"
       operationId: biblioExport
@@ -43,15 +67,14 @@ paths:
           required:
             - localnumber
             - interface
-            - marcxml
+            - marc
           properties:
             localnumber:
               type: integer
+            marc:
+              type: object
             interface:
               type: string
-            marcxml:
-              type: string
-
       responses:
         200:
           description: Ok status

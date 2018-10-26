@@ -31,7 +31,8 @@ sub load {
 sub parse {
     my ($self, $interface, $params) = @_;
 
-    my $res->{endpoint_url} = $interface->endpoint_url;
+    my $res->{id} = $interface->id;
+    $res->{endpoint_url} = $interface->endpoint_url;
     $res->{interface} = $interface->interface;
     $res->{type} = $interface->type;
     $res->{params} = $params;
