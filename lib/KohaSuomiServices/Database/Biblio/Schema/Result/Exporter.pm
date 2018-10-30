@@ -9,8 +9,8 @@ __PACKAGE__->table('exporter');
 __PACKAGE__->add_columns(
   id => { data_type => 'integer',  is_auto_increment => 1 },
   interface_id => { data_type => 'integer', is_foreign_key => 1 },
-  localnumber => { data_type => 'integer' },
-  remotenumber => { data_type => 'integer' },
+  localnumber => { data_type => 'varchar' },
+  remotenumber => { data_type => 'varchar' },
   type => { data_type => 'varchar', is_enum => 1, extra => { list => [qw/add update delete/]} },
   status => { data_type => 'varchar', is_enum => 1, extra => { list => [qw/pending success fail/]} },
   timestamp => { data_type => 'datetime', set_on_create => 1 },

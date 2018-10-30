@@ -43,6 +43,7 @@ paths:
         description: Marcxml as string
       - in: query
         name: interface
+        required: true
         type: string
         description: Interface name
       responses:
@@ -67,11 +68,13 @@ paths:
           required:
             - localnumber
             - interface
-            - marc
+            - localmarc
           properties:
             localnumber:
               type: integer
-            marc:
+            localmarc:
+              type: object
+            remotemarc:
               type: object
             interface:
               type: string

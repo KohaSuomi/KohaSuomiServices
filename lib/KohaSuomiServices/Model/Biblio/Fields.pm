@@ -45,6 +45,35 @@ sub insert {
     }
 }
 
+sub find {
+    my ($self, $id) = @_;
+
+    try {
+        my $client = $self->schema->client($self->config);
+        my @data = $client->resultset('Fields')->search({exporter_id => $id});
+        my $format;
+        my @fields;
+        foreach my $field (@{$self->schema->get_columns(@data)}) {
+            if ($field->{type} eq "leader") {
+                $format->{leader} = $field->{value};
+            } else {
+                my $hash;
+                $hash->{tag} = $field->{tag};
+                $hash->{value} = $field->{value} if ($field->{type} eq "controlfield");
+                $hash->{ind1} = $field->{ind1} if ($field->{type} eq "datafield");
+                $hash->{ind2} = $field->{ind2} if ($field->{type} eq "datafield");
+                $hash->{subfields} = $self->subfields->find($client, $field->{id}) if ($field->{type} eq "datafield");
+                push @fields, $hash;
+            }
+        }
+        $format->{fields} = \@fields;
+        return $format;
+    } catch {
+        my $e = $_;
+        return $e;
+    }
+}
+
 sub parse {
     my ($self, $id, $field) = @_;
     my $params;

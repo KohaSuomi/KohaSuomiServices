@@ -26,22 +26,10 @@ sub get {
     my $c = shift->openapi->valid_input or return;
 
     try {
-        my $req  = $c->req->params->to_hash;
-        my $schema = $c->schema->client($c->configs->service($req->{service})->load);
-        my @rs = $schema->resultset("Exporter")->all();
 
-        my $exports = $c->schema->get_columns(@rs);
-        my $interface = $c->bibliointerface->load({local => 1, type => "get"});
-
-        my @data;
-        foreach my $export (@{$exports}) {
-            my $biblio = $c->biblio->find($interface, $export->{localnumber});
-            $export->{biblio} = decode_json($biblio);
-            push @data, $export;
-        }
-        
-        if (scalar(@data)) {
-            $c->render(status => 200, openapi => \@data);
+        my $data = $c->biblio->push;
+        if (scalar($data)) {
+            $c->render(status => 200, openapi => $data);
         } else {
             $c->render(status => 404, openapi => {error => "Not found"});
         }
@@ -59,10 +47,7 @@ sub export {
     try {
         my $req  = $c->req->json;
         my $response;
-        # my $xml = $c->convert->formatxml($req->{marc});
-        # warn Data::Dumper::Dumper $xml;
         $response = $c->biblio->export($req);
-        #$response = {message => "Success"};
         if ($req) {
             $c->render(status => 200, openapi => $response);
         } else {
@@ -84,7 +69,6 @@ sub check {
         my $response;
         my $biblio = $c->convert->formatjson($req->{marcxml});
         my $remote = $c->biblio->search_remote($req->{interface}, $biblio);
-        warn Data::Dumper::Dumper $remote;
         my $data;
         my $message;
         if (scalar(@$remote)) {
