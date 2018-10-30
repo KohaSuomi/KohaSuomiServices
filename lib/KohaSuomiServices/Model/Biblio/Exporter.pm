@@ -17,49 +17,29 @@ has config => sub {KohaSuomiServices::Model::Config->new->service("biblio")->loa
 
 sub find {
     my ($self, $client, $params) = @_;
-    try {
-        return $client->resultset('Exporter')->search($params);
-    } catch {
-        my $e = $_;
-        return $e;
-    }
+    return $client->resultset('Exporter')->search($params);
 }
 
 sub insert {
     my ($self, $client, $params) = @_;
-    try {
-        return $client->resultset('Exporter')->new($params)->insert();
-    } catch {
-        my $e = $_;
-        return $e;
-    }
+    return $client->resultset('Exporter')->new($params)->insert();
 }
 
 sub getUpdate {
     my ($self) = @_;
 
-    try {
-        my $schema = $self->schema->client($self->config);
-        my @data = $self->find($schema, {type => "update", status => "pending"});
-        return $self->schema->get_columns(@data);
-    } catch {
-        my $e = $_;
-        return $e;
-    }
+    my $schema = $self->schema->client($self->config);
+    my @data = $self->find($schema, {type => "update", status => "pending"});
+    return $self->schema->get_columns(@data);
 
 }
 
 sub getAdd {
     my ($self) = @_;
 
-    try {
-        my $schema = $self->schema->client($self->config);
-        my @data = $self->find($schema, {type => "add", status => "pending"});
-        return $self->schema->get_columns(@data);
-    } catch {
-        my $e = $_;
-        return $e;
-    }
+    my $schema = $self->schema->client($self->config);
+    my @data = $self->find($schema, {type => "add", status => "pending"});
+    return $self->schema->get_columns(@data);
     
 }
 

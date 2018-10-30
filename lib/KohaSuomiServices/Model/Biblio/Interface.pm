@@ -11,21 +11,17 @@ use KohaSuomiServices::Model::Biblio::Parameter;
 has schema => sub {KohaSuomiServices::Database::Client->new};
 has parameter => sub {KohaSuomiServices::Model::Biblio::Parameter->new};
 has config => sub {KohaSuomiServices::Model::Config->new->service("biblio")->load};
+has exception => sub {KohaSuomiServices::Model::Exceptions->new};
 
 sub load {
     my ($self, $params) = @_;
 
-    try {
-        my $client = $self->schema->client($self->config);
-        my $localInterface = $client->resultset("Interface")->search($params)->next;
-        my $interfaceParams = $self->parameter->find({interface_id => $localInterface->id});
-        my $interface = $self->parse($localInterface, $interfaceParams);
-        return $interface;
-    } catch {
-        my $e = $_;
-        warn Data::Dumper::Dumper $e->{message};
-        return $e;
-    }
+    my $client = $self->schema->client($self->config);
+    my $localInterface = $client->resultset("Interface")->search($params)->next;
+    $self->exception->NotFound("No interface defined") unless $localInterface;
+    my $interfaceParams = $self->parameter->find({interface_id => $localInterface->id});
+    my $interface = $self->parse($localInterface, $interfaceParams);
+    return $interface;
 }
 
 sub parse {

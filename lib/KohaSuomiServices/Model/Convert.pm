@@ -19,51 +19,41 @@ sub xmltohash {
 sub formatjson {
     my ($self, $marcxml) = @_;
 
-    try {
-        my $data;
-        if (ref($marcxml) eq "HASH") {
-            $data = $marcxml;
-        } else {
-            $data = $self->xmltohash($marcxml);
-        }
-
-        my $format;
-        $format->{leader} = $data->{"leader"};
-        $format->{fields} = $self->formatfields($data->{"controlfield"}, $data->{"datafield"});
-        
-        return $format;
-
-    } catch {
-        my $e = $_;
-        return $e->{message};
+    my $data;
+    if (ref($marcxml) eq "HASH") {
+        $data = $marcxml;
+    } else {
+        $data = $self->xmltohash($marcxml);
     }
+
+    my $format;
+    $format->{leader} = $data->{"leader"};
+    $format->{fields} = $self->formatfields($data->{"controlfield"}, $data->{"datafield"});
+    
+    return $format;
+
 }
 
 sub formatxml {
     my ($self, $marcjson) = @_;
 
-    try {
-        my $format = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
-        $format .= "<record>\n";
-        $format .= "\t<leader>".$marcjson->{leader}."</leader>\n" if ($marcjson->{leader});
-        foreach my $field (@{$marcjson->{fields}}) {
-            if (defined $field->{value}) {
-                $format .= "\t<controlfield tag=\"".$field->{tag}."\">".$field->{value}."</controlfield>\n";
-            } else {
-                $format .= "\t<datafield tag=\"".$field->{tag}."\" ind1=\"".$field->{ind1}."\" ind2=\"".$field->{ind2}."\">\n";
-                foreach my $subfield (@{$field->{subfields}}) {
-                    $format .= "\t\t<subfield code=\"".$subfield->{code}."\">".$subfield->{value}."</subfield>\n";
-                }
-                $format .= "\t</datafield>\n";
+    my $format = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
+    $format .= "<record>\n";
+    $format .= "\t<leader>".$marcjson->{leader}."</leader>\n" if ($marcjson->{leader});
+    foreach my $field (@{$marcjson->{fields}}) {
+        if (defined $field->{value}) {
+            $format .= "\t<controlfield tag=\"".$field->{tag}."\">".$field->{value}."</controlfield>\n";
+        } else {
+            $format .= "\t<datafield tag=\"".$field->{tag}."\" ind1=\"".$field->{ind1}."\" ind2=\"".$field->{ind2}."\">\n";
+            foreach my $subfield (@{$field->{subfields}}) {
+                $format .= "\t\t<subfield code=\"".$subfield->{code}."\">".$subfield->{value}."</subfield>\n";
             }
+            $format .= "\t</datafield>\n";
         }
-        $format .= "</record>";
-        return $format;
-
-    } catch {
-        my $e = $_;
-        return $e->{message};
     }
+    $format .= "</record>";
+    return $format;
+
 }
 
 sub formatfields {

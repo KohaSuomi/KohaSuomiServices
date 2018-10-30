@@ -8,6 +8,9 @@ use DBI;
 use KohaSuomiServices::Model::Config;
 use KohaSuomiServices::Database::Biblio::Schema;
 use KohaSuomiServices::Database::Billing::Schema;
+use KohaSuomiServices::Model::Exceptions;
+
+has exception => sub {KohaSuomiServices::Model::Exceptions->new};
 
 sub connect {
     my ($self) = @_;
@@ -33,6 +36,7 @@ sub connect {
 
 sub client {
     my ($self, $service) = @_;
+    $self->exception->NotFound("No database config found") unless $service;
     $self->{config} = $service;
     my $schema = $self->connect();
     return $schema;

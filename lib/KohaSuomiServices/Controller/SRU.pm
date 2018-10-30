@@ -18,7 +18,7 @@ sub get {
         }
     } catch {
         my $e = $_;
-        $c->render(status => 500, openapi => {message => $e});
+        $c->render(status => 500, openapi => {error => $e});
     }
 }
 

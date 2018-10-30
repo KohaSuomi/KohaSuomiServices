@@ -14,16 +14,10 @@ has config => sub {KohaSuomiServices::Model::Config->new->service("biblio")->loa
 sub find {
     my ($self, $params) = @_;
 
-    try {
-        my $client = $self->schema->client($self->config);
-        my @p = $client->resultset("Parameter")->search($params);
-        my $interfaceParams = $self->schema->get_columns(@p);
-        return $interfaceParams;
-    } catch {
-        my $e = $_;
-        warn Data::Dumper::Dumper $e->{message};
-        return $e;
-    }
+    my $client = $self->schema->client($self->config);
+    my @p = $client->resultset("Parameter")->search($params);
+    my $interfaceParams = $self->schema->get_columns(@p);
+    return $interfaceParams;
 }
 
 1;

@@ -18,60 +18,43 @@ has subfields => sub {KohaSuomiServices::Model::Biblio::Subfields->new};
 sub store {
     my ($self, $exporter_id, $record) = @_;
 
-    try {
-        my $client = $self->schema->client($self->config);
-        my $leader = $self->insert($client, {exporter_id => $exporter_id, type => "leader", value => $record->{leader}});
-        foreach my $field (@{$record->{fields}}) {
-            my $data = $self->insert($client, $self->parse($exporter_id, $field));
-            foreach my $subfield (@{$field->{subfields}}) {
-                $self->subfields->insert($client, $self->parse($data->id, $subfield));
-            }
+    my $client = $self->schema->client($self->config);
+    my $leader = $self->insert($client, {exporter_id => $exporter_id, type => "leader", value => $record->{leader}});
+    foreach my $field (@{$record->{fields}}) {
+        my $data = $self->insert($client, $self->parse($exporter_id, $field));
+        foreach my $subfield (@{$field->{subfields}}) {
+            $self->subfields->insert($client, $self->parse($data->id, $subfield));
         }
-    } catch {
-        my $e = $_;
-        warn Data::Dumper::Dumper $e->{message};
-        return $e;
     }
 }
 
 sub insert {
     my ($self, $client, $field) = @_;
-
-    try {
-        return $client->resultset('Fields')->new($field)->insert();
-    } catch {
-        my $e = $_;
-        return $e;
-    }
+    return $client->resultset('Fields')->new($field)->insert();
 }
 
 sub find {
     my ($self, $id) = @_;
-
-    try {
-        my $client = $self->schema->client($self->config);
-        my @data = $client->resultset('Fields')->search({exporter_id => $id});
-        my $format;
-        my @fields;
-        foreach my $field (@{$self->schema->get_columns(@data)}) {
-            if ($field->{type} eq "leader") {
-                $format->{leader} = $field->{value};
-            } else {
-                my $hash;
-                $hash->{tag} = $field->{tag};
-                $hash->{value} = $field->{value} if ($field->{type} eq "controlfield");
-                $hash->{ind1} = $field->{ind1} if ($field->{type} eq "datafield");
-                $hash->{ind2} = $field->{ind2} if ($field->{type} eq "datafield");
-                $hash->{subfields} = $self->subfields->find($client, $field->{id}) if ($field->{type} eq "datafield");
-                push @fields, $hash;
-            }
+    
+    my $client = $self->schema->client($self->config);
+    my @data = $client->resultset('Fields')->search({exporter_id => $id});
+    my $format;
+    my @fields;
+    foreach my $field (@{$self->schema->get_columns(@data)}) {
+        if ($field->{type} eq "leader") {
+            $format->{leader} = $field->{value};
+        } else {
+            my $hash;
+            $hash->{tag} = $field->{tag};
+            $hash->{value} = $field->{value} if ($field->{type} eq "controlfield");
+            $hash->{ind1} = $field->{ind1} if ($field->{type} eq "datafield");
+            $hash->{ind2} = $field->{ind2} if ($field->{type} eq "datafield");
+            $hash->{subfields} = $self->subfields->find($client, $field->{id}) if ($field->{type} eq "datafield");
+            push @fields, $hash;
         }
-        $format->{fields} = \@fields;
-        return $format;
-    } catch {
-        my $e = $_;
-        return $e;
     }
+    $format->{fields} = \@fields;
+    return $format;
 }
 
 sub parse {

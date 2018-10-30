@@ -36,7 +36,7 @@ sub get {
     } catch {
         my $e = $_;
         warn Data::Dumper::Dumper $e;
-        $c->render(status => 500, openapi => {message => $e});
+        $c->render(status => 500, openapi => {error => $e->{message}});
     }
     
 }
