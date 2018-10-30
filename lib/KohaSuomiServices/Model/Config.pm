@@ -6,15 +6,14 @@ use Modern::Perl;
 use Try::Tiny;
 use FindBin;
 use File::Slurp;
-use KohaSuomiServices::Model::Exceptions;
+use KohaSuomiServices::Model::Exception::NotFound;
 
 has "service";
-has exception => sub {KohaSuomiServices::Model::Exceptions->new};
 
 sub load {
     my ($self) = @_;
     my $config = read_file($FindBin::Bin.'/../koha_suomi_services.conf');
-    $self->exception->NotFound("No config file found") unless $config;
+    KohaSuomiServices::Model::Exception::NotFound(error => "No config file found") unless $config;
     $config = eval $config;
 
     if (defined $self->service) {

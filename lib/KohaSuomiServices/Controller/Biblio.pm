@@ -11,6 +11,8 @@ use KohaSuomiServices::Model::Biblio;
 use KohaSuomiServices::Model::Auth;
 use KohaSuomiServices::Model::Config;
 
+use KohaSuomiServices::Model::Exception;
+
 sub view {
     my $self = shift;
     my $valid = $self->auth->valid($self->cookie('CGISESSID'));
@@ -35,8 +37,7 @@ sub get {
         }
     } catch {
         my $e = $_;
-        warn Data::Dumper::Dumper $e;
-        $c->render(status => 500, openapi => {error => $e->{message}});
+        $c->render(KohaSuomiServices::Model::Exception::handleDefaults($e));
     }
     
 }
