@@ -4,6 +4,7 @@ use Mojo::Base -base;
 use Modern::Perl;
 use DBIx::RunSQL;
 use DBI;
+use DBIx::Class::Migration;
 
 use KohaSuomiServices::Model::Config;
 use KohaSuomiServices::Database::Client;
