@@ -3,12 +3,12 @@ use Mojo::Base 'Mojolicious';
 
 use KohaSuomiServices::Model::Config;
 use KohaSuomiServices::Database::Client;
+use KohaSuomiServices::Database::Build;
 use KohaSuomiServices::Model::Convert;
 use KohaSuomiServices::Model::SRU;
 use KohaSuomiServices::Model::Biblio;
 use KohaSuomiServices::Model::Billing;
 use KohaSuomiServices::Model::Auth;
-use KohaSuomiServices::Model::Biblio::Interface;
 
 # This method will run once at server start
 sub startup {
@@ -17,6 +17,7 @@ sub startup {
   # Configurations
   my $config = $self->plugin('Config');
   my $log = Mojo::Log->new(path => $config->{logs}, level => $config->{log_level});
+
 
   # Models
   $self->helper(
@@ -49,6 +50,7 @@ sub startup {
   $r->get('/login')->to('auth#login');
 
   foreach my $service (keys %{$config->{services}}) {
+    KohaSuomiServices::Database::Build->new()->migrate($service);
     $self->plugin(OpenAPI => {spec => $self->static->file($service.".yaml")->path});
     $r->get('/'.$service)->to($service.'#view');
     $r->get('/'.$service.'/config')->to($service.'#config');
