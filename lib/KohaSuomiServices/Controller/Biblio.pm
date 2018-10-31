@@ -56,8 +56,7 @@ sub export {
         }
     } catch {
         my $e = $_;
-        warn Data::Dumper::Dumper $e->{message};
-        $c->render(status => 500, openapi => {message => $e->{message}});
+        $c->render(KohaSuomiServices::Model::Exception::handleDefaults($e));
     }
     
 }
@@ -87,8 +86,7 @@ sub check {
         }
     } catch {
         my $e = $_;
-        warn Data::Dumper::Dumper $e->{message};
-        $c->render(status => 500, openapi => {message => $e->{message}});
+        $c->render(KohaSuomiServices::Model::Exception::handleDefaults($e));
     }
     
 }

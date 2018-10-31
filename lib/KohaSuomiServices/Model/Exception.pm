@@ -26,10 +26,10 @@ sub newFromDie {
 sub handleDefaults {
   my ($e) = @_;
 
-  return (status => 500, text => $e) unless blessed($e);
-  return (status => 500, text => toTextMojo($e)) if $e->isa('Mojo::Exception');
-  return (status => 500, text => "Something went wrong!") if ref($e) eq 'KohaSuomiServices::Model::Exception'; #If this is THE 'Hetula::Exception', then handle it here
-  return (status => $e->{httpStatus} || 500, text => $e->{message} || "Something went wrong!") if $e->isa('KohaSuomiServices::Model::Exception'); #If this is a subclass of 'Hetula::Exception', then handle it here, the status|text can be later overridden
+  return (status => 500, openapi => $e) unless blessed($e);
+  return (status => 500, openapi => { message => toTextMojo($e)}) if $e->isa('Mojo::Exception');
+  return (status => 500, openapi => { message => "Something went wrong!"}) if ref($e) eq 'KohaSuomiServices::Model::Exception'; #If this is THE 'Hetula::Exception', then handle it here
+  return (status => $e->{httpStatus} || 500, openapi => { message => $e->{message}} || "Something went wrong!") if $e->isa('KohaSuomiServices::Model::Exception'); #If this is a subclass of 'Hetula::Exception', then handle it here, the status|text can be later overridden
 }
 
 sub toTextMojo {
