@@ -2,12 +2,16 @@ package KohaSuomiServices::Database::Build;
 use Mojo::Base -base;
 
 use Modern::Perl;
+use Try::Tiny;
 use DBIx::RunSQL;
 use DBI;
 use DBIx::Class::Migration;
 
 use KohaSuomiServices::Model::Config;
 use KohaSuomiServices::Database::Client;
+
+use KohaSuomiServices::Model::Exception::Database::Upgrade;
+use KohaSuomiServices::Model::Exception::Database::Install;
 
 has schema => sub {KohaSuomiServices::Database::Client->new};
 
@@ -29,8 +33,7 @@ sub migrate {
                 $migration->upgrade();
                 print "Database upgraded from version '$dbVersion' to version '$version'";
             } catch {
-                my $e = $_;
-                return $e
+                KohaSuomiServices::Model::Exception::Database::Upgrade->throw(error => "Installed database version is '$dbVersion'. Unable to upgrade it to version '$version' automatically, error:\n  $_\nTry upgrading with 'dbic-migrate'");
             }
         }
     }
@@ -41,8 +44,7 @@ sub migrate {
             $dbVersion = $migration->dbic_dh->database_version();
             print "Database version '$dbVersion' installed";
         } catch {
-            my $e = $_;
-            return $e
+            KohaSuomiServices::Model::Exception::Database::Install->throw(error => "Unable to install it automatically, error:\n  $_\nTry installing with 'dbic-migrate'");
         }
     }
 }

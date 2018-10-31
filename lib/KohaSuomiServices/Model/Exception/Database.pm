@@ -1,17 +1,16 @@
-package KohaSuomiServices::Model::Exception::NotFound;
+package KohaSuomiServices::Model::Exception::Database;
 
 use Modern::Perl;
 use KohaSuomiServices::Model::Exception;
 
 use Exception::Class (
-    'KohaSuomiServices::Model::Exception::NotFound' => {
+    'KohaSuomiServices::Model::Exception::Database' => {
         isa => 'KohaSuomiServices::Model::Exception',
-        description => 'Not found',
+        description => "Database exceptions base class",
     },
 );
 
-my $httpStatus = '404';
-
+my $httpStatus = '500';
 eval KohaSuomiServices::Model::Exception::generateNew();
 
 1;
