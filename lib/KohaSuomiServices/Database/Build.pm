@@ -25,6 +25,7 @@ sub migrate {
         $dbVersion = $migration->dbic_dh->database_version();
         if ($dbVersion < $version) {
             try {
+                $migration->prepare;
                 $migration->upgrade();
                 print "Database upgraded from version '$dbVersion' to version '$version'";
             } catch {
