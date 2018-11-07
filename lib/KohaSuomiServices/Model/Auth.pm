@@ -11,9 +11,13 @@ use Mojo::JSON qw(decode_json encode_json);
 has config => sub {KohaSuomiServices::Model::Config->new->load};
 
 sub valid {
-    my ($self, $sessionid) = @_;
+    my ($self, $token) = @_;
+
     my $valid = undef;
-    if (defined $sessionid && $sessionid eq $self->get($sessionid)) {
+
+    my $apikey = Digest::SHA::hmac_sha256_hex($self->config->{apikey});
+    $token = Digest::SHA::hmac_sha256_hex($token);
+    if ($apikey eq $token) {
         $valid = 1;
     }
 

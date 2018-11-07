@@ -4,6 +4,13 @@ info:
   title: Test
 schemes: [ http ]
 basePath: "/api"
+securityDefinitions:
+  APIKeyHeader:
+    type: apiKey
+    in: header
+    name: Authorization
+security:
+  - APIKey: []
 paths:
   /biblio:
     get:

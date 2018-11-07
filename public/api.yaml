@@ -4,6 +4,13 @@ info:
   title: Test
 schemes: [ http ]
 basePath: "/api"
+securityDefinitions:
+  APIKeyHeader:
+    type: apiKey
+    in: header
+    name: Authorization
+security:
+  - APIKey: []
 paths:
   /config:
     get:
@@ -159,6 +166,8 @@ paths:
           description: Ok status
           schema:
             type: array
+        401:
+          $ref: "#/responses/UnauthorizedError"
         404:
           description: Not found
           schema:
@@ -167,3 +176,9 @@ paths:
           description: Internal server error
           schema:
             type: object
+responses:
+  UnauthorizedError:
+    description: API key is missing or invalid
+    headers:
+      Authorization:
+        type: string

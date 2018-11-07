@@ -23,4 +23,20 @@ sub add {
     }
 }
 
+sub api {
+    my $c = shift->openapi->valid_input or return;
+
+    my $authStatus;
+
+    if ($c->auth->valid($c->req->headers->authorization)) {
+        $authStatus = 1;
+    } else {
+        $authStatus = 0;
+        $c->render(status => 401, openapi => {message => "Unauthorized"});
+    
+    }
+    return $authStatus;
+}
+
+
 1;
