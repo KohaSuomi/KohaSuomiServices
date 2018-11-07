@@ -26,6 +26,7 @@ sub export {
 
     my $schema = $self->schema->client($self->config);
     my $interface;
+    
     my $exporter->{status} = "pending";
     $exporter->{localnumber} = $params->{localnumber};
     if (defined $params->{remotemarc}) {
@@ -41,7 +42,10 @@ sub export {
     }
     $exporter->{interface_id} = $interface->{id};
     my $data = $schema->resultset('Exporter')->new($exporter)->insert();
+
+    $params->{localmarc} = ref($params->{localmarc}) eq "HASH" ? $params->{localmarc} : $self->convert->formatjson($params->{localmarc});
     $self->fields->store($data->id, $params->{localmarc});
+    
     return {message => "Success"};
     
 }

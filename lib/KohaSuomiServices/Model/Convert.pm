@@ -29,7 +29,7 @@ sub formatjson {
     my $format;
     $format->{leader} = $data->{"leader"};
     $format->{fields} = $self->formatfields($data->{"controlfield"}, $data->{"datafield"});
-    
+
     return $format;
 
 }

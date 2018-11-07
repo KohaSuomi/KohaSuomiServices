@@ -19,6 +19,7 @@ sub store {
     my ($self, $exporter_id, $record) = @_;
 
     my $client = $self->schema->client($self->config);
+    KohaSuomiServices::Model::Exception::NotFound->throw(error => "No fields defined") unless @{$record->{fields}};
     my $leader = $self->insert($client, {exporter_id => $exporter_id, type => "leader", value => $record->{leader}});
     foreach my $field (@{$record->{fields}}) {
         my $data = $self->insert($client, $self->parse($exporter_id, $field));
