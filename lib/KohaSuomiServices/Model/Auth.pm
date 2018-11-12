@@ -7,20 +7,15 @@ use Try::Tiny;
 use Digest::SHA qw(hmac_sha256_hex);
 use KohaSuomiServices::Model::Config;
 use Mojo::JSON qw(decode_json encode_json);
+use KohaSuomiServices::Model::Exception::Unauthorized;
 
 has config => sub {KohaSuomiServices::Model::Config->new->load};
 
 sub valid {
     my ($self, $token) = @_;
 
-    my $valid = undef;
-
     my $apikey = Digest::SHA::hmac_sha256_hex($self->config->{apikey});
-    if ($apikey eq $token) {
-        $valid = 1;
-    }
-
-    return $valid;
+    KohaSuomiServices::Model::Exception::Unauthorized->throw(error => "Unauthorized access") unless ($apikey eq $token);
 }
 
 sub get {

@@ -28,7 +28,15 @@ paths:
           description: Ok status
           schema:
             type: array
+        401:
+          $ref: "#/responses/UnauthorizedError"
         500:
           description: Internal server error
           schema:
             type: object
+responses:
+  UnauthorizedError:
+    description: API key is missing or invalid
+    headers:
+      Authorization:
+        type: string

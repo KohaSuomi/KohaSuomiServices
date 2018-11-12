@@ -26,16 +26,13 @@ sub add {
 sub api {
     my $c = shift->openapi->valid_input or return;
 
-    my $authStatus;
-
-    if ($c->auth->valid($c->req->headers->authorization)) {
-        $authStatus = 1;
-    } else {
-        $authStatus = 0;
-        $c->render(status => 401, openapi => {message => "Unauthorized"});
-    
+    try {
+        return 1 if ($c->auth->valid($c->req->headers->authorization));
+    } catch {
+        my $e = $_;
+        $c->render(KohaSuomiServices::Model::Exception::handleDefaults($e));
+        return 0;
     }
-    return $authStatus;
 }
 
 

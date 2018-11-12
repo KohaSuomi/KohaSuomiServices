@@ -54,7 +54,10 @@ sub startup {
 
   foreach my $service (keys %{$config->{services}}) {
     KohaSuomiServices::Database::Build->new()->migrate($service);
-    $self->plugin(OpenAPI => {spec => $self->static->file($service.".yaml")->path});
+    $self->plugin(OpenAPI => {
+      route => $self->routes->under("/api")->to("auth#api"),
+      spec => $self->static->file($service.".yaml")->path}
+    );
     $r->get('/'.$service)->to($service.'#view');
     $r->get('/'.$service.'/config')->to($service.'#config');
   }

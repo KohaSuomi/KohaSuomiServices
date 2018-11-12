@@ -28,6 +28,8 @@ paths:
           description: Ok status
           schema:
             type: array
+        401:
+          $ref: "#/responses/UnauthorizedError"
         404:
           description: Not found
           schema:
@@ -51,6 +53,8 @@ paths:
           description: Ok status
           schema:
             type: object
+        401:
+          $ref: "#/responses/UnauthorizedError"
         404:
           description: Not found
           schema:
@@ -74,6 +78,8 @@ paths:
           description: Ok status
           schema:
             type: object
+        401:
+          $ref: "#/responses/UnauthorizedError"
         404:
           description: Not found
           schema:
@@ -99,6 +105,8 @@ paths:
           description: Ok status
           schema:
             type: object
+        401:
+          $ref: "#/responses/UnauthorizedError"
         404:
           description: Not found
           schema:
@@ -123,6 +131,8 @@ paths:
           description: Ok status
           schema:
             type: object
+        401:
+          $ref: "#/responses/UnauthorizedError"
         404:
           description: Not found
           schema:
