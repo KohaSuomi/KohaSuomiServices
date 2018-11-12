@@ -58,6 +58,10 @@ paths:
           description: Ok status
           schema:
             type: object
+        404:
+          description: Not found
+          schema:
+            type: object
         500:
           description: Internal server error
           schema:
