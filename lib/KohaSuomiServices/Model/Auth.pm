@@ -16,7 +16,6 @@ sub valid {
     my $valid = undef;
 
     my $apikey = Digest::SHA::hmac_sha256_hex($self->config->{apikey});
-    $token = Digest::SHA::hmac_sha256_hex($token);
     if ($apikey eq $token) {
         $valid = 1;
     }
