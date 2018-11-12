@@ -3,7 +3,6 @@ use Mojo::Base -base;
 
 use Modern::Perl;
 use Try::Tiny;
-use DBIx::RunSQL;
 use DBI;
 use DBIx::Class::Migration;
 

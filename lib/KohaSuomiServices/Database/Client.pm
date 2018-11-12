@@ -2,7 +2,6 @@ package KohaSuomiServices::Database::Client;
 use Mojo::Base -base;
 
 use Modern::Perl;
-use DBIx::RunSQL;
 use DBI;
 
 use KohaSuomiServices::Model::Config;
