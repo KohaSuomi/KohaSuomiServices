@@ -19,7 +19,7 @@ sub load {
 
     my $client = $self->schema->client($self->config);
     my $localInterface = $client->resultset("Interface")->search($params)->next;
-    KohaSuomiServices::Model::Exception::NotFound->throw(error => "No interface defined") unless $localInterface;
+    KohaSuomiServices::Model::Exception::NotFound->throw(error => "No ".$params->{type}." interface defined") unless $localInterface;
     my $interfaceParams = $self->parameter->find({interface_id => $localInterface->id});
     my $interface = $self->parse($localInterface, $interfaceParams);
     return $interface;
