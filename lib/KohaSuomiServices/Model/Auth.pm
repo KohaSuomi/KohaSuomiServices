@@ -13,9 +13,8 @@ has config => sub {KohaSuomiServices::Model::Config->new->load};
 
 sub valid {
     my ($self, $token) = @_;
-
-    my $apikey = Digest::SHA::hmac_sha256_hex($self->config->{apikey});
-    KohaSuomiServices::Model::Exception::Unauthorized->throw(error => "Unauthorized access") unless ($apikey eq $token);
+    KohaSuomiServices::Model::Exception::Unauthorized->throw(error => "Unauthorized access") unless ($self->config->{apikey} eq $token);
+    return 1;
 }
 
 sub get {

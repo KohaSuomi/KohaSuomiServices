@@ -78,7 +78,7 @@ sub startup {
     }
     $tx->res->headers->header( 'Access-Control-Allow-Methods' => 'GET, POST, PUT, PATCH, DELETE, OPTIONS' );
     $tx->res->headers->header( 'Access-Control-Max-Age' => 3600 );
-    $tx->res->headers->header( 'Access-Control-Allow-Headers' => 'Content-Type, X-Requested-With, X-CSRF-Token', 'Authorization' );
+    $tx->res->headers->header( 'Access-Control-Allow-Headers' => 'Content-Type, X-Requested-With, X-CSRF-Token, Authorization' );
     $tx->res->headers->header( 'Access-Control-Expose-Headers' => 'X-CSRF-Token' );
   });
 
