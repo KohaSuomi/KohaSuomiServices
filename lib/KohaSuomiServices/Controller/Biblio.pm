@@ -15,13 +15,12 @@ use KohaSuomiServices::Model::Exception;
 
 sub view {
     my $self = shift;
-    my $valid = $self->auth->valid($self->cookie('CGISESSID'));
-    $self->render(baseendpoint => $self->configs->service("biblio")->load->{baseendpoint});
+    $self->render(apikey => $self->configs->load->{apikey}, baseendpoint => $self->configs->service("biblio")->load->{baseendpoint});
 }
 
 sub config {
     my $self = shift;
-    $self->render(baseendpoint => $self->configs->service("biblio")->load->{baseendpoint});
+    $self->render(apikey => $self->configs->load->{apikey}, baseendpoint => $self->configs->service("biblio")->load->{baseendpoint});
 }
 
 sub get {

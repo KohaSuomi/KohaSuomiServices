@@ -100,6 +100,10 @@ paths:
             type: object
         401:
           $ref: "#/responses/UnauthorizedError"
+        404:
+          description: Not found
+          schema:
+            type: object
         500:
           description: Internal server error
           schema:

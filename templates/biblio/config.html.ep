@@ -116,6 +116,7 @@
     </template>
     <script>
       var baseendpoint = '<%= $baseendpoint %>';
+      var apikey = '<%= $apikey %>';
       new Vue({
         el: '#app',
         created() {
@@ -137,6 +138,7 @@
         methods: {
             fetchData() {
             axios.get(baseendpoint+'config', {
+              headers: { Authorization: apikey },
               params: {
                 service: 'biblio',
                 table: 'interface'
@@ -147,6 +149,7 @@
             },
             fetchParameters(id) {
             axios.get(baseendpoint+'config', {
+              headers: { Authorization: apikey },
               params: {
                 service: 'biblio',
                 table: 'parameter',
@@ -162,7 +165,8 @@
                 service: 'biblio',
                 table: 'parameter',
                 params: params
-              }
+              },
+              {headers: { Authorization: apikey }}
             ).then(response => {
                   
                 });
@@ -173,7 +177,8 @@
                 service: 'biblio',
                 table: 'interface',
                 params: {interface: this.interface, name: this.name, type: this.type, local: this.local, endpoint_url: this.endpoint_url}
-              }
+              },
+              {headers: { Authorization: apikey }}
             ).then(response => {
                 this.fetchData();
                 });
@@ -185,7 +190,8 @@
                 table: 'interface',
                 id: config.id,
                 params: {interface: config.interface, name: config.name, type: config.type, local: config.local, endpoint_url: config.endpoint_url}
-              }
+              },
+              {headers: { Authorization: apikey }}
             ).then(response => {
                 
                 });
@@ -193,6 +199,7 @@
             deleteConfig(config) {
               axios.delete(baseendpoint+'config',
               {
+                headers: { Authorization: apikey },
                 params: {
                   service: 'biblio',
                   table: 'interface',
@@ -206,6 +213,7 @@
             deleteParameter(id) {
               axios.delete(baseendpoint+'config',
               {
+                headers: { Authorization: apikey },
                 params: {
                   service: 'biblio',
                   table: 'parameter',
