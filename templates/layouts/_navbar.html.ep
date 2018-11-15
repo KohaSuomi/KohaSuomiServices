@@ -23,4 +23,4 @@
     </div>
 </nav>
 <div id="wrapper">
-    %= include '_sidebar'
+    %= include 'layouts/_sidebar'

@@ -1,6 +1,6 @@
 % layout 'default';
 % title 'Welcome';
-%= include '_navbar'
+%= include 'layouts/_navbar'
 <div id="content-wrapper">
   <div class="container-fluid">
     <!-- Breadcrumbs-->
@@ -112,7 +112,7 @@
   </tr>
 </template>
 <template id="parameter-modal">
-  %= include '_parameterModal'
+  %= include 'layouts/_parameterModal'
 </template>
 <script>
   var baseendpoint = '<%= $baseendpoint %>';
