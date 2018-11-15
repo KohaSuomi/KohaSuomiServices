@@ -45,7 +45,7 @@ sub startup {
     billing => sub { state $billing = KohaSuomiServices::Model::Billing->new() });
 
   $self->plugin(OpenAPI => {
-    #route => $self->routes->under("/api")->to("auth#api"),
+    route => $self->routes->under("/api")->to("auth#api"),
     spec => $self->static->file("api.yaml")->path
   });
 
