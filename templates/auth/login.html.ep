@@ -1,5 +1,5 @@
 % layout 'default';
-% title 'Welcome';
+% title 'Login';
 <div class="container-fluid">
   <div class="row">
     <div class="col-sm-9 col-md-7 col-lg-5 mx-auto">
@@ -30,6 +30,9 @@
   </div>
 </div>
 <script>
+var baseendpoint = '<%= $baseendpoint %>';
+var loginpath = '<%= $loginpath %>';
+var apikey = '<%= $apikey %>';
 new Vue({
         el: '#app',
         data: {
@@ -39,15 +42,24 @@ new Vue({
         },
         methods: {
             login() {
-            axios.post('http://10.0.3.13:3000/api/auth',
-              {
-                userid: this.username,
-                password: this.password
-              }
+            var form = new FormData();
+            form.set("userid", this.username);
+            form.set("password", this.password);
+            axios.post(loginpath, form
             ).then(response => {
-                console.log(response.data);
-                window.location.href = window.location.origin+"/biblio";
-                });
+                this.setSession(response.data);
+              }).catch(error => {
+                console.log(error.response)
+              });
+            },
+            setSession(data) {
+            axios.post(baseendpoint+'auth', data, {headers: { Authorization: apikey }, withCredentials: true}
+            ).then(response => {
+                console.log(response);
+                window.location.href = window.location.origin;
+              }).catch(error => {
+                console.log(error.response)
+              });
             }
         }
     });

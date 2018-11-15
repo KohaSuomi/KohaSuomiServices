@@ -16,8 +16,11 @@ sub startup {
 
   # Configurations
   my $config = $self->plugin('Config');
+  $self->secrets($config->{secrets});
+  $self->app->sessions->cookie_name('KSSESSION');
+  $self->app->sessions->cookie_path('/');
+  $self->app->sessions->default_expiration('600');
   my $log = Mojo::Log->new(path => $config->{logs}, level => $config->{log_level});
-
 
   # Models
   $self->helper(
@@ -42,7 +45,7 @@ sub startup {
     billing => sub { state $billing = KohaSuomiServices::Model::Billing->new() });
 
   $self->plugin(OpenAPI => {
-    route => $self->routes->under("/api")->to("auth#api"),
+    #route => $self->routes->under("/api")->to("auth#api"),
     spec => $self->static->file("api.yaml")->path
   });
 
@@ -50,6 +53,8 @@ sub startup {
   # Routers
   my $r = $self->routes;
 
+  my $auth = $r->under('/')->to('auth#isLoggedIn');
+  $auth->get('/')->to('auth#view');
   $r->get('/login')->to('auth#login');
 
   foreach my $service (keys %{$config->{services}}) {
@@ -58,8 +63,8 @@ sub startup {
       route => $self->routes->under("/api")->to("auth#api"),
       spec => $self->static->file($service.".yaml")->path}
     );
-    $r->get('/'.$service)->to($service.'#view');
-    $r->get('/'.$service.'/config')->to($service.'#config');
+    $auth->get('/'.$service)->to($service.'#view');
+    $auth->get('/'.$service.'/config')->to($service.'#config');
   }
 
   $self->hook(before_dispatch => sub {

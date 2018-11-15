@@ -5,9 +5,24 @@ use Modern::Perl;
 
 use Try::Tiny;
 
+sub view {
+    my $self = shift;
+
+    $self->render(
+        apikey => $self->configs->load->{apikey}, 
+        loginpath => $self->configs->load->{auth}->{loginpath},
+        baseendpoint => $self->configs->load->{auth}->{baseendpoint}
+    );
+}
+
 sub login {
     my $self = shift;
-    $self->render();
+
+    $self->render(
+        apikey => $self->configs->load->{apikey}, 
+        loginpath => $self->configs->load->{auth}->{loginpath},
+        baseendpoint => $self->configs->load->{auth}->{baseendpoint}
+    );
 }
 
 sub add {
@@ -15,12 +30,23 @@ sub add {
 
     try {
         my $req  = $c->req->json;
-        my $login = $c->auth->login($req);
+        $c->session(logged_in => $req->{sessionid});
         $c->render(status => 200, openapi => {message => "Success"});
     } catch {
         my $e = $_;
-        $c->render(status => 500, openapi => {message => $e});
+        $c->render(KohaSuomiServices::Model::Exception::handleDefaults($e));
     }
+}
+
+sub isLoggedIn {
+    my $self = shift;
+    return 1 if $self->auth->get($self->session('logged_in'));
+    $self->render(template => "auth/login",
+        apikey => $self->configs->load->{apikey}, 
+        loginpath => $self->configs->load->{auth}->{loginpath},
+        baseendpoint => $self->configs->load->{auth}->{baseendpoint} 
+    );
+    return 0;
 }
 
 sub api {
