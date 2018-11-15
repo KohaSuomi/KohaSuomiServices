@@ -10,6 +10,7 @@ use Mojo::JSON qw(decode_json encode_json);
 use KohaSuomiServices::Model::Exception::Unauthorized;
 
 has schema => sub {KohaSuomiServices::Database::Client->new};
+has ua => sub {Mojo::UserAgent->new};
 has config => sub {KohaSuomiServices::Model::Config->new->load};
 has session => sub {KohaSuomiServices::Model::Auth::Session->new};
 
@@ -22,18 +23,20 @@ sub valid {
 sub get {
     my ($self, $sessionid) = @_;
 
-    try {
-        my $path = $self->config->{auth}->{loginpath};
-        my $ua = Mojo::UserAgent->new;
-        my $params = {sessionid => $sessionid};
-        my $tx = $ua->build_tx(GET => $path => {Accept => 'application/json'} => json => $params);
-        $tx = $ua->start($tx);
-        my $res = decode_json($tx->res->body);
-        return $self->checkPermissions($res);
-    } catch {
-        my $e = $_;
-        return $e;
-    }
+    my $path = $self->config->{auth}->{loginpath};
+    my $params = {sessionid => $sessionid};
+    my $tx = $self->ua->build_tx(GET => $path => {Accept => 'application/json'} => json => $params);
+    $tx = $self->ua->start($tx);
+    return $self->checkPermissions(decode_json($tx->res->body));
+}
+
+sub delete {
+    my ($self, $sessionid) = @_;
+
+    my $path = $self->config->{auth}->{loginpath};
+    my $params = {sessionid => $sessionid};
+    my $tx = $self->ua->build_tx(DELETE => $path => {Accept => 'application/json'} => json => $params);
+    $tx = $self->ua->start($tx);
 }
 
 sub checkPermissions {

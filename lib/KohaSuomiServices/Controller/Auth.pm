@@ -18,6 +18,11 @@ sub view {
 sub login {
     my $self = shift;
 
+    if ($self->session('logged_in')) {
+        $self->auth->delete($self->session('logged_in'));
+        $self->session(expires => 1);
+    }
+    
     $self->render(
         apikey => $self->configs->load->{apikey}, 
         loginpath => $self->configs->load->{auth}->{loginpath},
