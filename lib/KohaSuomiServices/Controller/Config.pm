@@ -20,7 +20,7 @@ sub get {
         my $client = $c->schema->client($c->configs->service($req->{service})->load);
         my @rs;
         if (defined $req->{id}) {
-            @rs = $client->resultset($table)->search({interface_id => $req->{id}});
+            @rs = $client->resultset($table)->search({id => $req->{id}});
         } else {
             @rs = $client->resultset($table)->all();
         }
