@@ -12,7 +12,9 @@ __PACKAGE__->add_columns(
   interface => { data_type => 'varchar', is_enum => 1, extra => { list => [qw/REST SRU/]} },
   type => { data_type => 'varchar', is_enum => 1, extra => { list => [qw/search get add update delete/]} },
   endpoint_url => { data_type => 'varchar', size => 255 },
-  local => { data_type => 'integer', is_boolean => 1 },
+  username => { data_type => 'varchar', size => 20 },
+  password => { data_type => 'varchar', size => 255 },
+  apikey => { data_type => 'varchar', size => 255 },
 );
 __PACKAGE__->set_primary_key('id');
 ## ## ##   DONE WITH DBIx::Schema   ## ## ##
