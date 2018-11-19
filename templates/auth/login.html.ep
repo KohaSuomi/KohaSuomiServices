@@ -4,7 +4,7 @@
   <div class="card card-login mx-auto mt-5">
     <div class="card-header">Login with Koha account</div>
     <div class="card-body">
-      <div id="app">
+      <div id="loginApp">
         <p v-if="errors.length">
           <ul class="text-danger list-unstyled">
             <li v-for="error in errors">{{ error }}</li>
@@ -33,35 +33,5 @@
 var baseendpoint = '<%= $baseendpoint %>';
 var loginpath = '<%= $loginpath %>';
 var apikey = '<%= $apikey %>';
-new Vue({
-        el: '#app',
-        data: {
-            errors: [],
-            username: "",
-            password: "",
-        },
-        methods: {
-            login() {
-            var form = new FormData();
-            form.set("userid", this.username);
-            form.set("password", this.password);
-            axios.post(loginpath, form
-            ).then(response => {
-                this.setSession(response.data);
-              }).catch(error => {
-                this.errors = [];
-                this.errors.push(error.response.data.error);
-              });
-            },
-            setSession(data) {
-            axios.post(baseendpoint+'auth', data, {headers: { Authorization: apikey }, withCredentials: true}
-            ).then(response => {
-                window.location.href = window.location.origin;
-              }).catch(error => {
-                this.errors = [];
-                this.errors.push(error.response.data.error);
-              });
-            }
-        }
-    });
 </script>
+<script src="/js/auth/login.js"></script>
