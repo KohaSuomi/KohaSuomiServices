@@ -16,7 +16,7 @@
             </div>
             <div class="mr-5">Biblio exports</div>
           </div>
-          <a class="card-footer text-white clearfix small z-1" href="/biblio">
+          <a class="card-footer text-white clearfix small z-1" href="<%= $config->{servicepath}%>/biblio">
             <span class="float-left">View Details</span>
             <span class="float-right">
               <i class="fas fa-angle-right"></i>
@@ -32,7 +32,7 @@
             </div>
             <div class="mr-5">Overdue details</div>
           </div>
-          <a class="card-footer text-white clearfix small z-1" href="/billing">
+          <a class="card-footer text-white clearfix small z-1" href="<%= $config->{servicepath}%>/billing">
             <span class="float-left">View Details</span>
             <span class="float-right">
               <i class="fas fa-angle-right"></i>

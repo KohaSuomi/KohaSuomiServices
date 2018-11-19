@@ -27,5 +27,5 @@
   var baseendpoint = '<%= $baseendpoint %>';
   var apitoken = '<%= $apikey %>';
 </script>
-<script src="/js/biblio/interfaceApp.js"></script>
-<script src="/js/biblio/matcherApp.js"></script>
+<script src="<%= $config->{servicepath}%>/js/biblio/interfaceApp.js"></script>
+<script src="<%= $config->{servicepath}%>/js/biblio/matcherApp.js"></script>

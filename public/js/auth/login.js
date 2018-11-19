@@ -21,7 +21,7 @@ new Vue({
         setSession(data) {
         axios.post(baseendpoint+'auth', data, {headers: { Authorization: apikey }, withCredentials: true}
         ).then(response => {
-            window.location.href = window.location.origin;
+            window.location.href = servicepath;
           }).catch(error => {
             this.errors = [];
             this.errors.push(error.response.data.error);
