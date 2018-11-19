@@ -1,0 +1,25 @@
+<tr>
+    <td>
+        <div>{{interface_name}}</div>
+    </td>
+    <td>
+        <div v-if="showUpdate"><input type="text" class="form-control" v-model="matcher.tag"></div>
+        <div v-else>{{matcher.name}}</div>
+    </td>
+    <td>
+        <div v-if="showUpdate"><input type="text" class="form-control" v-model="matcher.code"></div></div>
+        <div v-else>{{matcher.value}}</div>
+    </td>
+    <td>
+        <div class="d-inline-block" v-if="showUpdate"><select class="form-control" v-model="matcher.type" placeholder="Type">
+            <option value='identifier'>identifier</option>
+        </select>
+        </div>
+        <div v-else>{{matcher.type}}</div>
+    </td>
+    <td style="cursor:pointer">
+        <div class="d-inline-block" v-if="showUpdate"><button v-on:click="updateMatcher()" class="btn btn-sm btn-secondary" type="submit">Update</button></div>
+        <div class="d-inline-block" v-if="showUpdate"><button v-on:click="deleteMatcher()" class="btn btn-sm btn-warning" type="submit">Delete</button></div>
+        <div class="d-inline-block float-right mr-2"><i v-on:click="updateToggle" class="fas fa-cog"></i></div>
+    </td>
+</tr>
