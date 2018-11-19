@@ -4,11 +4,11 @@
     </td>
     <td>
         <div v-if="showUpdate"><input type="text" class="form-control" v-model="matcher.tag"></div>
-        <div v-else>{{matcher.name}}</div>
+        <div v-else>{{matcher.tag}}</div>
     </td>
     <td>
         <div v-if="showUpdate"><input type="text" class="form-control" v-model="matcher.code"></div></div>
-        <div v-else>{{matcher.value}}</div>
+        <div v-else>{{matcher.code}}</div>
     </td>
     <td>
         <div class="d-inline-block" v-if="showUpdate"><select class="form-control" v-model="matcher.type" placeholder="Type">
