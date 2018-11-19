@@ -27,13 +27,9 @@ sub get {
     my $c = shift->openapi->valid_input or return;
 
     try {
-
-        my $data = $c->biblio->push;
-        if (scalar($data)) {
-            $c->render(status => 200, openapi => $data);
-        } else {
-            $c->render(status => 404, openapi => {error => "Not found"});
-        }
+        my $req = $c->req->params->to_hash;
+        my @data = $c->biblio->list($req);
+        $c->render(status => 200, openapi => @data);
     } catch {
         my $e = $_;
         $c->render(KohaSuomiServices::Model::Exception::handleDefaults($e));

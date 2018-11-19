@@ -8,16 +8,25 @@
       <li class="breadcrumb-item active">Reports</li>
     </ol>
     <main role="main" class="ml-sm-auto pt-3 px-4">
-      <div id="app">
+      <div id="viewApp">
         <h2>Biblio exports</h2>
+          <ul class="nav nav-pills mb-3 mt-3">
+            <li class="nav-item">
+              <a class="nav-link active" href="#" v-on:click="changeStatus('pending', $event)">Pending</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#" v-on:click="changeStatus('success', $event)">Success</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#" v-on:click="changeStatus('failed', $event)">Failed</a>
+            </li>
+          </ul>
           <div class="table-responsive">
             <table class="table table-striped table-sm">
               <thead>
                 <tr>
                   <th>Timestamp</th>
-                  <th>Status</th>
                   <th>Type</th>
-                  <th>Biblio</th>
                 </tr>
               </thead>
               <tbody>
@@ -38,37 +47,14 @@
       {{result.timestamp}}
     </td>
     <td>
-      {{result.status}}
-    </td>
-    <td>
       {{result.type}}
     </td>
     <td>
-      {{result.biblio.author}}
-      {{result.biblio.title}}
     </td>
   </tr>
 </template>
 <script>
-  new Vue({
-    el: '#app',
-    created() {
-        this.fetchData();	
-    },
-    data: {
-        results: [],
-    },
-    methods: {
-        fetchData() {
-        axios.get('http://10.0.3.13:3000/api/biblio', {
-        }).then(response => {
-            this.results = response.data;
-            });
-        },
-    }
-});
-Vue.component('result-list', {
-  template: "#list-items",
-  props: ['result']
-});
+  var baseendpoint = '<%= $baseendpoint %>';
+  var apitoken = '<%= $apikey %>';
 </script>
+<script src="<%= $config->{servicepath}%>/js/biblio/viewApp.js"></script>

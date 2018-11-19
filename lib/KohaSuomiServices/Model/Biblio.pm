@@ -76,6 +76,15 @@ sub push {
     return {message => "Success"};
 }
 
+sub list {
+    my ($self, $params) = @_;
+    
+    my $schema = $self->schema->client($self->config);
+    my @data = $self->exporter->find($schema, $params );
+    
+    return $self->schema->get_columns(@data);
+}
+
 sub find {
     my ($self, $auth, $interface, $params) = @_;
     
