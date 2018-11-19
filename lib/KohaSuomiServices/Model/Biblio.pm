@@ -9,12 +9,14 @@ use KohaSuomiServices::Model::Convert;
 use Mojo::JSON qw(decode_json encode_json);
 use KohaSuomiServices::Model::Biblio::Interface;
 use KohaSuomiServices::Model::Biblio::Fields;
+use KohaSuomiServices::Model::Biblio::Matcher;
 use KohaSuomiServices::Model::Config;
 use KohaSuomiServices::Model::Biblio::Exporter;
 
 has sru => sub {KohaSuomiServices::Model::SRU->new};
 has interface => sub {KohaSuomiServices::Model::Biblio::Interface->new};
 has fields => sub {KohaSuomiServices::Model::Biblio::Fields->new};
+has matchers => sub {KohaSuomiServices::Model::Biblio::Matcher->new};
 has exporter => sub {KohaSuomiServices::Model::Biblio::Exporter->new};
 has convert => sub {KohaSuomiServices::Model::Convert->new};
 has ua => sub {Mojo::UserAgent->new};
@@ -31,10 +33,11 @@ sub export {
     $exporter->{localnumber} = $params->{localnumber};
     if (defined $params->{remotemarc}) {
         $interface = $self->interface->load({name => $params->{interface}, type => "update"});
-        my %matchers = ("035" => "a");
+        my %matchers = $self->matchers->find($schema, $interface->{id}, "identifier");
         my $remotenumber = $self->search_fields($params->{remotemarc}, %matchers);
-        $remotenumber->{"035a"} =~ s/\D//g;
-        $exporter->{remotenumber} = $remotenumber->{"035a"};
+        my $key = (%{$remotenumber})[0];
+        $remotenumber->{$key} =~ s/\D//g;
+        $exporter->{remotenumber} = $remotenumber->{$key};
         $exporter->{type} = "update";
     } else {
         $interface = $self->interface->load({name => $params->{interface}, type => "add"});
@@ -105,8 +108,9 @@ sub search_remote {
     my ($self, $remote_interface, $record) = @_;
 
     my $search;
+    my $schema = $self->schema->client($self->config);
     my $interface = $self->interface->load({name => $remote_interface, type => "search"});
-    my %matchers = ("020" => "a", "024" => "a", "027" => "a", "028" => "a", "028" => "b");
+    my %matchers = $self->matchers->find($schema, $interface->{id}, "identifier"); #("020" => "a", "024" => "a", "027" => "a", "028" => "a", "028" => "b");
     if ($interface->{interface} eq "SRU") {
         my $matcher = $self->search_fields($record, %matchers);
         my $path = $self->create_query($interface->{params}, $matcher);
