@@ -21,6 +21,8 @@ sub get {
         my @rs;
         if (defined $req->{id}) {
             @rs = $client->resultset($table)->search({id => $req->{id}});
+        } elsif (defined $req->{interface_id}) {
+            @rs = $client->resultset($table)->search({interface_id => $req->{interface_id}});
         } else {
             @rs = $client->resultset($table)->all();
         }

@@ -36,11 +36,13 @@ new Vue({
           params: {
             service: 'biblio',
             table: 'parameter',
-            id: id,
+            interface_id: id,
           }
         }).then(response => {
             this.parameters = response.data;
-            });
+        }).catch(error => {
+            console.log(error.response.data);
+        });
         },
         addParameter(params) {
         axios.post(baseendpoint+'config', 
@@ -52,7 +54,9 @@ new Vue({
           {headers: { Authorization: apitoken }}
         ).then(response => {
               
-            });
+        }).catch(error => {
+          console.log(error.response.data);
+        });
         },
         addConfig() {
         axios.post(baseendpoint+'config',
@@ -61,10 +65,12 @@ new Vue({
             table: 'interface',
             params: {interface: this.interface, name: this.name, type: this.type, apikey: this.apikey, username: this.username, password: this.password, endpoint_url: this.endpoint_url}
           },
-          {headers: { Authorization: apikey }}
+          {headers: { Authorization: apitoken }}
         ).then(response => {
             this.fetchData();
-            });
+        }).catch(error => {
+              console.log(error.response.data);
+        });
         },
         updateConfig(config) {
           axios.put(baseendpoint+'config',
