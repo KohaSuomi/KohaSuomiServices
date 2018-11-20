@@ -3,6 +3,7 @@ use Mojo::Base -base;
 
 use Modern::Perl;
 use Try::Tiny;
+use List::Util qw<first>;
 
 use Mojo::JSON qw(decode_json encode_json);
 use Mojo::UserAgent;
@@ -17,6 +18,7 @@ sub search {
     my $path = $params->{url}."?operation=".$params->{operation}."&query=".$params->{query};
     $path .= defined $params->{version} ? "&version=".$params->{version} : "&version=1.1";
     $path .= defined $params->{maxrecords} ? "&maximumRecords=".$params->{maxrecords} : "&maximumRecords=1";
+    
     my $tx = $self->ua->build_tx(GET => $path);
     $tx = $self->ua->start($tx);
     my $records = $self->getRecords($tx->res->body);
@@ -30,12 +32,17 @@ sub getRecords {
         my $xml = $self->convert->xmltohash($res);
         my $fields;
         my @records;
-        if (ref($xml->{"zs:records"}->{"zs:record"}) eq "HASH") {
-            my $data = $xml->{"zs:records"}->{"zs:record"}->{"zs:recordData"}->{"record"};
+        my $records = first { m/records/ } keys %{$xml};
+        my $record = first { m/record/ } keys %{$xml->{$records}};
+        my $recordData = first { m/recordData/ } keys %{$xml->{$records}->{$record}};
+        my $marcrecord = first { m/record/ } keys %{$xml->{$records}->{$record}->{$recordData}};
+        
+        if (ref($xml->{$records}->{$record}) eq "HASH") {
+            my $data = $xml->{$records}->{$record}->{$recordData}->{$marcrecord};
             push @records, $self->convert->formatjson($data);
         } else {
-            foreach my $record (@{$xml->{"zs:records"}->{"zs:record"}}) {
-                my $data = $record->{"zs:recordData"}->{"record"};
+            foreach my $record (@{$xml->{$records}->{$record}}) {
+                my $data = $record->{$recordData}->{$marcrecord};
                 push @records, $self->convert->formatjson($data);
             }
         }
