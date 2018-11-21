@@ -41,7 +41,7 @@ paths:
   /biblio/export:
     get:
       x-mojo-to: "biblio#check"
-      operationId: biblioCheck
+      operationId: biblioExportCheck
       consumes:
         - application/json
       parameters:
@@ -108,17 +108,60 @@ paths:
           description: Internal server error
           schema:
             type: object
-  /biblio/config:
+  /biblio/import:
     get:
-      x-mojo-to: "biblio#config"
-      operationId: biblioConfig
+      x-mojo-to: "biblio#check"
+      operationId: biblioImportCheck
       consumes:
         - application/json
+      parameters:
+      - in: query
+        name: marcxml
+        type: string
+        required: true
+        description: Marcxml as string
+      - in: query
+        name: interface
+        required: true
+        type: string
+        description: Interface name
+      responses:
+        200:
+          description: Ok status
+          schema:
+            type: object
+        401:
+          $ref: "#/responses/UnauthorizedError"
+        404:
+          description: Not found
+          schema:
+            type: object
+        500:
+          description: Internal server error
+          schema:
+            type: object
+    post:
+      x-mojo-to: "biblio#import"
+      operationId: biblioImport
+      consumes:
+        - application/x-www-form-urlencoded
       parameters:
       - in: body
         name: body
         schema:
           type: object
+          required:
+            - remotenumber
+            - interface
+          properties:
+            localnumber:
+              type: integer
+            localmarc:
+              type: [object, string]
+            remotemarc:
+              type: [object, string]
+            interface:
+              type: string
       responses:
         200:
           description: Ok status

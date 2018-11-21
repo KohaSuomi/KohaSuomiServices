@@ -43,12 +43,27 @@ sub export {
     try {
         my $req  = $c->req->json;
         my $response;
+
         $response = $c->biblio->export($req);
-        if ($req) {
-            $c->render(status => 200, openapi => $response);
-        } else {
-            $c->render(status => 404, openapi => {message => "Not found"});
-        }
+
+        $c->render(status => 200, openapi => $response);
+    } catch {
+        my $e = $_;
+        $c->render(KohaSuomiServices::Model::Exception::handleDefaults($e));
+    }
+    
+}
+
+sub import {
+    my $c = shift->openapi->valid_input or return;
+
+    try {
+        my $req  = $c->req->json;
+        my $response;
+        
+        $response = $c->biblio->importer($req);
+
+        $c->render(status => 200, openapi => $response);
     } catch {
         my $e = $_;
         $c->render(KohaSuomiServices::Model::Exception::handleDefaults($e));

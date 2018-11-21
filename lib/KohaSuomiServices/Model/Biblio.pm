@@ -28,7 +28,6 @@ sub export {
 
     my $schema = $self->schema->client($self->config);
     my $interface;
-    
     my $exporter->{status} = "pending";
     $exporter->{localnumber} = $params->{localnumber};
     if (defined $params->{remotemarc}) {
@@ -48,6 +47,43 @@ sub export {
 
     $params->{localmarc} = ref($params->{localmarc}) eq "HASH" ? $params->{localmarc} : $self->convert->formatjson($params->{localmarc});
     $self->fields->store($data->id, $params->{localmarc});
+    
+    return {message => "Success"};
+    
+}
+
+sub importer {
+    my ($self, $params) = @_;
+
+    my $schema = $self->schema->client($self->config);
+    my $interface;
+    
+    my $importer->{status} = "pending";
+    $importer->{remotenumber} = $params->{remotenumber};
+
+    if (defined $params->{remotemarc}) {
+        $interface = $self->interface->load({name => $params->{interface}, type => "update"});
+        my %matchers = $self->matchers->find($schema, $interface->{id}, "identifier");
+        my $remotenumber = $self->search_fields($params->{remotemarc}, %matchers);
+        if ($remotenumber) {
+            my $key = (%{$remotenumber})[0];
+            $remotenumber->{$key} =~ s/\D//g;
+            $importer->{localnumber} = $remotenumber->{$key};
+        }
+        $importer->{type} = "update";
+        
+    } else {
+        $interface = $self->interface->load({name => $params->{interface}, type => "add"});
+        $importer->{type} = "add";
+    }
+    
+    $importer->{interface_id} = $interface->{id};
+    my $data = $schema->resultset('Exporter')->new($importer)->insert();
+
+    if (defined $params->{remotemarc}) {
+        $params->{remotemarc} = ref($params->{remotemarc}) eq "HASH" ? $params->{remotemarc} : $self->convert->formatjson($params->{remotemarc});
+        $self->fields->store($data->id, $params->{remotemarc});
+    }
     
     return {message => "Success"};
     
