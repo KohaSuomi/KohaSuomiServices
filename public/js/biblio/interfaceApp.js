@@ -142,7 +142,8 @@ Vue.component('config-list', {
   template: "#list-items",
   data: function() {
     return {
-      showUpdate: false
+      showUpdate: false,
+      host: this.config.host
     }
   },
   methods: {
@@ -159,6 +160,22 @@ Vue.component('config-list', {
     },
     updateToggle(){
         this.showUpdate = !this.showUpdate;
+    },
+    updateHost() {
+      this.host = !this.host;
+      axios.put(baseendpoint+'config',
+        {
+          service: 'biblio',
+          table: 'interface',
+          id: this.config.id,
+          params: {host: this.host}
+        },
+        {headers: { Authorization: apitoken }}
+        ).then(response => {
+          this.$parent.fetchData();
+        }).catch(error => {
+          console.log(error.response.data);
+        });
     }
   },
   props: ['config', 'parameters']

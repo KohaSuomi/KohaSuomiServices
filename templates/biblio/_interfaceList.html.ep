@@ -1,5 +1,8 @@
 <tr>
     <td>
+        <div class="d-inline-block" style="cursor:pointer"><i v-on:click="updateHost()" class="fas fa-toggle-on hosttoggle" v-bind:class="{ activetoggle: config.host==true }"></i></div>
+    </td>
+    <td>
         <div v-if="showUpdate"><input type="text" class="form-control" v-model="config.name"></div>
         <div v-else>{{config.name}}</div>
     </td>

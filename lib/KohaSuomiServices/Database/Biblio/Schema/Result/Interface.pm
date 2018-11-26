@@ -15,6 +15,7 @@ __PACKAGE__->add_columns(
   username => { data_type => 'varchar', size => 20 },
   password => { data_type => 'varchar', size => 255 },
   apikey => { data_type => 'varchar', size => 255 },
+  host => {data_type => 'integer', is_boolean  => 1, false_is    => ['0', '-1']},
 );
 __PACKAGE__->set_primary_key('id');
 ## ## ##   DONE WITH DBIx::Schema   ## ## ##

@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css" integrity="sha384-5sAR7xN1Nv6T6+dT2mhtzEpVJvfS3NScPQTrOxhwjIuvcA67KV2R5Jz6kr4abQsz" crossorigin="anonymous">
     <!-- Custom styles for this template-->
     <link href="<%= $config->{servicepath}%>/css/sb-admin.min.css" rel="stylesheet">
+    <link href="<%= $config->{servicepath}%>/css/custom.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.17/vue.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/vue-i18n/8.1.0/vue-i18n.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.18.0/axios.min.js"></script>

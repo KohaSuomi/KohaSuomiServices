@@ -4,6 +4,7 @@
         <table class="table table-striped table-sm">
         <thead>
             <tr>
+            <th>Host</th>
             <th>Name</th>
             <th>Interface</th>
             <th>Type</th>
