@@ -39,6 +39,43 @@ paths:
           schema:
             type: object
   /biblio/export:
+    post:
+      x-mojo-to: "biblio#export"
+      operationId: biblioExport
+      consumes:
+        - application/x-www-form-urlencoded
+      parameters:
+      - in: body
+        name: body
+        schema:
+          type: object
+          required:
+            - target_id
+            - interface
+            - marc
+          properties:
+            targetid:
+              type: integer
+            marc:
+              type: [object, string]
+            interface:
+              type: string
+      responses:
+        200:
+          description: Ok status
+          schema:
+            type: object
+        401:
+          $ref: "#/responses/UnauthorizedError"
+        404:
+          description: Not found
+          schema:
+            type: object
+        500:
+          description: Internal server error
+          schema:
+            type: object
+  /biblio/search:
     get:
       x-mojo-to: "biblio#check"
       operationId: biblioExportCheck
@@ -70,9 +107,10 @@ paths:
           description: Internal server error
           schema:
             type: object
+  /biblio/active:
     post:
-      x-mojo-to: "biblio#export"
-      operationId: biblioExport
+      x-mojo-to: "biblio#activate"
+      operationId: biblioSetActive
       consumes:
         - application/x-www-form-urlencoded
       parameters:
@@ -81,87 +119,22 @@ paths:
         schema:
           type: object
           required:
-            - localnumber
-            - interface
-            - localmarc
+            - interface_name
+            - target_id
+            - marcxml
           properties:
-            localnumber:
-              type: integer
-            localmarc:
-              type: [object, string]
-            remotemarc:
-              type: [object, string]
             interface:
               type: string
-      responses:
-        200:
-          description: Ok status
-          schema:
-            type: object
-        401:
-          $ref: "#/responses/UnauthorizedError"
-        404:
-          description: Not found
-          schema:
-            type: object
-        500:
-          description: Internal server error
-          schema:
-            type: object
-  /biblio/import:
-    get:
-      x-mojo-to: "biblio#check"
-      operationId: biblioImportCheck
-      consumes:
-        - application/json
-      parameters:
-      - in: query
-        name: marcxml
-        type: string
-        required: true
-        description: Marcxml as string
-      - in: query
-        name: interface
-        required: true
-        type: string
-        description: Interface name
-      responses:
-        200:
-          description: Ok status
-          schema:
-            type: object
-        401:
-          $ref: "#/responses/UnauthorizedError"
-        404:
-          description: Not found
-          schema:
-            type: object
-        500:
-          description: Internal server error
-          schema:
-            type: object
-    post:
-      x-mojo-to: "biblio#import"
-      operationId: biblioImport
-      consumes:
-        - application/x-www-form-urlencoded
-      parameters:
-      - in: body
-        name: body
-        schema:
-          type: object
-          required:
-            - remotenumber
-            - interface
-          properties:
-            localnumber:
+              description: Name of the interface
+            target_id:
               type: integer
-            localmarc:
-              type: [object, string]
-            remotemarc:
-              type: [object, string]
-            interface:
+              description: Records id on local environment
+            marcxml:
               type: string
+              description: Marcxml
+            updated:
+              type: string
+              description: Datetime of record's update
       responses:
         200:
           description: Ok status

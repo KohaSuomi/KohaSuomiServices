@@ -42,27 +42,7 @@ sub export {
 
     try {
         my $req  = $c->req->json;
-        my $response;
-
-        $response = $c->biblio->export($req);
-
-        $c->render(status => 200, openapi => $response);
-    } catch {
-        my $e = $_;
-        $c->render(KohaSuomiServices::Model::Exception::handleDefaults($e));
-    }
-    
-}
-
-sub import {
-    my $c = shift->openapi->valid_input or return;
-
-    try {
-        my $req  = $c->req->json;
-        my $response;
-        
-        $response = $c->biblio->importer($req);
-
+        my $response = $c->biblio->export($req);
         $c->render(status => 200, openapi => $response);
     } catch {
         my $e = $_;
@@ -78,16 +58,19 @@ sub check {
         my $req  = $c->req->params->to_hash;
         my $response;
         my $biblio = $c->convert->formatjson($req->{marcxml});
-        my $remote = $c->biblio->search_remote($req->{interface}, $biblio);
+        my $remote = $c->biblio->searchTarget($req->{interface}, $biblio);
+        $remote = shift @{$remote};
+        my $target_id = $c->biblio->getTargetId($req->{interface}, $remote);
+
         my $data;
         my $message;
-        if (scalar(@$remote)) {
+        if ($remote) {
             $data = $remote;
             $message = "Match found";
         } else {
             $message = "Export";
         }
-        $response = {record => $data, localrecord => $biblio, message => $message};
+        $response = {target_id => $target_id, targetrecord => $data, sourcerecord => $biblio};
         
         if ($req) {
             $c->render(status => 200, openapi => $response);
@@ -99,6 +82,20 @@ sub check {
         $c->render(KohaSuomiServices::Model::Exception::handleDefaults($e));
     }
     
+}
+
+sub activate {
+    my $c = shift->openapi->valid_input or return;
+
+    try {
+        my $req  = $c->req->json;
+        my $response = $c->biblio->addActive($req);
+        $c->render(status => 200, openapi => $response);
+    } catch {
+        my $e = $_;
+        warn Data::Dumper::Dumper $e;
+        $c->render(KohaSuomiServices::Model::Exception::handleDefaults($e));
+    }
 }
 
 # sub add {

@@ -66,7 +66,7 @@ sub parse {
     } else {
         $params = {exporter_id => $id, tag => $field->{tag}, ind1 => $field->{ind1}, ind2 => $field->{ind2}, type => "datafield"};
     }
-    if ($field->{code}) {
+    if (defined $field->{code}) {
         $params = {field_id => $id, code => $field->{code}, value => $field->{value}};
     }
 

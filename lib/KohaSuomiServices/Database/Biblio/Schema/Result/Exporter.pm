@@ -9,11 +9,10 @@ __PACKAGE__->table('exporter');
 __PACKAGE__->add_columns(
   id => { data_type => 'integer',  is_auto_increment => 1 },
   interface_id => { data_type => 'integer', is_foreign_key => 1 },
-  localnumber => { data_type => 'varchar' },
-  remotenumber => { data_type => 'varchar' },
+  target_id => { data_type => 'varchar' },
   type => { data_type => 'varchar', is_enum => 1, extra => { list => [qw/add update delete/]} },
   status => { data_type => 'varchar', is_enum => 1, extra => { list => [qw/pending success fail/]} },
-  timestamp => { data_type => 'datetime', set_on_create => 1 },
+  timestamp => { data_type => 'datetime', default_value => \"current_timestamp", is_nullable => 0 },
 );
 __PACKAGE__->set_primary_key('id');
 ## ## ##   DONE WITH DBIx::Schema   ## ## ##

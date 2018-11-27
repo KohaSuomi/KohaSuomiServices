@@ -43,4 +43,15 @@ sub getAdd {
     
 }
 
+sub setExporterParams {
+    my ($self, $interface, $type, $status, $target_id) = @_;
+
+    my $exporter->{status} = $status;
+    $exporter->{type} = $type;
+    $exporter->{target_id} = $target_id if (defined $target_id);
+    $exporter->{interface_id} = $interface->{id};
+
+    return $exporter;
+}
+
 1;

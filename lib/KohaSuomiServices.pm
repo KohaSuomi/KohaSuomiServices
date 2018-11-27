@@ -39,7 +39,7 @@ sub startup {
     sru => sub { state $sru = KohaSuomiServices::Model::SRU->new() });
     
   $self->helper(
-    biblio => sub { state $biblio = KohaSuomiServices::Model::Biblio->new(schema => shift->schema) });
+    biblio => sub { state $biblio = KohaSuomiServices::Model::Biblio->new() });
 
   $self->helper(
     billing => sub { state $billing = KohaSuomiServices::Model::Billing->new() });
@@ -67,6 +67,8 @@ sub startup {
     $auth->get('/'.$service.'/config')->to($service.'#config');
   }
 
+  KohaSuomiServices::Model::Biblio->new()->updateActive();
+  
   $self->hook(before_dispatch => sub {
     my ($c) = @_;
     my $tx = $c->tx;

@@ -25,7 +25,7 @@ sub formatjson {
     } else {
         $data = $self->xmltohash($marcxml);
     }
-
+    $data = $data->{"record"} if $data->{"record"};
     my $format;
     $format->{leader} = $data->{"leader"};
     $format->{fields} = $self->formatfields($data->{"controlfield"}, $data->{"datafield"});
@@ -60,7 +60,7 @@ sub formatfields {
     my ($self, $controlfields, $datafields) = @_;
 
     my @fields;
-    my %filters = ("999" => "1", "942" => 1, "852" => 1);
+    my %filters;# = ("999" => "1", "942" => 1, "852" => 1);
     foreach my $controlfield (@{$controlfields}) {
         if (!$filters{$controlfield->{"tag"}}) {
             my $formated;

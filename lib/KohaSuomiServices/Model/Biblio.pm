@@ -4,86 +4,41 @@ use Mojo::Base -base;
 use Modern::Perl;
 
 use Try::Tiny;
+use POSIX 'strftime';
 use Mojo::UserAgent;
 use KohaSuomiServices::Model::Convert;
 use Mojo::JSON qw(decode_json encode_json);
 use KohaSuomiServices::Model::Biblio::Interface;
 use KohaSuomiServices::Model::Biblio::Fields;
 use KohaSuomiServices::Model::Biblio::Matcher;
+use KohaSuomiServices::Model::Biblio::ActiveRecords;
 use KohaSuomiServices::Model::Config;
 use KohaSuomiServices::Model::Biblio::Exporter;
 
+has schema => sub {KohaSuomiServices::Database::Client->new};
 has sru => sub {KohaSuomiServices::Model::SRU->new};
 has interface => sub {KohaSuomiServices::Model::Biblio::Interface->new};
 has fields => sub {KohaSuomiServices::Model::Biblio::Fields->new};
 has matchers => sub {KohaSuomiServices::Model::Biblio::Matcher->new};
+has active => sub {KohaSuomiServices::Model::Biblio::ActiveRecords->new};
 has exporter => sub {KohaSuomiServices::Model::Biblio::Exporter->new};
 has convert => sub {KohaSuomiServices::Model::Convert->new};
 has ua => sub {Mojo::UserAgent->new};
 has config => sub {KohaSuomiServices::Model::Config->new->service("biblio")->load};
-has "schema";
 
 sub export {
     my ($self, $params) = @_;
 
     my $schema = $self->schema->client($self->config);
-    my $interface;
-    my $exporter->{status} = "pending";
-    $exporter->{localnumber} = $params->{localnumber};
-    if (defined $params->{remotemarc}) {
-        $interface = $self->interface->load({name => $params->{interface}, type => "update"});
-        my %matchers = $self->matchers->find($schema, $interface->{id}, "identifier");
-        my $remotenumber = $self->search_fields($params->{remotemarc}, %matchers);
-        my $key = (%{$remotenumber})[0];
-        $remotenumber->{$key} =~ s/\D//g;
-        $exporter->{remotenumber} = $remotenumber->{$key};
-        $exporter->{type} = "update";
-    } else {
-        $interface = $self->interface->load({name => $params->{interface}, type => "add"});
-        $exporter->{type} = "add";
-    }
-    $exporter->{interface_id} = $interface->{id};
-    my $data = $schema->resultset('Exporter')->new($exporter)->insert();
-
-    $params->{localmarc} = ref($params->{localmarc}) eq "HASH" ? $params->{localmarc} : $self->convert->formatjson($params->{localmarc});
-    $self->fields->store($data->id, $params->{localmarc});
+    my $interface = defined $params->{target_id} ? $self->interface->load({name => $params->{interface}, type => "update"}) : $self->interface->load({name => $params->{interface}, type => "add"});
     
-    return {message => "Success"};
+    my $type = defined $params->{target_id} ? "update" :"add";
+    my $exporter = $self->exporter->setExporterParams($interface, $type, "pending", $params->{target_id});
     
-}
+    my $data = $self->exporter->insert($schema, $exporter);
 
-sub importer {
-    my ($self, $params) = @_;
-
-    my $schema = $self->schema->client($self->config);
-    my $interface;
-    
-    my $importer->{status} = "pending";
-    $importer->{remotenumber} = $params->{remotenumber};
-
-    if (defined $params->{remotemarc}) {
-        $interface = $self->interface->load({name => $params->{interface}, type => "update"});
-        my %matchers = $self->matchers->find($schema, $interface->{id}, "identifier");
-        my $remotenumber = $self->search_fields($params->{remotemarc}, %matchers);
-        if ($remotenumber) {
-            my $key = (%{$remotenumber})[0];
-            $remotenumber->{$key} =~ s/\D//g;
-            $importer->{localnumber} = $remotenumber->{$key};
-        }
-        $importer->{type} = "update";
-        
-    } else {
-        $interface = $self->interface->load({name => $params->{interface}, type => "add"});
-        $importer->{type} = "add";
-    }
-    
-    $importer->{interface_id} = $interface->{id};
-    my $data = $schema->resultset('Exporter')->new($importer)->insert();
-
-    if (defined $params->{remotemarc}) {
-        $params->{remotemarc} = ref($params->{remotemarc}) eq "HASH" ? $params->{remotemarc} : $self->convert->formatjson($params->{remotemarc});
-        $self->fields->store($data->id, $params->{remotemarc});
-    }
+    $params->{marc} = ref($params->{marc}) eq "HASH" ? $params->{marc} : $self->convert->formatjson($params->{marc});
+    $self->fields->store($data->id, $params->{marc});
     
     return {message => "Success"};
     
@@ -149,7 +104,45 @@ sub add {
     
 }
 
-sub search_remote {
+sub addActive {
+    my ($self, $params) = @_;
+
+    
+    my $schema = $self->schema->client($self->config);
+    my %matchers = ("020" => "a", "024" => "a", "027" => "a", "028" => "a", "028" => "b");
+    my $record = $self->convert->formatjson($params->{marcxml});
+    my $matcher = $self->search_fields($record, %matchers);
+    delete $params->{marcxml};
+    $params->{identifier} = (values %{$matcher})[0];
+    $params->{identifier_field} = (keys %{$matcher})[0];
+    $self->active->insert($schema, $params);
+
+    return {message => "Success"};
+}
+
+sub updateActive {
+    my ($self) = @_;
+    
+    my $schema = $self->schema->client($self->config);
+    my $dt = strftime "%Y-%m-%d 00:00:00", ( localtime(time) );
+    my $params = {updated => undef, created => {">=" => $dt}};
+    my $results = $self->active->find($schema, $params);
+    my $host = $self->interface->load({host => 1, type => "search"});
+    foreach my $result (@{$results}) {
+        my $path = $self->getSearchPath($host, {$result->{identifier_field} => $result->{identifier}});
+        my $search = $self->sru->search($path);
+        $search = shift @{$search};
+        if ($search) {
+            my $exporter = $self->exporter->setExporterParams($host, "update", "pending", $result->{target_id});
+            my $data = $self->exporter->insert($schema, $exporter);
+            $self->fields->store($data->id, $search);
+            my $now = strftime "%Y-%m-%d %H:%M:%S", ( localtime(time) );
+            $self->active->update($schema, $result->{id}, {updated => $now});
+        }
+    }
+}
+
+sub searchTarget {
     my ($self, $remote_interface, $record) = @_;
 
     my $search;
@@ -167,6 +160,32 @@ sub search_remote {
     }
     return $search;
     
+}
+
+sub getTargetId {
+    my ($self, $remote_interface, $record) = @_;
+
+    return unless $record;
+
+    my $schema = $self->schema->client($self->config);
+    my $interface = $self->interface->load({name => $remote_interface, type => "update"});
+    my %matchers = $self->matchers->find($schema, $interface->{id}, "identifier");
+
+    my $identifier = $self->search_fields($record, %matchers);
+    my ($key, $value) = %{$identifier};
+    $value =~ s/\D//g;
+    my $target_id = $value;
+
+    return $target_id;
+}
+
+sub getSearchPath {
+    my ($self, $interface, $matcher) = @_;
+
+    my $path = $self->create_query($interface->{params}, $matcher);
+    $path->{url} = $interface->{endpoint_url};
+
+    return $path;
 }
 
 sub search_fields {
