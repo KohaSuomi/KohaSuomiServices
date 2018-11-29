@@ -44,6 +44,27 @@ sub export {
     
 }
 
+sub broadcast {
+    my ($self, $params) = @_;
+    
+    my %matchers = $self->matchers->defaultSearchMatchers();
+    my $identifier = $self->getIdentifier($params->{marc}, %matchers);
+    my $schema = $self->schema->client($self->config);
+    my $results = $self->active->find($schema, {identifier => $identifier});
+    foreach my $result (@{$results}) {
+        if ($params->{updated} gt $result->{updated} || !defined $result->{updated}) {
+            $self->export({
+                target_id => $result->{target_id},
+                marc => $params->{marc},
+                interface => $result->{interface_name}
+            });
+            $self->active->update($schema, $result->{id}, {updated => $params->{updated}});
+        }
+    }
+
+    return {message => "Success"};
+}
+
 sub push {
     my ($self) = @_;
 
@@ -109,7 +130,7 @@ sub addActive {
 
     
     my $schema = $self->schema->client($self->config);
-    my %matchers = ("020" => "a", "024" => "a", "027" => "a", "028" => "a", "028" => "b");
+    my %matchers = $self->matchers->defaultSearchMatchers();
     my $record = $self->convert->formatjson($params->{marcxml});
     my $matcher = $self->search_fields($record, %matchers);
     delete $params->{marcxml};
@@ -186,6 +207,14 @@ sub getSearchPath {
     $path->{url} = $interface->{endpoint_url};
 
     return $path;
+}
+
+sub getIdentifier {
+    my ($self, $record, %matchers) = @_;
+
+    my ($key, $value) = %{$self->search_fields($record, %matchers)} if $self->search_fields($record, %matchers);
+    $value =~ s/\D//g;
+    return $value;
 }
 
 sub search_fields {

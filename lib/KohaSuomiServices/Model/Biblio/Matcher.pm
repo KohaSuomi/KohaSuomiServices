@@ -15,4 +15,8 @@ sub find {
     return %matchers;
 }
 
+sub defaultSearchMatchers {
+    return ("020" => "a", "024" => "a", "027" => "a", "028" => "a", "028" => "b");
+}
+
 1;

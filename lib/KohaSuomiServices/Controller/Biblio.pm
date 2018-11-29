@@ -93,7 +93,21 @@ sub activate {
         $c->render(status => 200, openapi => $response);
     } catch {
         my $e = $_;
-        warn Data::Dumper::Dumper $e;
+        $c->render(KohaSuomiServices::Model::Exception::handleDefaults($e));
+    }
+}
+
+sub broadcast {
+    my $c = shift->openapi->valid_input or return;
+
+    try {
+        my $req  = $c->req->json;
+        $req->{marc} = $c->convert->formatjson($req->{marcxml});
+        delete $req->{marcxml};
+        my $response = $c->biblio->broadcast($req);
+        $c->render(status => 200, openapi => $response);
+    } catch {
+        my $e = $_;
         $c->render(KohaSuomiServices::Model::Exception::handleDefaults($e));
     }
 }
