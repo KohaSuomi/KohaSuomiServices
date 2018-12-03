@@ -70,7 +70,7 @@ sub push {
 
     my $updates = $self->exporter->getUpdate();
     foreach my $update (@{$updates}){
-        my $interface = $self->interface->load({id=> $update->{interface_id}});
+        my $interface = $self->interface->load({id=> $update->{interface_id}}); 
         my $path = $self->create_path($interface, $update);
         my $data = $self->fields->find($update->{id});
         my $body = $self->create_body($interface->{params}, $data);
@@ -113,9 +113,9 @@ sub update {
     
     warn Data::Dumper::Dumper $path;
     warn Data::Dumper::Dumper $body;
-    # my $tx = $self->ua->build_tx(PUT => $path);
+    my $tx = $self->ua->put($path => json => $body);
     # $tx = $self->ua->start($tx);
-    # return decode_json($tx->res->body);
+    warn Data::Dumper::Dumper decode_json($tx->res->body);
     
 }
 
@@ -133,10 +133,12 @@ sub addActive {
     my %matchers = $self->matchers->defaultSearchMatchers();
     my $record = $self->convert->formatjson($params->{marcxml});
     my $matcher = $self->search_fields($record, %matchers);
+    KohaSuomiServices::Model::Exception::NotFound->throw(error => "No valid identifier ") unless $matcher;
     delete $params->{marcxml};
-    $params->{identifier} = (values %{$matcher})[0];
-    $params->{identifier_field} = (keys %{$matcher})[0];
-    $self->active->insert($schema, $params);
+    $params->{identifier} = join("|", map { "$_" } values %{$matcher});
+    $params->{identifier_field} = join("|", map { "$_" } keys %{$matcher});
+    my $exist = $self->active->find($schema, $params);
+    $self->active->insert($schema, $params) unless @{$exist};
 
     return {message => "Success"};
 }
@@ -224,8 +226,15 @@ sub search_fields {
     foreach my $field (@{$record->{fields}}) {
         if ($matchers{$field->{tag}}) {
             foreach my $subfield (@{$field->{subfields}}) {
+                if (ref($matchers{$field->{tag}}) eq "ARRAY") {
+                    foreach my $code (@{$matchers{$field->{tag}}}) {
+                        if ($subfield->{code} eq $code) {
+                            $matcher->{$field->{tag}.$code} = $subfield->{value} unless $matcher->{$field->{tag}.$code};
+                        }
+                    }
+                }
                 if ($subfield->{code} eq $matchers{$field->{tag}}) {
-                    $matcher->{$field->{tag}.$matchers{$field->{tag}}} = $subfield->{value};
+                    $matcher->{$field->{tag}.$matchers{$field->{tag}}} = $subfield->{value} unless $matcher->{$field->{tag}.$matchers{$field->{tag}}};
                 }
             }
         }

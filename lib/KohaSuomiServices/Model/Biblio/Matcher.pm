@@ -10,13 +10,19 @@ sub find {
     my @data = $client->resultset('Matcher')->search({interface_id => $id, type => $type}, {columns => [qw/tag code/]});
     my %matchers;
     foreach my $data (@data) {
-        $matchers{$data->tag} = $data->code;
+        if ($matchers{$data->tag}) {
+            my $temp = delete $matchers{$data->tag};
+            push @{$matchers{$data->tag}}, $temp , $data->code;
+        } else {
+            $matchers{$data->tag} = $data->code;
+        }
     }
+    
     return %matchers;
 }
 
 sub defaultSearchMatchers {
-    return ("020" => "a", "024" => "a", "027" => "a", "028" => "a", "028" => "b");
+    return ("020" => "a", "024" => "a", "027" => "a", "028" => ["a", "b"]);
 }
 
 1;
