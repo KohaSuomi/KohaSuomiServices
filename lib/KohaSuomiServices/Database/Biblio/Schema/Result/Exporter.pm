@@ -9,6 +9,7 @@ __PACKAGE__->table('exporter');
 __PACKAGE__->add_columns(
   id => { data_type => 'integer',  is_auto_increment => 1 },
   interface_id => { data_type => 'integer', is_foreign_key => 1 },
+  authuser_id => { data_type => 'integer', is_foreign_key => 1 },
   target_id => { data_type => 'varchar' },
   type => { data_type => 'varchar', is_enum => 1, extra => { list => [qw/add update delete/]} },
   status => { data_type => 'varchar', is_enum => 1, extra => { list => [qw/pending success fail/]} },

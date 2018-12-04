@@ -35,10 +35,9 @@ sub export {
     my $interface = defined $params->{target_id} ? $self->interface->load({name => $params->{interface}, type => "update"}) : $self->interface->load({name => $params->{interface}, type => "add"});
     
     my $type = defined $params->{target_id} ? "update" :"add";
-    my $exporter = $self->exporter->setExporterParams($interface, $type, "pending", $params->{target_id});
     my $authuser = $self->exportauth->checkAuthUser($schema, $params->{username}, $interface->{id});
+    my $exporter = $self->exporter->setExporterParams($interface, $type, "pending", $params->{target_id}, $authuser);
     my $data = $self->exporter->insert($schema, $exporter);
-    $self->exportauth->insert($schema, {exporter_id => $data->id, authuser_id => $authuser});
 
     $params->{marc} = ref($params->{marc}) eq "HASH" ? $params->{marc} : $self->convert->formatjson($params->{marc});
     $self->fields->store($data->id, $params->{marc});
