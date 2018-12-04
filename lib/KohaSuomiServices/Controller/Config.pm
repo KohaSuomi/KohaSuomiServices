@@ -23,6 +23,8 @@ sub get {
             @rs = $client->resultset($table)->search({id => $req->{id}});
         } elsif (defined $req->{interface_id}) {
             @rs = $client->resultset($table)->search({interface_id => $req->{interface_id}});
+        } elsif (defined $req->{authuser_id}) {
+            @rs = $client->resultset($table)->search({authuser_id => $req->{authuser_id}});
         } else {
             @rs = $client->resultset($table)->all();
         }

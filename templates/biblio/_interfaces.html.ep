@@ -8,10 +8,8 @@
             <th>Name</th>
             <th>Interface</th>
             <th>Type</th>
-            <th>Api key</th>
-            <th>Username</th>
-            <th>Password</th>
             <th>Endpoint url</th>
+            <th>Definitions</th>
             <th></th>
             </tr>
         </thead>
@@ -45,9 +43,6 @@
                 <option value='add'>add</option>
                 <option value='update'>update</option>
             </select>
-            <input type="text" class="form-control" v-model="apikey" placeholder="ApiKey">
-            <input type="text" class="form-control" v-model="username" placeholder="Username">
-            <input type="password" class="form-control" v-model="password" placeholder="Password">
             <input type="text" class="form-control" v-model="endpoint_url" placeholder="Url">
             <button class="btn btn-sm btn-primary" type="submit">Submit</button>
             </div>

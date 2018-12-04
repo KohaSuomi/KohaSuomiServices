@@ -20,6 +20,9 @@
 <template id="parameter-modal">
   %= include 'biblio/_parameterModal'
 </template>
+<template id="auth-modal">
+  %= include 'biblio/_authModal'
+</template>
 <template id="list-matchers">
   %= include 'biblio/_matcherList'
 </template>

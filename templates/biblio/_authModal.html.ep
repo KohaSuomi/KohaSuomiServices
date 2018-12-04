@@ -1,0 +1,72 @@
+<div class="modal fade" :id="'authModal_' + config.id" tabindex="-1" role="dialog" aria-labelledby="authModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div id="auths" class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="authModalLabel">{{config.name}} authentications</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p v-if="errors.length">
+            <b>Please correct the following error(s):</b>
+            <ul>
+            <li v-for="error in errors">{{ error }}</li>
+            </ul>
+        </p>
+        <h5 class="modal-title">Authentication url</h5>
+        <hr/>
+        <div class="mb-2 input-group">
+          <input type="text" class="form-control" v-model="auth_url" placeholder="Authentication url">
+          <button v-if="auth_url" v-on:click="checkAuthUrl($event)" class="btn btn-sm btn-secondary" type="submit"><i class="far fa-edit"></i></button>
+        </div>
+        <h5 class="modal-title">Login accounts</h5>
+        <hr/>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th scope="col">Username</th>
+                    <th scope="col">Password</th>
+                    <th scope="col">Api Key</th>
+                    <th scope="col"></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="auth in auths">
+                    <td><input type="text" class="form-control" v-model="auth.username"></td>
+                    <td><input type="password" class="form-control" v-model="auth.password"></td>
+                    <td><input type="text" class="form-control" v-model="auth.apikey"></td>
+                    <td class="col-sm-2">
+                      <button v-on:click="linksToggle(auth)" class="btn btn-sm btn-primary" type="submit"><i class="fas fa-link"></i></button>
+                      <button v-on:click="updateAuth(auth, $event)" class="btn btn-sm btn-secondary" type="submit"><i class="far fa-edit"></i></button>
+                      <button v-on:click="deleteAuth(auth.id, $event)" class="btn btn-sm btn-warning" type="submit"><i class="far fa-trash-alt"></i></button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <form @submit="checkForm($event)">
+            <div class="input-group">
+            <input type="text" class="form-control" v-model="username" placeholder="Username">
+            <input type="text" class="form-control" v-model="password" placeholder="Password">
+            <input type="text" class="form-control" v-model="apikey" placeholder="Api Key">
+            <button class="btn btn-sm btn-primary" type="submit">Submit</button>
+            </div>
+        </form>
+        <div v-if="showUserLinks">
+          <hr/>
+          <h5 class="modal-title">Linked usernames</h5>
+          <ul v-for="link in links">
+            <li>{{link.username}} <i v-on:click="removeUserLinks(link.id)" class="fas fa-minus cursor" style="cursor: pointer; color:red;"></i></li>
+          </ul>
+          <div class="input-group">
+            <input type="text" class="form-control" v-model="userid" placeholder="Username">
+            <button v-on:click="addUserLinks" class="btn btn-sm btn-primary" type="submit"><i class="fas fa-plus"></i></button>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>

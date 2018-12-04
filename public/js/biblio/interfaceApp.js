@@ -11,9 +11,7 @@ new Vue({
         name: "",
         type: "",
         endpoint_url: "",
-        apikey: "",
-        username: "",
-        password: "",
+        auth_url: "",
         parametername: "",
         parametertype: "",
         parametervalue: ""
@@ -63,7 +61,7 @@ new Vue({
           {
             service: 'biblio',
             table: 'interface',
-            params: {interface: this.interface, name: this.name, type: this.type, apikey: this.apikey, username: this.username, password: this.password, endpoint_url: this.endpoint_url}
+            params: {interface: this.interface, name: this.name, type: this.type, endpoint_url: this.endpoint_url}
           },
           {headers: { Authorization: apitoken }}
         ).then(response => {
@@ -78,7 +76,7 @@ new Vue({
             service: 'biblio',
             table: 'interface',
             id: config.id,
-            params: {interface: config.interface, name: config.name, type: config.type, apikey: config.apikey, username: config.username, password: config.password, endpoint_url: config.endpoint_url}
+            params: {interface: config.interface, name: config.name, type: config.type, endpoint_url: config.endpoint_url}
           },
           {headers: { Authorization: apitoken }}
         ).then(response => {
@@ -203,4 +201,176 @@ Vue.component('modal-component', {
     }
   },
   props: ['config','parameters']
+});
+Vue.component('auth-component', {
+  template: "#auth-modal",
+  created() {
+    this.fetchAuthUsers();
+  },
+  data: function() {
+    return {
+      showUserLinks: false,
+      links: [],
+      auth: {},
+      errors: [],
+      auths: [],
+      username: "",
+      password: "",
+      apikey: "",
+      userid: "",
+      auth_url: this.config.auth_url
+    }
+  },
+  methods: {
+    linksToggle(auth){
+      this.auth = auth;
+      this.fetchUserLinks();
+      this.showUserLinks = true;
+    },
+    fetchAuthUsers() {
+      axios.get(baseendpoint+'config', {
+        headers: { Authorization: apitoken },
+        params: {
+          service: 'biblio',
+          table: 'AuthUsers',
+          interface_id: this.config.id,
+        }
+      }).then(response => {
+          this.auths = response.data;
+      }).catch(error => {
+          console.log(error.response.data);
+      });
+    },
+    addAuth() {
+      axios.post(baseendpoint+'config', 
+        {
+          service: 'biblio',
+          table: 'AuthUsers',
+          params: {interface_id: this.config.id, apikey: this.apikey, username: this.username, password: this.password}
+        },
+        {headers: { Authorization: apitoken }}
+      ).then(response => {
+            this.fetchAuthUsers();
+      }).catch(error => {
+        console.log(error.response.data);
+      });
+    },
+    deleteAuth(id, e) {
+      e.preventDefault();
+      axios.delete(baseendpoint+'config',
+      {
+        headers: { Authorization: apitoken },
+        params: {
+          service: 'biblio',
+          table: 'AuthUsers',
+          id: id
+        }
+      }
+    ).then(response => {
+        this.fetchAuthUsers();
+      }).catch(error => {
+        console.log(error.response.data);
+      });
+    },
+    updateAuth(auth, e) {
+      e.preventDefault();
+      axios.put(baseendpoint+'config',
+      {
+        service: 'biblio',
+        table: 'AuthUsers',
+        id: auth.id,
+        params: {apikey: auth.apikey, username: auth.username, password: auth.password}
+      },
+      {headers: { Authorization: apitoken }}
+    ).then(response => {
+        this.fetchAuthUsers();
+      }).catch(error => {
+        console.log(error.response.data);
+      });
+    },
+    addAuthUrl() {
+      axios.put(baseendpoint+'config',
+        {
+          service: 'biblio',
+          table: 'interface',
+          id: this.config.id,
+          params: {auth_url: this.auth_url}
+        },
+        {headers: { Authorization: apitoken }}
+      ).then(response => {
+          
+      });
+    },
+    addUserLinks() {
+      axios.post(baseendpoint+'config', 
+        {
+          service: 'biblio',
+          table: 'UserLinks',
+          params: {interface_id: this.config.id, authuser_id: this.auth.id, username: this.userid}
+        },
+        {headers: { Authorization: apitoken }}
+      ).then(response => {
+            this.fetchUserLinks();
+      }).catch(error => {
+        console.log(error.response.data);
+      });
+    },
+    fetchUserLinks() {
+      axios.get(baseendpoint+'config', {
+        headers: { Authorization: apitoken },
+        params: {
+          service: 'biblio',
+          table: 'UserLinks',
+          authuser_id: this.auth.id,
+        }
+      }).then(response => {
+          this.links = response.data;
+      }).catch(error => {
+          console.log(error.response.data);
+      });
+    },
+    removeUserLinks(id) {
+      axios.delete(baseendpoint+'config', 
+      {
+        headers: { Authorization: apitoken },
+        params: {
+          service: 'biblio',
+          table: 'UserLinks',
+          id: id
+        }
+      }
+      ).then(response => {
+          this.fetchUserLinks();
+      }).catch(error => {
+        console.log(error.response.data);
+      });
+    },
+    checkForm(e) {
+      e.preventDefault();
+      if (this.username && (this.password || this.apikey)) {
+        this.addAuth();
+      } 
+      this.errors = [];
+
+      if (!this.username) {
+        this.errors.push('Userame required.');
+      }
+      if (!this.password && !this.apikey) {
+        this.errors.push('Password or api key required.');
+      }
+    },
+    checkAuthUrl(e) {
+      e.preventDefault();
+      var url_validate = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
+      if (url_validate.test(this.auth_url)) {
+        this.addAuthUrl();
+      } 
+      this.errors = [];
+
+      if (!url_validate.test(this.auth_url)) {
+        this.errors.push('Incorrect url.');
+      }
+    }
+  },
+  props: ['config']
 });

@@ -60,6 +60,8 @@ paths:
               type: [object, string]
             interface:
               type: string
+            username:
+              type: string
       responses:
         200:
           description: Ok status

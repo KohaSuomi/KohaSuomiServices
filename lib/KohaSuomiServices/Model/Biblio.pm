@@ -14,6 +14,7 @@ use KohaSuomiServices::Model::Biblio::Matcher;
 use KohaSuomiServices::Model::Biblio::ActiveRecords;
 use KohaSuomiServices::Model::Config;
 use KohaSuomiServices::Model::Biblio::Exporter;
+use KohaSuomiServices::Model::Biblio::ExportAuth;
 
 has schema => sub {KohaSuomiServices::Database::Client->new};
 has sru => sub {KohaSuomiServices::Model::SRU->new};
@@ -22,6 +23,7 @@ has fields => sub {KohaSuomiServices::Model::Biblio::Fields->new};
 has matchers => sub {KohaSuomiServices::Model::Biblio::Matcher->new};
 has active => sub {KohaSuomiServices::Model::Biblio::ActiveRecords->new};
 has exporter => sub {KohaSuomiServices::Model::Biblio::Exporter->new};
+has exportauth => sub {KohaSuomiServices::Model::Biblio::ExportAuth->new};
 has convert => sub {KohaSuomiServices::Model::Convert->new};
 has ua => sub {Mojo::UserAgent->new};
 has config => sub {KohaSuomiServices::Model::Config->new->service("biblio")->load};
@@ -34,8 +36,9 @@ sub export {
     
     my $type = defined $params->{target_id} ? "update" :"add";
     my $exporter = $self->exporter->setExporterParams($interface, $type, "pending", $params->{target_id});
-    
+    my $authuser = $self->exportauth->checkAuthUser($schema, $params->{username}, $interface->{id});
     my $data = $self->exporter->insert($schema, $exporter);
+    $self->exportauth->insert($schema, {exporter_id => $data->id, authuser_id => $authuser});
 
     $params->{marc} = ref($params->{marc}) eq "HASH" ? $params->{marc} : $self->convert->formatjson($params->{marc});
     $self->fields->store($data->id, $params->{marc});
