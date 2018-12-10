@@ -22,7 +22,7 @@
                     <td>{{parameter.name}}</td>
                     <td>{{parameter.type}}</td>
                     <td>{{parameter.value}}</td>
-                    <td><button v-on:click="deleteParameter(parameter, $event)" class="btn btn-sm btn-warning" type="submit">Delete</button></td>
+                    <td><button v-on:click="deleteParameter(parameter, $event)" class="btn btn-sm btn-warning" type="submit"><i class="far fa-trash-alt"></button></td>
                 </tr>
             </tbody>
         </table>
