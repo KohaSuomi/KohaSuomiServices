@@ -67,8 +67,6 @@ sub startup {
     $auth->get('/'.$service)->to($service.'#view');
     $auth->get('/'.$service.'/config')->to($service.'#config');
   }
-
-  KohaSuomiServices::Model::Biblio->new()->updateActive();
   
   $self->hook(before_dispatch => sub {
     my ($c) = @_;
