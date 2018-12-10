@@ -23,7 +23,7 @@ sub valid {
 sub get {
     my ($self, $sessionid) = @_;
 
-    my $path = $self->config->{auth}->{loginpath};
+    my $path = $self->config->{auth}->{internallogin};
     my $params = {sessionid => $sessionid};
     my $tx = $self->ua->build_tx(GET => $path => {Accept => 'application/json', "Cookie: " => "CGISESSID=".$sessionid} => json => $params);
     $tx = $self->ua->start($tx);
@@ -33,7 +33,7 @@ sub get {
 sub delete {
     my ($self, $sessionid) = @_;
 
-    my $path = $self->config->{auth}->{loginpath};
+    my $path = $self->config->{auth}->{internallogin};
     my $params = {sessionid => $sessionid};
     my $tx = $self->ua->build_tx(DELETE => $path => {Accept => 'application/json'} => json => $params);
     $tx = $self->ua->start($tx);
