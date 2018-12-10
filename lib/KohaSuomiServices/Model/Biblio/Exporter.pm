@@ -25,6 +25,12 @@ sub insert {
     return $client->resultset('Exporter')->new($params)->insert();
 }
 
+sub update {
+    my ($self, $id, $params) = @_;
+    my $client = $self->schema->client($self->config);
+    return $client->resultset('Exporter')->find($id)->update($params);
+}
+
 sub getUpdate {
     my ($self) = @_;
 
