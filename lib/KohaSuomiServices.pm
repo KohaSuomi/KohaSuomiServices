@@ -16,6 +16,7 @@ sub startup {
 
   # Configurations
   my $config = $self->plugin('Config');
+  $self->mode($config->{environment});
   $self->secrets($config->{secrets});
   $self->app->sessions->cookie_name('KSSESSION');
   $self->app->sessions->cookie_path('/');
