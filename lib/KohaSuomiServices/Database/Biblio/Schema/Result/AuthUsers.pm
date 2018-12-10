@@ -14,6 +14,13 @@ __PACKAGE__->add_columns(
   apikey => { data_type => 'varchar', size => 255 }
 );
 __PACKAGE__->set_primary_key('id');
+
+__PACKAGE__->belongs_to(
+  "interface",
+  "KohaSuomiServices::Database::Biblio::Schema::Result::Interface",
+  { id => "interface_id" },
+  { is_deferrable => 1, on_delete => "CASCADE", on_update => "CASCADE" },
+);
 ## ## ##   DONE WITH DBIx::Schema   ## ## ##
 ############################################
 

@@ -25,7 +25,7 @@ sub get {
 
     my $path = $self->config->{auth}->{loginpath};
     my $params = {sessionid => $sessionid};
-    my $tx = $self->ua->build_tx(GET => $path => {Accept => 'application/json'} => json => $params);
+    my $tx = $self->ua->build_tx(GET => $path => {Accept => 'application/json', "Cookie: " => "CGISESSID=".$sessionid} => json => $params);
     $tx = $self->ua->start($tx);
     return $self->checkPermissions(decode_json($tx->res->body));
 }

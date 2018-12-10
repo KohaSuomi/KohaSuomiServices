@@ -13,6 +13,14 @@ __PACKAGE__->add_columns(
   username => { data_type => 'varchar', size => 30 }
 );
 __PACKAGE__->set_primary_key('id');
+
+__PACKAGE__->belongs_to(
+  "authuser",
+  "KohaSuomiServices::Database::Biblio::Schema::Result::AuthUsers",
+  { id => "authuser_id" },
+  { is_deferrable => 1, on_delete => "CASCADE", on_update => "CASCADE" },
+);
+
 ## ## ##   DONE WITH DBIx::Schema   ## ## ##
 ############################################
 1;

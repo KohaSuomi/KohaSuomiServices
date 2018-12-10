@@ -362,12 +362,15 @@ Vue.component('auth-component', {
     checkAuthUrl(e) {
       e.preventDefault();
       var url_validate = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
+      if (!this.auth_url) {
+        this.addAuthUrl();
+      }
       if (url_validate.test(this.auth_url)) {
         this.addAuthUrl();
       } 
       this.errors = [];
 
-      if (!url_validate.test(this.auth_url)) {
+      if (this.auth_url && !url_validate.test(this.auth_url)) {
         this.errors.push('Incorrect url.');
       }
     }

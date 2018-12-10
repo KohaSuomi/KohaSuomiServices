@@ -2,15 +2,19 @@ package KohaSuomiServices::Model::Biblio::ExportAuth;
 use Mojo::Base -base;
 
 use Modern::Perl;
+use KohaSuomiServices::Model::Config;
+use KohaSuomiServices::Database::Client;
+use Mojo::JSON qw(decode_json encode_json);
+use MIME::Base64;
+use Digest::SHA qw(hmac_sha256_hex);
+
+has schema => sub {KohaSuomiServices::Database::Client->new};
+has config => sub {KohaSuomiServices::Model::Config->new->service("biblio")->load};
+has ua => sub {Mojo::UserAgent->new};
 
 sub find {
     my ($self, $client, $params) = @_;
-    return $client->resultset('ExportAuth')->search($params);
-}
-
-sub insert {
-    my ($self, $client, $params) = @_;
-    return $client->resultset('ExportAuth')->new($params)->insert();
+    return $client->resultset('AuthUsers')->find($params);
 }
 
 sub findUserFromLink {
@@ -30,6 +34,74 @@ sub checkAuthUser {
     my $authuser = $self->findUserFromLink($client, $username, $interface_id) ? $self->findUserFromLink($client, $username, $interface_id) : $self->findFirstUser($client, $interface_id);
     KohaSuomiServices::Model::Exception::NotFound->throw(error => "No authentication user") unless $authuser;
     return $authuser->id;
+}
+
+sub interfaceAuthentication {
+    my ($self, $interface, $authuser, $method) = @_;
+
+    my $schema = $self->schema->client($self->config);
+    my $user = $self->find($schema, {id => $authuser});
+    my $return;
+
+    return unless $user;
+    if ($interface->{auth_url}) {
+        my $sign = $self->signIn($interface->{auth_url}, {userid => $user->username, password => $user->password});
+        $return = $self->getCookie($interface->{params}, $sign);
+    } else {
+        $return = $self->getAuthorization($interface->{params}, $user, $method);
+    }
+
+    return $return;
+}
+
+sub signIn {
+    my ($self, $path, $body) = @_;
+    my $tx = $self->ua->post($path => form => $body);
+    return decode_json($tx->res->body);
+}
+
+sub getCookie {
+    my ($self, $params, $matcher) = @_;
+
+    my $cookie;
+    foreach my $param (@{$params}) {
+        if ($param->{type} eq "cookie") {
+            my @valuematch = $param->{value} =~ /{(.*?)}/g;
+            if (defined $valuematch[0]) {
+                if ($matcher->{$valuematch[0]}) {
+                    $cookie = {"Cookie: " => $param->{name}."=".$matcher->{$valuematch[0]}};
+                }
+            }
+            last;
+        }
+    }
+
+    return $cookie;
+
+}
+
+sub getAuthorization {
+    my ($self, $params, $user, $method) = @_;
+
+    my $authorization;
+    foreach my $param (@{$params}) {
+        if ($param->{type} eq "header" && $param->{name} eq "Authorization") {
+            if ($param->{value} eq "Basic") {
+                $authorization = {"Authorization: " => $param->{value}." ".encode_base64($user->username.":".$user->password)};
+            }
+            if ($param->{value} eq "Koha") {
+                my $date = Mojo::Date->new;
+                my $message = join(' ', uc($method), $user->username, $date->to_string);
+                my $digest = Digest::SHA::hmac_sha256_hex($message, $user->apikey);
+                my $signature = "Koha ".$user->username.":".$digest;
+                $authorization = {"Authorization" => $signature, "X-Koha-Date" => $date->to_string};
+            }
+            last;
+        }
+    }
+
+    return $authorization;
+
 }
 
 1;

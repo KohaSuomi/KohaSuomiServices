@@ -32,6 +32,7 @@ sub parse {
     $res->{endpoint_url} = $interface->endpoint_url;
     $res->{interface} = $interface->interface;
     $res->{type} = $interface->type;
+    $res->{auth_url} = $interface->auth_url;
     $res->{params} = $params;
 
     return $res;

@@ -76,7 +76,8 @@ sub push {
         my $path = $self->create_path($interface, $update);
         my $data = $self->fields->find($update->{id});
         my $body = $self->create_body($interface->{params}, $data);
-        $self->update($path, $body);
+        my $authentication = $self->exportauth->interfaceAuthentication($interface, $update->{authuser_id}, 'PUT');
+        $self->update($path, $body, $authentication);
     }
 
     my $adds = $self->exporter->getAdd();
@@ -111,13 +112,16 @@ sub find {
 }
 
 sub update {
-    my ($self, $path, $body) = @_;
+    my ($self, $path, $body, $authentication) = @_;
     
     warn Data::Dumper::Dumper $path;
     warn Data::Dumper::Dumper $body;
-    my $tx = $self->ua->put($path => json => $body);
+    warn Data::Dumper::Dumper $authentication;
+    #my $header = {"Cookie: " => "CGISESSID=".$authentication->{sessionid}};
+    #warn Data::Dumper::Dumper $header;
+    #my $tx = $self->ua->put($path => $authentication => $body);
     # $tx = $self->ua->start($tx);
-    warn Data::Dumper::Dumper decode_json($tx->res->body);
+    #warn Data::Dumper::Dumper $tx->res->body;
     
 }
 
@@ -296,7 +300,8 @@ sub create_body {
                 }
             }
             if (defined $valuematch[0] && $valuematch[0] eq "marcxml") {
-                $body->{$param->{name}} = $self->convert->formatxml($matcher);
+                $body->{$param->{name}} = $self->convert->formatxml($matcher) if $body->{$param->{name}};
+                $body = $self->convert->formatxml($matcher) unless $body->{$param->{name}};
             }
         }
     }

@@ -18,7 +18,7 @@
         <hr/>
         <div class="mb-2 input-group">
           <input type="text" class="form-control" v-model="auth_url" placeholder="Authentication url">
-          <button v-if="auth_url" v-on:click="checkAuthUrl($event)" class="btn btn-sm btn-secondary" type="submit"><i class="far fa-edit"></i></button>
+          <button v-on:click="checkAuthUrl($event)" class="btn btn-sm btn-secondary" type="submit"><i class="far fa-edit"></i></button>
         </div>
         <h5 class="modal-title">Login accounts</h5>
         <hr/>
