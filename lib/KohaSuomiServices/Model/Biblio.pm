@@ -8,6 +8,7 @@ use POSIX 'strftime';
 use Mojo::UserAgent;
 use KohaSuomiServices::Model::Convert;
 use Mojo::JSON qw(decode_json encode_json);
+use KohaSuomiServices::Model::Exception::NotFound;
 use KohaSuomiServices::Model::Biblio::Interface;
 use KohaSuomiServices::Model::Biblio::Fields;
 use KohaSuomiServices::Model::Biblio::Matcher;
@@ -194,6 +195,7 @@ sub getTargetId {
     my %matchers = $self->matchers->find($schema, $interface->{id}, "identifier");
 
     my $identifier = $self->search_fields($record, %matchers);
+    KohaSuomiServices::Model::Exception::NotFound->throw(error => "Identifier not found on record") unless $identifier;
     my ($key, $value) = %{$identifier};
     $value =~ s/\D//g;
     my $target_id = $value;
