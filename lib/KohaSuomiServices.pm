@@ -23,6 +23,8 @@ sub startup {
   $self->app->sessions->default_expiration('600');
   my $log = Mojo::Log->new(path => $config->{logs}, level => $config->{log_level});
 
+  push @{ $self->commands->namespaces }, 'KohaSuomiServices::Command';
+
   # Models
   $self->helper(
     configs => sub { my $configs = KohaSuomiServices::Model::Config->new(config => $config) });
