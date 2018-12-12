@@ -238,6 +238,8 @@ sub search_fields {
                     $matcher->{$field->{tag}.$matchers{$field->{tag}}} = $subfield->{value} unless $matcher->{$field->{tag}.$matchers{$field->{tag}}};
                 }
             }
+        } elsif ($matchers{$field->{tag}} eq "" && defined $field->{value}) {
+            $matcher->{$field->{tag}} = $field->{value};
         }
     }
     return $matcher;
