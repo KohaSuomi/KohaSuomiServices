@@ -47,7 +47,7 @@
         <form @submit="checkForm($event)">
             <div class="input-group">
             <input type="text" class="form-control" v-model="username" placeholder="Username">
-            <input type="text" class="form-control" v-model="password" placeholder="Password">
+            <input type="password" class="form-control" v-model="password" placeholder="Password">
             <input type="text" class="form-control" v-model="apikey" placeholder="Api Key">
             <button class="btn btn-sm btn-primary" type="submit">Submit</button>
             </div>
