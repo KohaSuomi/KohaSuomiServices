@@ -10,6 +10,7 @@ new Vue({
         interface: "",
         name: "",
         type: "",
+        method: "",
         endpoint_url: "",
         auth_url: "",
         parametername: "",
@@ -61,7 +62,7 @@ new Vue({
           {
             service: 'biblio',
             table: 'interface',
-            params: {interface: this.interface, name: this.name, type: this.type, endpoint_url: this.endpoint_url}
+            params: {interface: this.interface, name: this.name, type: this.type, method: this.method, endpoint_url: this.endpoint_url}
           },
           {headers: { Authorization: apitoken }}
         ).then(response => {
@@ -76,7 +77,7 @@ new Vue({
             service: 'biblio',
             table: 'interface',
             id: config.id,
-            params: {interface: config.interface, name: config.name, type: config.type, endpoint_url: config.endpoint_url}
+            params: {interface: config.interface, name: config.name, type: config.type, method: config.method, endpoint_url: config.endpoint_url}
           },
           {headers: { Authorization: apitoken }}
         ).then(response => {

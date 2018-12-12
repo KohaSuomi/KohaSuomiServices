@@ -8,6 +8,7 @@
             <th>Name</th>
             <th>Interface</th>
             <th>Type</th>
+            <th>Method</th>
             <th>Endpoint url</th>
             <th>Definitions</th>
             <th></th>
@@ -42,6 +43,14 @@
                 <option value='get'>get</option>
                 <option value='add'>add</option>
                 <option value='update'>update</option>
+            </select>
+            <select class="form-control" v-model="method" placeholder="Method">
+                <option value='' selected>Select method</option>
+                <option value='get'>get</option>
+                <option value='post'>post</option>
+                <option value='put'>put</option>
+                <option value='patch'>patch</option>
+                <option value='delete'>delete</option>
             </select>
             <input type="text" class="form-control" v-model="endpoint_url" placeholder="Url">
             <button class="btn btn-sm btn-primary" type="submit">Submit</button>

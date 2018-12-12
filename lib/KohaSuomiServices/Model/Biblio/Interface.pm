@@ -33,6 +33,7 @@ sub parse {
     $res->{interface} = $interface->interface;
     $res->{type} = $interface->type;
     $res->{auth_url} = $interface->auth_url;
+    $res->{method} = $interface->method;
     $res->{params} = $params;
 
     return $res;

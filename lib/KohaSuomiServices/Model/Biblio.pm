@@ -77,8 +77,8 @@ sub push {
         my $path = $self->create_path($interface, $update);
         my $data = $self->fields->find($update->{id});
         my $body = $self->create_body($interface->{params}, $data);
-        my $authentication = $self->exportauth->interfaceAuthentication($interface, $update->{authuser_id}, 'PUT');
-        my ($resCode, $resBody) = $self->update($path, $body, $authentication);
+        my $authentication = $self->exportauth->interfaceAuthentication($interface, $update->{authuser_id}, $interface->{method});
+        my ($resCode, $resBody) = $self->update($interface->{method}, $path, $body, $authentication);
         if ($resCode eq "200") {
             $self->exporter->update($update->{id}, {status => "success"});
         } else {
@@ -92,8 +92,8 @@ sub push {
         my $path = $self->create_path($interface, $add);
         my $data = $self->fields->find($add->{id});
         my $body = $self->create_body($interface->{params}, $data);
-        my $authentication = $self->exportauth->interfaceAuthentication($interface, $add->{authuser_id}, 'POST');
-        my ($resCode, $resBody) = $self->add($path, $body, $authentication);
+        my $authentication = $self->exportauth->interfaceAuthentication($interface, $add->{authuser_id}, $interface->{method});
+        my ($resCode, $resBody) = $self->add($interface->{method}, $path, $body, $authentication);
         if ($resCode eq "200") {
             $self->exporter->update($add->{id}, {status => "success"});
         } else {
@@ -113,15 +113,15 @@ sub list {
 }
 
 sub update {
-    my ($self, $path, $body, $authentication) = @_;
-    my $tx = $self->ua->put($path => $authentication => $body);
+    my ($self, $method, $path, $body, $authentication) = @_;
+    my $tx = $self->ua->$method($path => $authentication => $body);
     return ($tx->res->code, decode_json($tx->res->body));
     
 }
 
 sub add {
-    my ($self, $path, $body, $authentication) = @_;
-    my $tx = $self->ua->post($path => $authentication => $body);
+    my ($self, $method, $path, $body, $authentication) = @_;
+    my $tx = $self->ua->$method($path => $authentication => $body);
     return ($tx->res->code, decode_json($tx->res->body));
 }
 
