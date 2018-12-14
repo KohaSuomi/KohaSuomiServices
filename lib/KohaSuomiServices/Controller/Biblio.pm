@@ -59,17 +59,15 @@ sub check {
         my $response;
         my $biblio = $c->convert->formatjson($req->{marcxml});
         my $remote = $c->biblio->searchTarget($req->{interface}, $biblio);
-        $remote = shift @{$remote};
-        my $target_id = $c->biblio->getTargetId($req->{interface}, $remote);
 
         my $data;
-        my $message;
+        my $target_id;
         if ($remote) {
+            $remote = shift @{$remote};
+            $target_id = $c->biblio->getTargetId($req->{interface}, $remote);
             $data = $remote;
-            $message = "Match found";
-        } else {
-            $message = "Export";
-        }
+        } 
+
         $response = {target_id => $target_id, targetrecord => $data, sourcerecord => $biblio};
         
         if ($req) {

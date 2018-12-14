@@ -23,6 +23,9 @@
 <template id="auth-modal">
   %= include 'biblio/_authModal'
 </template>
+<template id="response-modal">
+  %= include 'biblio/_responseModal'
+</template>
 <template id="list-matchers">
   %= include 'biblio/_matcherList'
 </template>
@@ -31,4 +34,5 @@
   var apitoken = '<%= $apikey %>';
 </script>
 <script src="<%= $config->{servicepath}%>/js/biblio/interfaceApp.js"></script>
+<script src="<%= $config->{servicepath}%>/js/biblio/responseComponent.js"></script>
 <script src="<%= $config->{servicepath}%>/js/biblio/matcherApp.js"></script>

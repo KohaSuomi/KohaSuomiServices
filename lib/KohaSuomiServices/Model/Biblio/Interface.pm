@@ -21,14 +21,14 @@ sub load {
     my $localInterface = $client->resultset("Interface")->search($params)->next;
     KohaSuomiServices::Model::Exception::NotFound->throw(error => "No ".$params->{type}." interface defined for ".$params->{name}) unless $localInterface;
     my $interfaceParams = $self->parameter->find({interface_id => $localInterface->id});
-    my $interface = $self->parse($localInterface, $interfaceParams);
-    return $interface;
+    return $self->parse($localInterface, $interfaceParams);
 }
 
 sub parse {
     my ($self, $interface, $params) = @_;
 
     my $res->{id} = $interface->id;
+    $res->{name} = $interface->name;
     $res->{endpoint_url} = $interface->endpoint_url;
     $res->{interface} = $interface->interface;
     $res->{type} = $interface->type;
@@ -37,6 +37,11 @@ sub parse {
     $res->{params} = $params;
 
     return $res;
+}
+
+sub host {
+    my ($self, $type) = @_;
+    return $self->load({host => 1, type => $type});
 }
 
 1;

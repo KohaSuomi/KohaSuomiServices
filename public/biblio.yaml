@@ -50,11 +50,13 @@ paths:
         schema:
           type: object
           required:
-            - target_id
+            - source_id
             - interface
             - marc
           properties:
-            targetid:
+            target_id:
+              type: [integer, "null"]
+            source_id:
               type: integer
             marc:
               type: [object, string]

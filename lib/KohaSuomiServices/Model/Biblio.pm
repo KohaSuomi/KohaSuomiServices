@@ -6,6 +6,7 @@ use Modern::Perl;
 use Try::Tiny;
 use POSIX 'strftime';
 use Mojo::UserAgent;
+use Mojo::URL;
 use KohaSuomiServices::Model::Convert;
 use Mojo::JSON qw(decode_json encode_json);
 use KohaSuomiServices::Model::Exception::NotFound;
@@ -16,6 +17,7 @@ use KohaSuomiServices::Model::Biblio::ActiveRecords;
 use KohaSuomiServices::Model::Config;
 use KohaSuomiServices::Model::Biblio::Exporter;
 use KohaSuomiServices::Model::Biblio::ExportAuth;
+use KohaSuomiServices::Model::Biblio::Response;
 
 has schema => sub {KohaSuomiServices::Database::Client->new};
 has sru => sub {KohaSuomiServices::Model::SRU->new};
@@ -25,6 +27,7 @@ has matchers => sub {KohaSuomiServices::Model::Biblio::Matcher->new};
 has active => sub {KohaSuomiServices::Model::Biblio::ActiveRecords->new};
 has exporter => sub {KohaSuomiServices::Model::Biblio::Exporter->new};
 has exportauth => sub {KohaSuomiServices::Model::Biblio::ExportAuth->new};
+has response => sub {KohaSuomiServices::Model::Biblio::Response->new};
 has convert => sub {KohaSuomiServices::Model::Convert->new};
 has ua => sub {Mojo::UserAgent->new};
 has config => sub {KohaSuomiServices::Model::Config->new->service("biblio")->load};
@@ -37,7 +40,7 @@ sub export {
     
     my $type = defined $params->{target_id} ? "update" :"add";
     my $authuser = $self->exportauth->checkAuthUser($schema, $params->{username}, $interface->{id});
-    my $exporter = $self->exporter->setExporterParams($interface, $type, "pending", $params->{target_id}, $authuser);
+    my $exporter = $self->exporter->setExporterParams($interface, $type, "pending", $params->{source_id}, $params->{target_id}, $authuser);
     my $data = $self->exporter->insert($schema, $exporter);
 
     $params->{marc} = ref($params->{marc}) eq "HASH" ? $params->{marc} : $self->convert->formatjson($params->{marc});
@@ -80,9 +83,10 @@ sub push {
         my $authentication = $self->exportauth->interfaceAuthentication($interface, $update->{authuser_id}, $interface->{method});
         my ($resCode, $resBody) = $self->update($interface->{method}, $path, $body, $authentication);
         if ($resCode eq "200") {
-            $self->exporter->update($update->{id}, {status => "success"});
+            #$self->exporter->update($update->{id}, {status => "success"});
+            $self->response->getAndUpdate($interface, $resBody, $update->{source_id});
         } else {
-            $self->exporter->update($update->{id}, {status => "failed"});
+            #$self->exporter->update($update->{id}, {status => "failed"});
         }
     }
 
@@ -93,12 +97,12 @@ sub push {
         my $data = $self->fields->find($add->{id});
         my $body = $self->create_body($interface->{params}, $data);
         my $authentication = $self->exportauth->interfaceAuthentication($interface, $add->{authuser_id}, $interface->{method});
-        my ($resCode, $resBody) = $self->add($interface->{method}, $path, $body, $authentication);
-        if ($resCode eq "200") {
-            $self->exporter->update($add->{id}, {status => "success"});
-        } else {
-            $self->exporter->update($add->{id}, {status => "failed"});
-        }
+        # my ($resCode, $resBody) = $self->add($interface->{method}, $path, $body, $authentication);
+        # if ($resCode eq "200") {
+        #     $self->exporter->update($add->{id}, {status => "success"});
+        # } else {
+        #     $self->exporter->update($add->{id}, {status => "failed"});
+        # }
     }
     return {message => "Success"};
 }
@@ -114,6 +118,7 @@ sub list {
 
 sub update {
     my ($self, $method, $path, $body, $authentication) = @_;
+    ($path, $authentication) = $self->exportauth->basicAuthPath($path, $authentication);
     my $tx = $self->ua->$method($path => $authentication => $body);
     return ($tx->res->code, decode_json($tx->res->body));
     
@@ -121,6 +126,14 @@ sub update {
 
 sub add {
     my ($self, $method, $path, $body, $authentication) = @_;
+    ($path, $authentication) = $self->exportauth->basicAuthPath($path, $authentication);
+    my $tx = $self->ua->$method($path => $authentication => $body);
+    return ($tx->res->code, decode_json($tx->res->body));
+}
+
+sub get {
+    my ($self, $method, $path, $body, $authentication) = @_;
+    ($path, $authentication) = $self->exportauth->basicAuthPath($path, $authentication);
     my $tx = $self->ua->$method($path => $authentication => $body);
     return ($tx->res->code, decode_json($tx->res->body));
 }

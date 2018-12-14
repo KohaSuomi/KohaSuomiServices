@@ -1,0 +1,35 @@
+<div class="modal fade" :id="'responseModal_' + config.id" tabindex="-1" role="dialog" aria-labelledby="responseModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div id="responses" class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="responseModalLabel">{{config.name}} response mapper</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p v-if="errors.length">
+            <b>Please correct the following error(s):</b>
+            <ul>
+            <li v-for="error in errors">{{ error }}</li>
+            </ul>
+        </p>
+        <p v-if="success" class="text-success">Added successfully!</p>
+        <form @submit="checkForm($event)">
+            <div class="input-group">
+            <input type="text" class="form-control" v-model="identifier_name" placeholder="Identifier field">
+            <select class="form-control" v-model="type" placeholder="Type">
+                <option value='update'>update source</option>
+                <option value='delete'>delete source</option>
+            </select>
+            <button class="btn btn-sm btn-primary" type="submit"><i class="far fa-edit"></i></button>
+            <button v-on:click="deleteResponse($event)" class="btn btn-sm btn-warning" type="button"><i class="far fa-trash-alt"></i></button>
+            </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>

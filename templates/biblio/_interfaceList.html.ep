@@ -44,6 +44,8 @@
         <modal-component v-bind:config="config" v-bind:parameters="parameters"></modal-component>
         <button class="btn btn-sm btn-primary" data-toggle="modal" :data-target="'#authModal_' + config.id"><i class="fas fa-key"></i></button>
         <auth-component v-bind:config="config"></auth-component>
+        <button class="btn btn-sm btn-primary" data-toggle="modal" :data-target="'#responseModal_' + config.id"><i class="fas fa-exchange-alt"></i></button>
+        <response-component v-bind:config="config"></response-component>
     </td>
     <td>
         <div class="d-inline-block" v-if="showUpdate"><button v-on:click="updateConfig(config)" class="btn btn-sm btn-secondary" type="submit">Update</button></div>

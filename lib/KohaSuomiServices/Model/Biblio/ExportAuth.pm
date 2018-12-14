@@ -5,7 +5,7 @@ use Modern::Perl;
 use KohaSuomiServices::Model::Config;
 use KohaSuomiServices::Database::Client;
 use Mojo::JSON qw(decode_json encode_json);
-use MIME::Base64;
+use Mojo::URL;
 use Digest::SHA qw(hmac_sha256_hex);
 
 has schema => sub {KohaSuomiServices::Database::Client->new};
@@ -75,7 +75,7 @@ sub getCookie {
             last;
         }
     }
-
+    KohaSuomiServices::Model::Exception::NotFound->throw(error => "No authorization cookie parameter") unless $cookie;
     return $cookie;
 
 }
@@ -87,7 +87,7 @@ sub getAuthorization {
     foreach my $param (@{$params}) {
         if ($param->{type} eq "header" && $param->{name} eq "Authorization") {
             if ($param->{value} eq "Basic") {
-                $authorization = {"Authorization: " => $param->{value}." ".encode_base64($user->username.":".$user->password)};
+                $authorization = $user->username.":".$user->password;
             }
             if ($param->{value} eq "Koha") {
                 my $date = Mojo::Date->new;
@@ -99,9 +99,20 @@ sub getAuthorization {
             last;
         }
     }
-
+    KohaSuomiServices::Model::Exception::NotFound->throw(error => "No authorization header parameter") unless $authorization;
     return $authorization;
 
+}
+
+sub basicAuthPath {
+    my ($self, $path, $authentication) = @_;
+
+    unless (ref($authentication) eq "HASH") {
+        $path = Mojo::URL->new($path)->userinfo($authentication);
+        $authentication = {};
+    }
+
+    return ($path, $authentication);
 }
 
 1;
