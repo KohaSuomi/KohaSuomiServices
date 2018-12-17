@@ -28,7 +28,7 @@ sub getAndUpdate {
     my $host = $self->interface->host("update");
     my $req = $resBody->{marcxml} ? {marc => $resBody->{marcxml}, source_id => $targetId->{target_id}, target_id => $source_id, interface => $host->{name}} : {marc => $resBody, source_id => $targetId->{target_id}, target_id => $source_id, interface => $host->{name}};
     warn Data::Dumper::Dumper $req;
-    #$self->biblio->export($req);
+    $self->biblio->export($req);
 }
 
 sub parseResponse {
