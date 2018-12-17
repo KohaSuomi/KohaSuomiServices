@@ -2,6 +2,7 @@ package KohaSuomiServices::Controller::Billing;
 use Mojo::Base 'Mojolicious::Controller';
 
 use Mojo::UserAgent;
+use utf8;
 
 use Try::Tiny;
 use KohaSuomiServices::Model::Config;

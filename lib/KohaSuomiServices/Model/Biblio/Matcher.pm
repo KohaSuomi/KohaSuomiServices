@@ -2,6 +2,7 @@ package KohaSuomiServices::Model::Biblio::Matcher;
 use Mojo::Base -base;
 
 use Modern::Perl;
+use utf8;
 
 use Try::Tiny;
 

@@ -2,6 +2,7 @@ package KohaSuomiServices::Model::Biblio::ExportAuth;
 use Mojo::Base -base;
 
 use Modern::Perl;
+use utf8;
 use KohaSuomiServices::Model::Config;
 use KohaSuomiServices::Database::Client;
 use Mojo::JSON qw(decode_json encode_json);

@@ -1,6 +1,7 @@
 package KohaSuomiServices::Model::Exception::Database;
 
 use Modern::Perl;
+use utf8;
 use KohaSuomiServices::Model::Exception;
 
 use Exception::Class (

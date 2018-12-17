@@ -1,6 +1,7 @@
 package KohaSuomiServices::Model::Exception;
 
 use Modern::Perl;
+use utf8;
 use Scalar::Util qw( blessed );
 
 use Exception::Class (

@@ -1,6 +1,8 @@
 package KohaSuomiServices::Command::PushExports;
 use Mojo::Base 'Mojolicious::Command';
 
+use utf8;
+
 has description => 'Pushes pending exports to interfaces';
 has usage => <<"USAGE";
 Run this to push pending exports to interfaces.

@@ -2,10 +2,11 @@ package KohaSuomiServices::Model::Convert;
 use Mojo::Base -base;
 
 use Modern::Perl;
+use utf8;
 
 use Try::Tiny;
 use XML::Simple;
-use Encode 'encode';
+
 
 
 sub xmltohash {
@@ -65,8 +66,8 @@ sub formatfields {
     foreach my $controlfield (@{$controlfields}) {
         if (!$filters{$controlfield->{"tag"}}) {
             my $formated;
-            $formated->{tag} = encode("UTF-8", $controlfield->{"tag"});
-            $formated->{value} = encode("UTF-8", $controlfield->{"content"});
+            $formated->{tag} = $controlfield->{"tag"};
+            $formated->{value} = $controlfield->{"content"};
             push @fields, $formated;
         }
     }
@@ -79,10 +80,10 @@ sub formatfields {
             $formated->{ind1} = $datafield->{"ind1"};
             $formated->{ind2} = $datafield->{"ind2"};
             if (ref($datafield->{"subfield"}) eq "HASH"){
-                push @subfields, {code => encode("UTF-8", $datafield->{"subfield"}->{"code"}), value => encode("UTF-8", $datafield->{"subfield"}->{"content"})}
+                push @subfields, {code => $datafield->{"subfield"}->{"code"}, value => $datafield->{"subfield"}->{"content"}}
             } else {
                 foreach my $subfield (@{$datafield->{"subfield"}}) {
-                    push @subfields, {code => encode("UTF-8", $subfield->{"code"}), value => encode("UTF-8", $subfield->{"content"})}
+                    push @subfields, {code => $subfield->{"code"}, value => $subfield->{"content"}}
                 }
             }
             $formated->{subfields} = \@subfields;

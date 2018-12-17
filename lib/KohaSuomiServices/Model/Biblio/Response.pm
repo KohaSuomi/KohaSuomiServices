@@ -2,6 +2,7 @@ package KohaSuomiServices::Model::Biblio::Response;
 use Mojo::Base -base;
 
 use Modern::Perl;
+use utf8;
 
 use Try::Tiny;
 use Mojo::JSON qw(decode_json encode_json);

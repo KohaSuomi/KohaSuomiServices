@@ -2,6 +2,7 @@ package KohaSuomiServices::Controller::Biblio;
 use Mojo::Base 'Mojolicious::Controller';
 
 use Modern::Perl;
+use utf8;
 
 use Try::Tiny;
 

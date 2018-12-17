@@ -1,6 +1,8 @@
 package KohaSuomiServices::Command::UpdateActiveRecords;
 use Mojo::Base 'Mojolicious::Command';
 
+use utf8;
+
 has description => 'Updates active records from host interface';
 has usage => <<"USAGE";
 Host interface has to be defined on configurations.
