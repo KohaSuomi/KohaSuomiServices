@@ -100,7 +100,7 @@ sub push {
         my ($resCode, $resBody) = $self->add($interface->{method}, $path, $body, $authentication);
         if ($resCode eq "200") {
             $self->exporter->update($add->{id}, {status => "success"});
-            $self->response->getAndUpdate($interface, $resBody, $update->{source_id});
+            $self->response->getAndUpdate($interface, $resBody, $add->{source_id});
         } else {
             $self->exporter->update($add->{id}, {status => "failed"});
         }
