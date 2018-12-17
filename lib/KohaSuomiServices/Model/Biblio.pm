@@ -83,10 +83,10 @@ sub push {
         my $authentication = $self->exportauth->interfaceAuthentication($interface, $update->{authuser_id}, $interface->{method});
         my ($resCode, $resBody) = $self->update($interface->{method}, $path, $body, $authentication);
         if ($resCode eq "200") {
-            #$self->exporter->update($update->{id}, {status => "success"});
+            $self->exporter->update($update->{id}, {status => "success"});
             $self->response->getAndUpdate($interface, $resBody, $update->{source_id});
         } else {
-            #$self->exporter->update($update->{id}, {status => "failed"});
+            $self->exporter->update($update->{id}, {status => "failed"});
         }
     }
 
@@ -97,12 +97,13 @@ sub push {
         my $data = $self->fields->find($add->{id});
         my $body = $self->create_body($interface->{params}, $data);
         my $authentication = $self->exportauth->interfaceAuthentication($interface, $add->{authuser_id}, $interface->{method});
-        # my ($resCode, $resBody) = $self->add($interface->{method}, $path, $body, $authentication);
-        # if ($resCode eq "200") {
-        #     $self->exporter->update($add->{id}, {status => "success"});
-        # } else {
-        #     $self->exporter->update($add->{id}, {status => "failed"});
-        # }
+        my ($resCode, $resBody) = $self->add($interface->{method}, $path, $body, $authentication);
+        if ($resCode eq "200") {
+            $self->exporter->update($add->{id}, {status => "success"});
+            $self->response->getAndUpdate($interface, $resBody, $update->{source_id});
+        } else {
+            $self->exporter->update($add->{id}, {status => "failed"});
+        }
     }
     return {message => "Success"};
 }
