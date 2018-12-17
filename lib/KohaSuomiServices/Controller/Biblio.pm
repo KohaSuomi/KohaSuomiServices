@@ -56,7 +56,7 @@ sub check {
     my $c = shift->openapi->valid_input or return;
 
     try {
-        my $req  = $c->req->params->to_hash;
+        my $req  = $c->req->json;
         my $response;
         my $biblio = $c->convert->formatjson($req->{marcxml});
         my $remote = $c->biblio->searchTarget($req->{interface}, $biblio);
@@ -110,50 +110,5 @@ sub broadcast {
         $c->render(KohaSuomiServices::Model::Exception::handleDefaults($e));
     }
 }
-
-# sub add {
-#     my $c = shift->openapi->valid_input or return;
-
-#     try {
-#         my $biblionumber = $c->validation->param('biblionumber');
-#         my $params  = $c->req->params->to_hash;
-
-#         my $service = KohaSuomiServices::Model::Config->new({config => $c->{app}->{config}});
-#         my $config = $service->get('biblio');
-
-#         my $auth = KohaSuomiServices::Model::Auth->new({config => $config});
-#         my $sessionid = $auth->get;
-
-#         my $biblio = KohaSuomiServices::Model::Biblio->new({config => $config});
-#         my $res = $biblio->find($biblionumber, $sessionid);
-#         $biblio->add_remote($res);
-#         $c->render(status => 200, openapi => {message => "Success"});
-#     } catch {
-#         $c->render(status => 500, openapi => {message => $_});
-#     }
-# }
-
-# sub update {
-#     my $c = shift->openapi->valid_input or return;
-
-#     try {
-#         my $biblionumber = $c->validation->param('biblionumber');
-#         my $params  = $c->req->params->to_hash;
-
-#         my $service = KohaSuomiServices::Model::Config->new({config => $c->{app}->{config}});
-#         my $config = $service->get('biblio');
-
-#         my $auth = KohaSuomiServices::Model::Auth->new({config => $config});
-#         my $sessionid = $auth->get;
-
-#         my $biblio = KohaSuomiServices::Model::Biblio->new({config => $config});
-#         my $res = $biblio->find($biblionumber, $sessionid);
-#         $biblio->update_remote($res);
-        
-#         $c->render(status => 200, openapi => {message => "Success"});
-#     } catch {
-#         $c->render(status => 500, openapi => {message => $_});
-#     }
-# }
 
 1;
