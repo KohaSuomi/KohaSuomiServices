@@ -304,7 +304,7 @@ sub create_body {
     foreach my $param (@{$params}) {
         if($param->{type} eq "body") {
             my @valuematch = $param->{value} =~ /{(.*?)}/g;
-            if (defined $valuematch[0] && $valuematch[0] ne "marcxml") {
+            if (defined $valuematch[0] && $valuematch[0] ne "marcxml" && $valuematch[0] ne "marcjson") {
                 if ($matcher->{$valuematch[0]}) {
                     $param->{value} =~ s/{$valuematch[0]}/$matcher->{$valuematch[0]}/g;
                     $body->{$param->{name}} = $matcher->{$valuematch[0]};
@@ -316,6 +316,9 @@ sub create_body {
             if (defined $valuematch[0] && $valuematch[0] eq "marcxml") {
                 $body->{$param->{name}} = $self->convert->formatxml($matcher) if $body->{$param->{name}};
                 $body = $self->convert->formatxml($matcher) unless $body->{$param->{name}};
+            }
+            if (defined $valuematch[0] && $valuematch[0] eq "marcjson") {
+                $body = $matcher;
             }
         }
     }
