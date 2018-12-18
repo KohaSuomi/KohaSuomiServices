@@ -5,7 +5,9 @@ use Modern::Perl;
 use utf8;
 use KohaSuomiServices::Model::Config;
 use KohaSuomiServices::Database::Client;
-use Mojo::JSON qw(decode_json encode_json);
+use KohaSuomiServices::Model::Exception::NotFound;
+use KohaSuomiServices::Model::Exception::BadParameter;
+use Mojo::JSON qw(from_json);
 use Mojo::URL;
 use Digest::SHA qw(hmac_sha256_hex);
 
@@ -33,7 +35,7 @@ sub findFirstUser {
 sub checkAuthUser {
     my ($self, $client, $username, $interface_id) = @_;
     my $authuser = $self->findUserFromLink($client, $username, $interface_id) ? $self->findUserFromLink($client, $username, $interface_id) : $self->findFirstUser($client, $interface_id);
-    KohaSuomiServices::Model::Exception::NotFound->throw(error => "No authentication user") unless $authuser;
+    KohaSuomiServices::Model::Exception::NotFound->throw(error => "No authentication user\n") unless $authuser;
     return $authuser->id;
 }
 
@@ -58,7 +60,8 @@ sub interfaceAuthentication {
 sub signIn {
     my ($self, $path, $body) = @_;
     my $tx = $self->ua->post($path => form => $body);
-    return decode_json($tx->res->body);
+    KohaSuomiServices::Model::Exception::BadParameter->throw(error => "Bad authuser parameters\n") if $tx->res->error;
+    return from_json($tx->res->body);
 }
 
 sub getCookie {
@@ -76,7 +79,7 @@ sub getCookie {
             last;
         }
     }
-    KohaSuomiServices::Model::Exception::NotFound->throw(error => "No authorization cookie parameter") unless $cookie;
+    KohaSuomiServices::Model::Exception::NotFound->throw(error => "No authorization cookie parameter\n") unless $cookie;
     return $cookie;
 
 }
@@ -100,7 +103,7 @@ sub getAuthorization {
             last;
         }
     }
-    KohaSuomiServices::Model::Exception::NotFound->throw(error => "No authorization header parameter") unless $authorization;
+    KohaSuomiServices::Model::Exception::NotFound->throw(error => "No authorization header parameter\n") unless $authorization;
     return $authorization;
 
 }
