@@ -11,12 +11,17 @@ use XML::Simple;
 
 sub xmltohash {
     my ($self, $res) = @_;
-
     my $parser = XML::Simple->new();
-    my $xml = $parser->XMLin($res, KeyAttr => []);
+    my $xml = $parser->XMLin($res);
 
     return $xml;
 }
+
+sub xmlescape {
+    my ($self, $string) = @_;
+    return XML::Simple->new()->escape_value($string);
+}
+
 
 sub formatjson {
     my ($self, $marcxml) = @_;
@@ -31,7 +36,6 @@ sub formatjson {
     my $format;
     $format->{leader} = $data->{"leader"};
     $format->{fields} = $self->formatfields($data->{"controlfield"}, $data->{"datafield"});
-
     return $format;
 
 }
@@ -54,6 +58,7 @@ sub formatxml {
         }
     }
     $format .= "</record>";
+
     return $format;
 
 }
@@ -67,7 +72,7 @@ sub formatfields {
         if (!$filters{$controlfield->{"tag"}}) {
             my $formated;
             $formated->{tag} = $controlfield->{"tag"};
-            $formated->{value} = $controlfield->{"content"};
+            $formated->{value} = $self->xmlescape($controlfield->{"content"});
             push @fields, $formated;
         }
     }
@@ -80,10 +85,10 @@ sub formatfields {
             $formated->{ind1} = $datafield->{"ind1"};
             $formated->{ind2} = $datafield->{"ind2"};
             if (ref($datafield->{"subfield"}) eq "HASH"){
-                push @subfields, {code => $datafield->{"subfield"}->{"code"}, value => $datafield->{"subfield"}->{"content"}}
+                push @subfields, {code => $datafield->{"subfield"}->{"code"}, value => $self->xmlescape($datafield->{"subfield"}->{"content"})}
             } else {
                 foreach my $subfield (@{$datafield->{"subfield"}}) {
-                    push @subfields, {code => $subfield->{"code"}, value => $subfield->{"content"}}
+                    push @subfields, {code => $subfield->{"code"}, value => $self->xmlescape($subfield->{"content"})}
                 }
             }
             $formated->{subfields} = \@subfields;
