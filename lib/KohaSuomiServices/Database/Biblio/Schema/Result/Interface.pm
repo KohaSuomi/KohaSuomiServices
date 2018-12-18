@@ -12,6 +12,7 @@ __PACKAGE__->add_columns(
   interface => { data_type => 'varchar', is_enum => 1, extra => { list => [qw/REST SRU/]} },
   type => { data_type => 'varchar', is_enum => 1, extra => { list => [qw/search get add update delete/]} },
   method => { data_type => 'enum', is_enum => 1, is_nullable => 1, extra => { list => [qw/get post put patch delete/]} },
+  format => { data_type => 'enum', is_enum => 1, is_nullable => 1, extra => { list => [qw/json form/]} },
   endpoint_url => { data_type => 'varchar', size => 255 },
   auth_url => { data_type => 'varchar', size => 255 },
   host => {data_type => 'integer', is_boolean  => 1, false_is    => ['0', '-1']},

@@ -36,6 +36,15 @@
         <div v-else>{{config.method}}</div>
     </td>
     <td>
+        <div class="d-inline-block" v-if="showUpdate"><select class="form-control" v-model="config.format" placeholder="Format">
+            <option value=''></option>
+            <option value='json'>json</option>
+            <option value='form'>form</option>
+        </select>
+        </div>
+        <div v-else>{{config.format}}</div>
+    </td>
+    <td>
         <div class="d-inline-block" v-if="showUpdate"><input type="text" class="form-control" v-model="config.endpoint_url"></div>
         <div v-else>{{config.endpoint_url}}</div>
     </td>

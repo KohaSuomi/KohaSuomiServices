@@ -25,7 +25,7 @@ sub getAndUpdate {
     my $path = $self->biblio->create_path($getInterface, $targetId);
     my $user = $self->exportauth->checkAuthUser($schema, undef, $getInterface->{id});
     my $authentication = $self->exportauth->interfaceAuthentication($getInterface, $user, $getInterface->{method});
-    my ($resCode, $resBody) = $self->biblio->get($getInterface->{method}, $path, undef, $authentication);
+    my ($resCode, $resBody) = $self->biblio->callInterface($getInterface->{method}, $getInterface->{format}, $path, undef, $authentication);
     my $host = $self->interface->host("update");
     my $req = $resBody->{marcxml} ? {marc => $resBody->{marcxml}, source_id => $targetId->{target_id}, target_id => $source_id, interface => $host->{name}} : {marc => $resBody, source_id => $targetId->{target_id}, target_id => $source_id, interface => $host->{name}};
     warn Data::Dumper::Dumper $req;

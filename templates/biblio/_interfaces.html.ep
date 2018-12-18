@@ -9,6 +9,7 @@
             <th>Interface</th>
             <th>Type</th>
             <th>Method</th>
+            <th>Format</th>
             <th>Endpoint url</th>
             <th>Definitions</th>
             <th></th>
@@ -51,6 +52,11 @@
                 <option value='put'>put</option>
                 <option value='patch'>patch</option>
                 <option value='delete'>delete</option>
+            </select>
+            <select class="form-control" v-model="format" placeholder="Format">
+                <option value='' selected>Select format</option>
+                <option value='json'>json</option>
+                <option value='form'>form</option>
             </select>
             <input type="text" class="form-control" v-model="endpoint_url" placeholder="Url">
             <button class="btn btn-sm btn-primary" type="submit">Submit</button>
