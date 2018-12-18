@@ -9,8 +9,9 @@ use POSIX 'strftime';
 use Mojo::UserAgent;
 use Mojo::URL;
 use KohaSuomiServices::Model::Convert;
-use Mojo::JSON qw(decode_json encode_json);
+use Mojo::JSON qw(decode_json encode_json from_json);
 use KohaSuomiServices::Model::Exception::NotFound;
+use KohaSuomiServices::Model::Exception::BadParameter;
 use KohaSuomiServices::Model::Biblio::Interface;
 use KohaSuomiServices::Model::Biblio::Fields;
 use KohaSuomiServices::Model::Biblio::Matcher;
@@ -83,11 +84,11 @@ sub push {
         my $body = $self->create_body($interface->{params}, $data);
         my $authentication = $self->exportauth->interfaceAuthentication($interface, $update->{authuser_id}, $interface->{method});
         my ($resCode, $resBody) = $self->update($interface->{method}, $path, $body, $authentication);
-        if ($resCode eq "200") {
-            $self->exporter->update($update->{id}, {status => "success"});
+        if ($resCode eq "200" || $resCode eq "201") {
+            $self->exporter->update($update->{id}, {status => "success", errorstatus => ""});
             $self->response->getAndUpdate($interface, $resBody, $update->{source_id});
         } else {
-            $self->exporter->update($update->{id}, {status => "failed"});
+            $self->exporter->update($update->{id}, {status => "failed", errorstatus => $resBody});
         }
     }
 
@@ -99,11 +100,11 @@ sub push {
         my $body = $self->create_body($interface->{params}, $data);
         my $authentication = $self->exportauth->interfaceAuthentication($interface, $add->{authuser_id}, $interface->{method});
         my ($resCode, $resBody) = $self->add($interface->{method}, $path, $body, $authentication);
-        if ($resCode eq "200") {
-            $self->exporter->update($add->{id}, {status => "success"});
+        if ($resCode eq "200" || $resCode eq "201") {
+            $self->exporter->update($add->{id}, {status => "success", errorstatus => ""});
             $self->response->getAndUpdate($interface, $resBody, $add->{source_id});
         } else {
-            $self->exporter->update($add->{id}, {status => "failed"});
+            $self->exporter->update($add->{id}, {status => "failed", errorstatus => $resBody});
         }
     }
     return {message => "Success"};
@@ -122,7 +123,9 @@ sub update {
     my ($self, $method, $path, $body, $authentication) = @_;
     ($path, $authentication) = $self->exportauth->basicAuthPath($path, $authentication);
     my $tx = $self->ua->$method($path => $authentication => $body);
-    return ($tx->res->code, decode_json($tx->res->body));
+    warn Data::Dumper::Dumper $tx->res;
+    return ($tx->res->code, $tx->res->error->{message}) if $tx->res->error;
+    return ($tx->res->code, from_json($tx->res->body));
     
 }
 
@@ -130,14 +133,17 @@ sub add {
     my ($self, $method, $path, $body, $authentication) = @_;
     ($path, $authentication) = $self->exportauth->basicAuthPath($path, $authentication);
     my $tx = $self->ua->$method($path => $authentication => $body);
-    return ($tx->res->code, decode_json($tx->res->body));
+    warn Data::Dumper::Dumper $tx->res;
+    return ($tx->res->code, $tx->res->error->{message}) if $tx->res->error;
+    return ($tx->res->code, from_json($tx->res->body));
 }
 
 sub get {
     my ($self, $method, $path, $body, $authentication) = @_;
     ($path, $authentication) = $self->exportauth->basicAuthPath($path, $authentication);
     my $tx = $self->ua->$method($path => $authentication => $body);
-    return ($tx->res->code, decode_json($tx->res->body));
+    return ($tx->res->code, $tx->res->error->{message}) if $tx->res->error;
+    return ($tx->res->code, from_json($tx->res->body));
 }
 
 sub addActive {

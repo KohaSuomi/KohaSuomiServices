@@ -14,6 +14,7 @@ __PACKAGE__->add_columns(
   target_id => { data_type => 'varchar', size => 30 },
   type => { data_type => 'varchar', is_enum => 1, extra => { list => [qw/add update delete/]} },
   status => { data_type => 'varchar', is_enum => 1, extra => { list => [qw/pending success fail/]} },
+  errorstatus => { data_type => 'text' },
   timestamp => { data_type => 'datetime', default_value => \"current_timestamp", is_nullable => 0 },
 );
 __PACKAGE__->set_primary_key('id');
