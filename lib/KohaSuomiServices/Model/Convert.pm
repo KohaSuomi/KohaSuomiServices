@@ -72,7 +72,7 @@ sub formatfields {
         if (!$filters{$controlfield->{"tag"}}) {
             my $formated;
             $formated->{tag} = $controlfield->{"tag"};
-            $formated->{value} = $self->xmlescape($controlfield->{"content"});
+            $formated->{value} = $controlfield->{"content"};
             push @fields, $formated;
         }
     }
@@ -85,10 +85,10 @@ sub formatfields {
             $formated->{ind1} = $datafield->{"ind1"};
             $formated->{ind2} = $datafield->{"ind2"};
             if (ref($datafield->{"subfield"}) eq "HASH"){
-                push @subfields, {code => $datafield->{"subfield"}->{"code"}, value => $self->xmlescape($datafield->{"subfield"}->{"content"})}
+                push @subfields, {code => $datafield->{"subfield"}->{"code"}, value => $datafield->{"subfield"}->{"content"}}
             } else {
                 foreach my $subfield (@{$datafield->{"subfield"}}) {
-                    push @subfields, {code => $subfield->{"code"}, value => $self->xmlescape($subfield->{"content"})}
+                    push @subfields, {code => $subfield->{"code"}, value => $subfield->{"content"}}
                 }
             }
             $formated->{subfields} = \@subfields;
