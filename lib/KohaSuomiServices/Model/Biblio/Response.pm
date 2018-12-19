@@ -35,9 +35,9 @@ sub getAndUpdate {
 sub parseResponse {
     my ($self, $interface, $params, $headers) = @_;
     my $match;
-    my @keys = %{$params};
     my $identifier = $self->find({interface_id => $interface->{id}})->identifier_name;
     return {target_id => $headers->header($identifier)} if $headers->header($identifier);
+    my @keys = %{$params};
     foreach my $key (@keys) {
         if (ref($key) eq "HASH") {
             $match = $key->{$identifier};
