@@ -55,7 +55,7 @@ paths:
             - marc
           properties:
             target_id:
-              type: [integer, "null"]
+              type: [integer, string, "null"]
             source_id:
               type: integer
             marc:
