@@ -16,16 +16,16 @@ has interface => sub {KohaSuomiServices::Model::Biblio::Interface->new};
 has config => sub {KohaSuomiServices::Model::Config->new->service("biblio")->load};
 
 sub getAndUpdate {
-    my ($self, $interface, $params, $source_id) = @_;
+    my ($self, $interface, $params, $headers, $source_id) = @_;
 
-    my $targetId = $self->parseResponse($interface, $params);
+    my $targetId = $self->parseResponse($interface, $params, $headers);
     return unless $targetId;
     my $schema = $self->schema->client($self->config);
     my $getInterface = $self->interface->load({name => $interface->{name}, type => "get"});
     my $path = $self->biblio->create_path($getInterface, $targetId);
     my $user = $self->exportauth->checkAuthUser($schema, undef, $getInterface->{id});
     my $authentication = $self->exportauth->interfaceAuthentication($getInterface, $user, $getInterface->{method});
-    my ($resCode, $resBody) = $self->biblio->callInterface($getInterface->{method}, $getInterface->{format}, $path, undef, $authentication);
+    my ($resCode, $resBody, $resHeaders) = $self->biblio->callInterface($getInterface->{method}, $getInterface->{format}, $path, undef, $authentication);
     my $host = $self->interface->host("update");
     my $req = $resBody->{marcxml} ? {marc => $resBody->{marcxml}, source_id => $targetId->{target_id}, target_id => $source_id, interface => $host->{name}} : {marc => $resBody, source_id => $targetId->{target_id}, target_id => $source_id, interface => $host->{name}};
     warn Data::Dumper::Dumper $req;
@@ -33,10 +33,11 @@ sub getAndUpdate {
 }
 
 sub parseResponse {
-    my ($self, $interface, $params) = @_;
+    my ($self, $interface, $params, $headers) = @_;
     my $match;
     my @keys = %{$params};
     my $identifier = $self->find({interface_id => $interface->{id}})->identifier_name;
+    return {target_id => $headers->header($identifier)} if $headers->header($identifier);
     foreach my $key (@keys) {
         if (ref($key) eq "HASH") {
             $match = $key->{$identifier};

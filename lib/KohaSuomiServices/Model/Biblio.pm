@@ -83,10 +83,10 @@ sub push {
         my $data = $self->fields->find($update->{id});
         my $body = $self->create_body($interface->{params}, $data);
         my $authentication = $self->exportauth->interfaceAuthentication($interface, $update->{authuser_id}, $interface->{method});
-        my ($resCode, $resBody) = $self->callInterface($interface->{method}, $interface->{format}, $path, $body, $authentication);
+        my ($resCode, $resBody, $resHeaders) = $self->callInterface($interface->{method}, $interface->{format}, $path, $body, $authentication);
         if ($resCode eq "200" || $resCode eq "201") {
             $self->exporter->update($update->{id}, {status => "success", errorstatus => ""});
-            $self->response->getAndUpdate($interface, $resBody, $update->{source_id});
+            $self->response->getAndUpdate($interface, $resBody, $resHeaders, $update->{source_id});
         } else {
             $self->exporter->update($update->{id}, {status => "failed", errorstatus => $resBody});
         }
@@ -99,10 +99,10 @@ sub push {
         my $data = $self->fields->find($add->{id});
         my $body = $self->create_body($interface->{params}, $data);
         my $authentication = $self->exportauth->interfaceAuthentication($interface, $add->{authuser_id}, $interface->{method});
-        my ($resCode, $resBody) = $self->callInterface($interface->{method}, $interface->{format}, $path, $body, $authentication);
+        my ($resCode, $resBody, $resHeaders) = $self->callInterface($interface->{method}, $interface->{format}, $path, $body, $authentication);
         if ($resCode eq "200" || $resCode eq "201") {
             $self->exporter->update($add->{id}, {status => "success", errorstatus => ""});
-            $self->response->getAndUpdate($interface, $resBody, $add->{source_id});
+            $self->response->getAndUpdate($interface, $resBody, $resHeaders, $add->{source_id});
         } else {
             $self->exporter->update($add->{id}, {status => "failed", errorstatus => $resBody});
         }
@@ -123,9 +123,8 @@ sub callInterface {
     my ($self, $method, $format, $path, $body, $authentication) = @_;
 
     my $tx = $self->interface->buildTX($method, $format, $path, $body, $authentication);
-    warn Data::Dumper::Dumper $tx->res;
     return ($tx->res->code, $tx->res->error->{message}) if $tx->res->error;
-    return ($tx->res->code, from_json($tx->res->body));
+    return ($tx->res->code, from_json($tx->res->body), $tx->res->headers);
     
 }
 
