@@ -48,11 +48,11 @@ sub formatxml {
     $format .= "\t<leader>".$marcjson->{leader}."</leader>\n" if ($marcjson->{leader});
     foreach my $field (@{$marcjson->{fields}}) {
         if (defined $field->{value}) {
-            $format .= "\t<controlfield tag=\"".$field->{tag}."\">".$field->{value}."</controlfield>\n";
+            $format .= "\t<controlfield tag=\"".$field->{tag}."\">".$self->xmlescape($field->{value})."</controlfield>\n";
         } else {
             $format .= "\t<datafield tag=\"".$field->{tag}."\" ind1=\"".$field->{ind1}."\" ind2=\"".$field->{ind2}."\">\n";
             foreach my $subfield (@{$field->{subfields}}) {
-                $format .= "\t\t<subfield code=\"".$subfield->{code}."\">".$subfield->{value}."</subfield>\n";
+                $format .= "\t\t<subfield code=\"".$subfield->{code}."\">".$self->xmlescape($subfield->{value})."</subfield>\n";
             }
             $format .= "\t</datafield>\n";
         }
