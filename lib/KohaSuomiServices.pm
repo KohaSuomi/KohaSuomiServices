@@ -5,6 +5,7 @@ use KohaSuomiServices::Model::Config;
 use KohaSuomiServices::Database::Client;
 use KohaSuomiServices::Database::Build;
 use KohaSuomiServices::Model::Convert;
+use KohaSuomiServices::Model::Compare;
 use KohaSuomiServices::Model::SRU;
 use KohaSuomiServices::Model::Biblio;
 use KohaSuomiServices::Model::Billing;
@@ -37,6 +38,9 @@ sub startup {
   
   $self->helper(
     convert => sub { state $convert = KohaSuomiServices::Model::Convert->new() });
+
+  $self->helper(
+    compare => sub { state $compare = KohaSuomiServices::Model::Compare->new() });
     
   $self->helper(
     sru => sub { state $sru = KohaSuomiServices::Model::SRU->new() });

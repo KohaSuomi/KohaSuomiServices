@@ -10,6 +10,7 @@ DEPS=( \
   "DBIx::Class::Migration" \
   "Exception::Class@1.44" \
   "File::Slurp@9999.19" \
+  "JSON::Patch@0.04" \
 )
 
 for dep in "${DEPS[@]}"
