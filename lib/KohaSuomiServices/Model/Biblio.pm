@@ -271,8 +271,11 @@ sub create_query {
         if($param->{type} eq "query") {
             my @valuematch = $param->{value} =~ /{(.*?)}/g;
             if (defined $valuematch[0]) {
+                my ($key, $value) = %{$matcher} if $matcher;
                 if ($matcher->{$valuematch[0]}) {
                     $param->{value} =~ s/{$valuematch[0]}/$matcher->{$valuematch[0]}/g;
+                } elsif ($key eq $valuematch[0]) {
+                        $param->{value} =~ s/{$valuematch[0]}/$valuematch[0]/g;
                 } else {
                     delete $param->{name};
                     delete $param->{value};
