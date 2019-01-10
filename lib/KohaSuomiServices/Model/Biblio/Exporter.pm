@@ -32,22 +32,13 @@ sub update {
     return $client->resultset('Exporter')->find($id)->update($params);
 }
 
-sub getUpdate {
-    my ($self) = @_;
+sub getExports {
+    my ($self, $type) = @_;
 
     my $schema = $self->schema->client($self->config);
-    my @data = $self->find($schema, {type => "update", status => "pending"});
+    my @data = $self->find($schema, {type => $type, status => "pending"});
     return $self->schema->get_columns(@data);
 
-}
-
-sub getAdd {
-    my ($self) = @_;
-
-    my $schema = $self->schema->client($self->config);
-    my @data = $self->find($schema, {type => "add", status => "pending"});
-    return $self->schema->get_columns(@data);
-    
 }
 
 sub setExporterParams {

@@ -74,39 +74,25 @@ sub broadcast {
 }
 
 sub push {
-    my ($self) = @_;
+    my ($self, $type) = @_;
 
-    my $updates = $self->exporter->getUpdate();
-    foreach my $update (@{$updates}){
-        my $interface = $self->interface->load({id=> $update->{interface_id}}); 
-        my $path = $self->create_path($interface, $update);
-        my $data = $self->fields->find($update->{id});
+    my $exports = $self->exporter->getExports($type);
+    foreach my $export (@{$exports}){
+        my $interface = $self->interface->load({id=> $export->{interface_id}}); 
+        my $path = $self->create_path($interface, $export);
+        my %removeMatchers = $self->matchers->removeMatchers($interface->{id});
+        my $data = $self->fields->find($export->{id}, %removeMatchers);
         my $body = $self->create_body($interface->{params}, $data);
-        my $authentication = $self->exportauth->interfaceAuthentication($interface, $update->{authuser_id}, $interface->{method});
+        my $authentication = $self->exportauth->interfaceAuthentication($interface, $export->{authuser_id}, $interface->{method});
         my ($resCode, $resBody, $resHeaders) = $self->callInterface($interface->{method}, $interface->{format}, $path, $body, $authentication);
         if ($resCode eq "200" || $resCode eq "201") {
-            $self->exporter->update($update->{id}, {status => "success", errorstatus => ""});
-            $self->response->getAndUpdate($interface, $resBody, $resHeaders, $update->{source_id});
+            $self->exporter->update($export->{id}, {status => "success", errorstatus => ""});
+            $self->response->getAndUpdate($interface, $resBody, $resHeaders, $export->{source_id});
         } else {
-            $self->exporter->update($update->{id}, {status => "failed", errorstatus => $resBody});
+            $self->exporter->update($export->{id}, {status => "failed", errorstatus => $resBody});
         }
     }
 
-    my $adds = $self->exporter->getAdd();
-    foreach my $add (@{$adds}){
-        my $interface = $self->interface->load({id=> $add->{interface_id}});
-        my $path = $self->create_path($interface, $add);
-        my $data = $self->fields->find($add->{id});
-        my $body = $self->create_body($interface->{params}, $data);
-        my $authentication = $self->exportauth->interfaceAuthentication($interface, $add->{authuser_id}, $interface->{method});
-        my ($resCode, $resBody, $resHeaders) = $self->callInterface($interface->{method}, $interface->{format}, $path, $body, $authentication);
-        if ($resCode eq "200" || $resCode eq "201") {
-            $self->exporter->update($add->{id}, {status => "success", errorstatus => ""});
-            $self->response->getAndUpdate($interface, $resBody, $resHeaders, $add->{source_id});
-        } else {
-            $self->exporter->update($add->{id}, {status => "failed", errorstatus => $resBody});
-        }
-    }
     return {message => "Success"};
 }
 
