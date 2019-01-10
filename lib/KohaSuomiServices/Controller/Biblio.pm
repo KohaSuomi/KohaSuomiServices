@@ -6,7 +6,7 @@ use utf8;
 
 use Try::Tiny;
 
-use Mojo::JSON qw(decode_json encode_json);
+use Mojo::JSON qw(to_json from_json);
 
 use KohaSuomiServices::Model::Biblio;
 use KohaSuomiServices::Model::Auth;
@@ -42,7 +42,7 @@ sub export {
     my $c = shift->openapi->valid_input or return;
 
     try {
-        my $req  = $c->req->json;
+        my $req  = from_json($c->req->body);
         my $response = $c->biblio->export($req);
         $c->render(status => 200, openapi => $response);
     } catch {
@@ -56,7 +56,7 @@ sub check {
     my $c = shift->openapi->valid_input or return;
 
     try {
-        my $req  = $c->req->json;
+        my $req  = from_json($c->req->body);
         my $response;
         my $biblio = $c->convert->formatjson($req->{marcxml});
         my $remote = $c->biblio->searchTarget($req->{interface}, $biblio);
@@ -88,7 +88,7 @@ sub activate {
     my $c = shift->openapi->valid_input or return;
 
     try {
-        my $req  = $c->req->json;
+        my $req  = from_json($c->req->body);
         my $response = $c->biblio->addActive($req);
         $c->render(status => 200, openapi => $response);
     } catch {
@@ -101,7 +101,7 @@ sub broadcast {
     my $c = shift->openapi->valid_input or return;
 
     try {
-        my $req  = $c->req->json;
+        my $req  = from_json($c->req->body);
         $req->{marc} = $c->convert->formatjson($req->{marcxml});
         delete $req->{marcxml};
         my $response = $c->biblio->broadcast($req);
