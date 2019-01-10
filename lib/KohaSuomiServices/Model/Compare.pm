@@ -7,18 +7,13 @@ use utf8;
 use Try::Tiny;
 use JSON::Patch qw(diff patch);
 
-sub jsonPatch {
+sub getMandatory {
     my ($self, $source, $target) = @_;
 
     
     my $targetpatch = $self->findMandatory($target);
-    my $sourcepatch = $self->findMandatory($source);
     my $sorted;
-    if ($targetpatch && $sourcepatch) {
-        my $diff = diff($sourcepatch, $targetpatch);
-        warn Data::Dumper::Dumper $diff;
-        patch($sourcepatch, $diff);
-    } elsif ($targetpatch && !$sourcepatch) {
+    if ($targetpatch) {
         foreach my $tfield (@{$targetpatch}) {
             push @{$source->{fields}}, $tfield;
         }
@@ -30,9 +25,10 @@ sub jsonPatch {
 sub findMandatory {
     my ($self, $target) = @_;
 
-    my %mandatory = ("500" => 1);
+    my %mandatory = ("CAT" => 1);
 
     my $patch;
+
     foreach my $field (@{$target->{fields}}) {
         if ($mandatory{$field->{tag}}) {
             push @{$patch}, $field;
@@ -54,7 +50,8 @@ sub sortFields {
     }
 
     my $sorted; 
-     foreach my $key (sort {$hash->{$a}->{'tag'} <=> $hash->{$b}->{'tag'}} keys %$hash) {
+
+    foreach my $key (sort {$hash->{$a}->{'tag'} <=> $hash->{$b}->{'tag'}} keys %$hash) {
          push @{$sorted}, $hash->{$key};
     }
 

@@ -66,7 +66,7 @@ sub check {
         if ($remote) {
             $remote = shift @{$remote};
             $target_id = $c->biblio->getTargetId($req->{interface}, $remote);
-            $c->compare->jsonPatch($biblio, $remote);
+            $c->compare->getMandatory($biblio, $remote);
             $data = $remote;
         } 
 
