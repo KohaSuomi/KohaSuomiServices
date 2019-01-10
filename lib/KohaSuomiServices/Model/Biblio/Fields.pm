@@ -36,7 +36,7 @@ sub insert {
 }
 
 sub find {
-    my ($self, $id) = @_;
+    my ($self, $id, %matcher) = @_;
     
     my $client = $self->schema->client($self->config);
     my @data = $client->resultset('Fields')->search({exporter_id => $id});
@@ -47,12 +47,23 @@ sub find {
             $format->{leader} = $field->{value};
         } else {
             my $hash;
-            $hash->{tag} = $field->{tag};
-            $hash->{value} = $field->{value} if ($field->{type} eq "controlfield");
-            $hash->{ind1} = $field->{ind1} if ($field->{type} eq "datafield");
-            $hash->{ind2} = $field->{ind2} if ($field->{type} eq "datafield");
-            $hash->{subfields} = $self->subfields->find($client, $field->{id}) if ($field->{type} eq "datafield");
-            push @fields, $hash;
+            unless (defined $matcher{$field->{tag}} && !$matcher{$field->{tag}}) {
+                $hash->{tag} = $field->{tag};
+                $hash->{value} = $field->{value} if ($field->{type} eq "controlfield");
+                $hash->{ind1} = $field->{ind1} if ($field->{type} eq "datafield");
+                $hash->{ind2} = $field->{ind2} if ($field->{type} eq "datafield");
+                $hash->{subfields} = $self->subfields->find($client, $field->{id}) if ($field->{type} eq "datafield");
+                if (defined $matcher{$field->{tag}} && $matcher{$field->{tag}}) {
+                    my $index = 0;
+                    foreach my $subfield (@{$hash->{subfields}}) {
+                        if ($matcher{$field->{tag}} eq $subfield->{code}) {
+                            delete $hash->{subfields}[$index];
+                        }
+                        $index++;
+                    }
+                }
+                push @fields, $hash;
+            }
         }
     }
     $format->{fields} = \@fields;
