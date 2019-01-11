@@ -18,24 +18,26 @@ sub xmltohash {
     my @controlfields = $xml->getElementsByTagName('controlfield');
     my @datafields = $xml->getElementsByTagName('datafield');
     my $hash;
-    $hash->{leader} = $leader[0]->textContent if $leader[0];
-    
-    my @cf;
-    foreach my $controlfield (@controlfields) {
-        push @cf, {tag => $controlfield->getAttribute("tag"), content => $controlfield->textContent}
-    }
-    $hash->{controlfield} = \@cf;
-    
-    my @df;
-    foreach my $datafield (@datafields) {
-        my @subfields = $datafield->getElementsByTagName("subfield");
-        my @sf;
-        foreach my $subfield (@subfields){
-            push @sf, {code => $subfield->getAttribute("code"), content => $subfield->textContent};
+    if ($leader[0])
+        $hash->{leader} = $leader[0]->textContent;
+        
+        my @cf;
+        foreach my $controlfield (@controlfields) {
+            push @cf, {tag => $controlfield->getAttribute("tag"), content => $controlfield->textContent}
         }
-        push @df, {tag => $datafield->getAttribute("tag"), ind1 => $datafield->getAttribute("ind1"), ind2 => $datafield->getAttribute("ind2"), subfield => \@sf}
+        $hash->{controlfield} = \@cf;
+        
+        my @df;
+        foreach my $datafield (@datafields) {
+            my @subfields = $datafield->getElementsByTagName("subfield");
+            my @sf;
+            foreach my $subfield (@subfields){
+                push @sf, {code => $subfield->getAttribute("code"), content => $subfield->textContent};
+            }
+            push @df, {tag => $datafield->getAttribute("tag"), ind1 => $datafield->getAttribute("ind1"), ind2 => $datafield->getAttribute("ind2"), subfield => \@sf}
+        }
+        $hash->{datafield} = \@df;
     }
-    $hash->{datafield} = \@df;
 
     return $hash;
 }
