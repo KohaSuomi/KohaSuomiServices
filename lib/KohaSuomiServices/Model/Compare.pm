@@ -14,11 +14,11 @@ sub getMandatory {
     my $targetpatch = $self->findMandatory($target);
     my $sorted;
     if ($targetpatch) {
+        my $fields = $self->sortFields($source->{fields});
+        $source->{fields} = $fields;
         foreach my $tfield (@{$targetpatch}) {
             push @{$source->{fields}}, $tfield;
         }
-        my $fields = $self->sortFields($source->{fields});
-        $source->{fields} = $fields;
     }
 }
 
