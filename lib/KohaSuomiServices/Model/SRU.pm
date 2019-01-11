@@ -22,6 +22,7 @@ sub search {
     my $tx = $self->ua->build_tx(GET => $path);
     $tx = $self->ua->start($tx);
     my $records = $self->getRecords($tx->res->body);
+    warn Data::Dumper::Dumper $records;
     return $records;
 }
 
@@ -29,7 +30,7 @@ sub getRecords {
     my ($self, $res) = @_;
 
     try {
-        my $hash = $self->convert->xmltohash($res);
+        #my $hash = $self->convert->xmltohash($res);
         my $fields;
         my @records;
         # my $records = first { m/records/ } keys %{$xml};
@@ -48,7 +49,7 @@ sub getRecords {
         #         }
         #     }
         # }
-        push @records, $self->convert->formatjson($hash);
+        push @records, $self->convert->formatjson($res);
         return \@records;
     } catch {
         my $e = $_;

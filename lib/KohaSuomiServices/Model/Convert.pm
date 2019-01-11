@@ -18,7 +18,7 @@ sub xmltohash {
     my @controlfields = $xml->getElementsByTagName('controlfield');
     my @datafields = $xml->getElementsByTagName('datafield');
     my $hash;
-    if ($leader[0])
+    if ($leader[0]) {
         $hash->{leader} = $leader[0]->textContent;
         
         my @cf;
@@ -38,7 +38,6 @@ sub xmltohash {
         }
         $hash->{datafield} = \@df;
     }
-
     return $hash;
 }
 
@@ -58,8 +57,8 @@ sub formatjson {
         $data = $self->xmltohash($marcxml);
     }
     my $format;
-    $format->{leader} = $data->{"leader"};
-    $format->{fields} = $self->formatfields($data->{"controlfield"}, $data->{"datafield"});
+    $format->{leader} = $data->{"leader"} if $data->{"leader"};
+    $format->{fields} = $self->formatfields($data->{"controlfield"}, $data->{"datafield"}) if $data->{"controlfield"} || $data->{"datafield"};
     return $format;
 
 }
