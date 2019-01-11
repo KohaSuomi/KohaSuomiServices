@@ -5,16 +5,38 @@ use Modern::Perl;
 use utf8;
 
 use Try::Tiny;
-use XML::Simple;
+use XML::LibXML;
+use Unicode::Map;
 
 
 
 sub xmltohash {
     my ($self, $res) = @_;
-    my $parser = XML::Simple->new();
-    my $xml = $parser->XMLin($res);
+    my $xml = eval { XML::LibXML->load_xml(string => $res)};
+    my @leader = $xml->getElementsByTagName('leader');
+    my @controlfields = $xml->getElementsByTagName('controlfield');
+    my @datafields = $xml->getElementsByTagName('datafield');
+    my $hash;
+    $hash->{leader} = @leader[0]->textContent;
+    
+    my @cf;
+    foreach my $controlfield (@controlfields) {
+        push @cf, {tag => $controlfield->getAttribute("tag"), content => $controlfield->textContent}
+    }
+    $hash->{controlfield} = \@cf;
+    
+    my @df;
+    foreach my $datafield (@datafields) {
+        my @subfields = $datafield->getElementsByTagName("subfield");
+        my @sf;
+        foreach my $subfield (@subfields){
+            push @sf, {code => $subfield->getAttribute("code"), content => $subfield->textContent};
+        }
+        push @df, {tag => $datafield->getAttribute("tag"), ind1 => $datafield->getAttribute("ind1"), ind2 => $datafield->getAttribute("ind2"), subfield => \@sf}
+    }
+    $hash->{datafield} = \@df;
 
-    return $xml;
+    return $hash;
 }
 
 sub xmlescape {
@@ -32,7 +54,6 @@ sub formatjson {
     } else {
         $data = $self->xmltohash($marcxml);
     }
-    $data = $data->{"record"} if $data->{"record"};
     my $format;
     $format->{leader} = $data->{"leader"};
     $format->{fields} = $self->formatfields($data->{"controlfield"}, $data->{"datafield"});
