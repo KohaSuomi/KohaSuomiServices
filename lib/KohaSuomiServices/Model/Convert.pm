@@ -18,7 +18,7 @@ sub xmltohash {
     my @controlfields = $xml->getElementsByTagName('controlfield');
     my @datafields = $xml->getElementsByTagName('datafield');
     my $hash;
-    $hash->{leader} = @leader[0]->textContent;
+    $hash->{leader} = $leader[0]->textContent if $leader[0];
     
     my @cf;
     foreach my $controlfield (@controlfields) {
