@@ -29,26 +29,26 @@ sub getRecords {
     my ($self, $res) = @_;
 
     try {
-        my $xml = $self->convert->xmltohash($res);
+        my $hash = $self->convert->xmltohash($res);
         my $fields;
         my @records;
-        my $records = first { m/records/ } keys %{$xml};
-        if ($records) {
-            my $record = first { m/record/ } keys %{$xml->{$records}};
-            my $recordData = first { m/recordData/ } keys %{$xml->{$records}->{$record}};
-            my $marcrecord = first { m/record/ } keys %{$xml->{$records}->{$record}->{$recordData}};
+        # my $records = first { m/records/ } keys %{$xml};
+        # if ($records) {
+        #     my $record = first { m/record/ } keys %{$xml->{$records}};
+        #     my $recordData = first { m/recordData/ } keys %{$xml->{$records}->{$record}};
+        #     my $marcrecord = first { m/record/ } keys %{$xml->{$records}->{$record}->{$recordData}};
             
-            if (ref($xml->{$records}->{$record}) eq "HASH") {
-                my $data = $xml->{$records}->{$record}->{$recordData}->{$marcrecord};
-                push @records, $self->convert->formatjson($data);
-            } else {
-                foreach my $record (@{$xml->{$records}->{$record}}) {
-                    my $data = $record->{$recordData}->{$marcrecord};
-                    push @records, $self->convert->formatjson($data);
-                }
-            }
-        }
-
+        #     if (ref($xml->{$records}->{$record}) eq "HASH") {
+        #         my $data = $xml->{$records}->{$record}->{$recordData}->{$marcrecord};
+        #         push @records, $self->convert->formatjson($data);
+        #     } else {
+        #         foreach my $record (@{$xml->{$records}->{$record}}) {
+        #             my $data = $record->{$recordData}->{$marcrecord};
+        #             push @records, $self->convert->formatjson($data);
+        #         }
+        #     }
+        # }
+        push @records, $self->convert->formatjson($hash);
         return \@records;
     } catch {
         my $e = $_;
