@@ -5,6 +5,7 @@ use Modern::Perl;
 use utf8;
 
 use Try::Tiny;
+use XML::Simple;
 use XML::LibXML;
 use Unicode::Map;
 
