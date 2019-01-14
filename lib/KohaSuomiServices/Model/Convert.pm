@@ -14,11 +14,18 @@ use Unicode::Map;
 sub xmltohash {
     my ($self, $res) = @_;
     my $xml = eval { XML::LibXML->load_xml(string => $res)};
-    my @leader = $xml->getElementsByTagName('leader');
-    my @controlfields = $xml->getElementsByTagName('controlfield');
-    my @datafields = $xml->getElementsByTagName('datafield');
+    my $valid;
+    for my $node ($xml->findnodes(q{//*})) {
+        if ($node->nodeName eq "leader") {
+            $valid = 1;
+            last;
+        }
+    }
     my $hash;
-    if ($leader[0]) {
+    if ($valid) {
+        my @leader = $xml->getElementsByTagName('leader');
+        my @controlfields = $xml->getElementsByTagName('controlfield');
+        my @datafields = $xml->getElementsByTagName('datafield');
         $hash->{leader} = $leader[0]->textContent;
         
         my @cf;
