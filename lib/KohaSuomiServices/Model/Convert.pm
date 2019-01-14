@@ -13,37 +13,39 @@ use Unicode::Map;
 
 sub xmltohash {
     my ($self, $res) = @_;
-    my $xml = eval { XML::LibXML->load_xml(string => $res)};
-    my $valid;
-    for my $node ($xml->findnodes(q{//*})) {
-        if ($node->nodeName eq "leader") {
-            $valid = 1;
-            last;
-        }
-    }
     my $hash;
-    if ($valid) {
-        my @leader = $xml->getElementsByTagName('leader');
-        my @controlfields = $xml->getElementsByTagName('controlfield');
-        my @datafields = $xml->getElementsByTagName('datafield');
-        $hash->{leader} = $leader[0]->textContent;
-        
-        my @cf;
-        foreach my $controlfield (@controlfields) {
-            push @cf, {tag => $controlfield->getAttribute("tag"), content => $controlfield->textContent}
-        }
-        $hash->{controlfield} = \@cf;
-        
-        my @df;
-        foreach my $datafield (@datafields) {
-            my @subfields = $datafield->getElementsByTagName("subfield");
-            my @sf;
-            foreach my $subfield (@subfields){
-                push @sf, {code => $subfield->getAttribute("code"), content => $subfield->textContent};
+    if ($res) {
+        my $xml = eval { XML::LibXML->load_xml(string => $res)};
+        my $valid;
+        for my $node ($xml->findnodes(q{//*})) {
+            if ($node->nodeName eq "leader") {
+                $valid = 1;
+                last;
             }
-            push @df, {tag => $datafield->getAttribute("tag"), ind1 => $datafield->getAttribute("ind1"), ind2 => $datafield->getAttribute("ind2"), subfield => \@sf}
         }
-        $hash->{datafield} = \@df;
+        if ($valid) {
+            my @leader = $xml->getElementsByTagName('leader');
+            my @controlfields = $xml->getElementsByTagName('controlfield');
+            my @datafields = $xml->getElementsByTagName('datafield');
+            $hash->{leader} = $leader[0]->textContent;
+            
+            my @cf;
+            foreach my $controlfield (@controlfields) {
+                push @cf, {tag => $controlfield->getAttribute("tag"), content => $controlfield->textContent}
+            }
+            $hash->{controlfield} = \@cf;
+            
+            my @df;
+            foreach my $datafield (@datafields) {
+                my @subfields = $datafield->getElementsByTagName("subfield");
+                my @sf;
+                foreach my $subfield (@subfields){
+                    push @sf, {code => $subfield->getAttribute("code"), content => $subfield->textContent};
+                }
+                push @df, {tag => $datafield->getAttribute("tag"), ind1 => $datafield->getAttribute("ind1"), ind2 => $datafield->getAttribute("ind2"), subfield => \@sf}
+            }
+            $hash->{datafield} = \@df;
+        }
     }
     return $hash;
 }
