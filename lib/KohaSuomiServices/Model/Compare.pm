@@ -16,13 +16,13 @@ sub getMandatory {
     if ($numberpatch || $charpatch) {
 
         foreach my $nfield (@{$numberpatch}) {
-            my $valid;
+            my $valid = $nfield;
             foreach my $f (@{$source->{fields}}) {
-                if ($f ne $nfield) {
-                    $valid = $nfield;
+                if ($nfield->{tag} eq $f->{tag}) {
+                    $valid = undef;
                 }
             }
-            push @{$source->{fields}}, $valid;
+            push @{$source->{fields}}, $valid if ($valid);
         }
 
         my $fields = $self->sortFields($source->{fields});
