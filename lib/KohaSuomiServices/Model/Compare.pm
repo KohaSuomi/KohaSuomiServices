@@ -11,13 +11,19 @@ sub getMandatory {
     my ($self, $source, $target) = @_;
 
     
-    my $targetpatch = $self->findMandatory($target);
+    my ($numberpatch, $charpatch) = $self->findMandatory($target);
     my $sorted;
-    if ($targetpatch) {
+    if ($numberpatch || $charpatch) {
+
+        foreach my $nfield (@{$numberpatch}) {
+            push @{$source->{fields}}, $nfield;
+        }
+
         my $fields = $self->sortFields($source->{fields});
         $source->{fields} = $fields;
-        foreach my $tfield (@{$targetpatch}) {
-            push @{$source->{fields}}, $tfield;
+
+        foreach my $cfield (@{$charpatch}) {
+            push @{$source->{fields}}, $cfield;
         }
     }
 }
@@ -25,17 +31,23 @@ sub getMandatory {
 sub findMandatory {
     my ($self, $target) = @_;
 
-    my %mandatory = ("CAT" => 1);
+    my %mandatory = ("CAT" => 1, "035" => "a");
 
-    my $patch;
+    my ($numberpatch, $charpatch);
 
     foreach my $field (@{$target->{fields}}) {
-        if ($mandatory{$field->{tag}}) {
-            push @{$patch}, $field;
+        my $tag = $field->{tag};
+        if ($mandatory{$field->{tag}} && $field->{tag} =~ s/^[0-9]//g) {
+            $field->{tag} = $tag;
+            push @{$numberpatch}, $field;
+        }
+
+        if ($mandatory{$field->{tag}} && $field->{tag} =~ s/^[A-Za-z]//g) {
+            push @{$charpatch}, $field;
         }
     }
 
-    return $patch;
+    return ($numberpatch, $charpatch);
 }
 
 sub sortFields {
