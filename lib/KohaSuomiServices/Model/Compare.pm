@@ -16,7 +16,13 @@ sub getMandatory {
     if ($numberpatch || $charpatch) {
 
         foreach my $nfield (@{$numberpatch}) {
-            push @{$source->{fields}}, $nfield;
+            my $valid;
+            foreach my $f (@{$source->{fields}}) {
+                if ($f ne $nfield) {
+                    $valid = $nfield;
+                }
+            }
+            push @{$source->{fields}}, $valid;
         }
 
         my $fields = $self->sortFields($source->{fields});
@@ -65,7 +71,7 @@ sub sortFields {
     my $sorted; 
 
     foreach my $key (sort {$hash->{$a}->{'tag'} <=> $hash->{$b}->{'tag'}} keys %$hash) {
-         push @{$sorted}, $hash->{$key};
+        push @{$sorted}, $hash->{$key};
     }
 
     return $sorted;
