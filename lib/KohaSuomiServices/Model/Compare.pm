@@ -43,6 +43,7 @@ sub findMandatory {
         }
 
         if ($mandatory{$field->{tag}} && $field->{tag} =~ s/^[A-Za-z]//g) {
+            $field->{tag} = $tag;
             push @{$charpatch}, $field;
         }
     }
