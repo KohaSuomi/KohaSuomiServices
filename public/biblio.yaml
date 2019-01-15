@@ -57,7 +57,7 @@ paths:
             target_id:
               type: [integer, string, "null"]
             source_id:
-              type: integer
+              type: [integer, string]
             marc:
               type: [object, string]
             interface:
