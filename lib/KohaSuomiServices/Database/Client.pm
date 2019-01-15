@@ -24,8 +24,27 @@ sub connect {
     my $dsn = "dbi:mysql:".$schema.":".$host.":".$port;
     my $schemapath = $self->$service;
 
+    my ( %encoding_attr, $encoding_query, $tz_query );
+    my $tz = $ENV{TZ};
+    %encoding_attr = ( mysql_enable_utf8 => 1 );
+    $encoding_query = "set NAMES 'utf8'";
+    $tz_query = qq(SET time_zone = "$tz") if $tz;
+
     try {
-        my $s = $schemapath->connect($dsn, $user, $pw) or die "Could not connect";
+        my $s = $schemapath->connect(
+            {
+                dsn => $dsn,
+                user => $user,
+                password => $pw,
+                %encoding_attr,
+                unsafe => 1,
+                quote_names => 1,
+                on_connect_do => [
+                    $encoding_query || (),
+                    $tz_query || (),
+                ]
+            }
+        ) or die "Could not connect";
         return $s;
     } catch {
         my $e = $_;

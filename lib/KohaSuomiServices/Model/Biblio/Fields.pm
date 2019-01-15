@@ -75,7 +75,6 @@ sub find {
 sub parse {
     my ($self, $id, $field) = @_;
     my $params;
-    $field->{value} = Encode::encode("UTF-8", $field->{value});
     if (defined $field->{value}) {
         $params = {exporter_id => $id, tag => $field->{tag}, value => $field->{value}, type => "controlfield"};
     } else {
