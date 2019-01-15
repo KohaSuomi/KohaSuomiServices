@@ -32,6 +32,7 @@
             <option value='' selected>Select type</option>
             <option value='identifier'>identifier</option>
             <option value='remove'>remove</option>
+            <option value='mandatory'>mandatory</option>
         </select>
         <button class="btn btn-sm btn-success" type="submit">Add new</button>
         </div>

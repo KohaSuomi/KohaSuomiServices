@@ -63,9 +63,8 @@ sub check {
         my $req  = $c->req->json;
         my $response;
         my $biblio = $c->convert->formatjson($req->{marcxml});
-        my %bibliomandatory = ("035" => "a");
         my $data;
-        my ($mandatorynum, $mandatorychar) = $c->compare->findMandatory($biblio, %bibliomandatory);
+        my ($mandatorynum, $mandatorychar) = $c->compare->mandatoryCheck($biblio, $req->{interface});
         my $remote = $c->biblio->searchTarget($req->{interface}, $biblio);
 
         my $target_id;
@@ -76,7 +75,7 @@ sub check {
             $data = $remote;
         } 
 
-        $response = $mandatorynum ? {target_id => $target_id, targetrecord => $data, sourcerecord => $biblio} : {source_id => $target_id, targetrecord => $data, sourcerecord => $biblio};
+        $response = (!$mandatorynum && $data) ? {source_id => $target_id, targetrecord => $data, sourcerecord => $biblio} : {target_id => $target_id, targetrecord => $data, sourcerecord => $biblio};
         
         if ($req) {
             $c->render(status => 200, openapi => $response);

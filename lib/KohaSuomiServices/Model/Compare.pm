@@ -5,7 +5,11 @@ use Modern::Perl;
 use utf8;
 
 use Try::Tiny;
-use JSON::Patch qw(diff patch);
+
+has schema => sub {KohaSuomiServices::Database::Client->new};
+has config => sub {KohaSuomiServices::Model::Config->new->service("biblio")->load};
+has matchers => sub {KohaSuomiServices::Model::Biblio::Matcher->new};
+has interface => sub {KohaSuomiServices::Model::Biblio::Interface->new};
 
 sub getMandatory {
     my ($self, $source, $target) = @_;
@@ -53,6 +57,17 @@ sub findMandatory {
     }
 
     return ($numberpatch, $charpatch);
+}
+
+sub mandatoryCheck {
+    my ($self, $source, $interface) = @_;
+    my $schema = $self->schema->client($self->config);
+    my $interface = $self->interface->load({name => $interface, type => "search"});
+    my %matchers = $self->matchers->find($schema, $interface->{id}, "mandatory");
+    return 1 unless %matchers;
+    my ($numberpatch, $charpatch) = $self->findMandatory($source, %matchers);
+    return ($numberpatch, $charpatch);
+    
 }
 
 sub sortFields {
