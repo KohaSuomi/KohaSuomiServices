@@ -44,6 +44,10 @@ sub export {
     try {
         my $req  = $c->req->json;
         my $response = $c->biblio->export($req);
+        if (defined $response && $response->{message} eq "Success" && $c->configs->service("biblio")->load->{export} eq "automatic") {
+            $c->biblio->push("update");
+            $c->biblio->push("add");
+        }
         $c->render(status => 200, openapi => $response);
     } catch {
         my $e = $_;
@@ -59,9 +63,11 @@ sub check {
         my $req  = $c->req->json;
         my $response;
         my $biblio = $c->convert->formatjson($req->{marcxml});
+        my %bibliomandatory = ("035" => "a");
+        my $data;
+        my ($mandatorynum, $mandatorychar) = $c->compare->findMandatory($biblio, %bibliomandatory);
         my $remote = $c->biblio->searchTarget($req->{interface}, $biblio);
 
-        my $data;
         my $target_id;
         if ($remote) {
             $remote = shift @{$remote};
@@ -70,7 +76,7 @@ sub check {
             $data = $remote;
         } 
 
-        $response = {target_id => $target_id, targetrecord => $data, sourcerecord => $biblio};
+        $response = $mandatorynum ? {target_id => $target_id, targetrecord => $data, sourcerecord => $biblio} : {source_id => $target_id, targetrecord => $data, sourcerecord => $biblio};
         
         if ($req) {
             $c->render(status => 200, openapi => $response);

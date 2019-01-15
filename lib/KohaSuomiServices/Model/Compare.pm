@@ -10,8 +10,8 @@ use JSON::Patch qw(diff patch);
 sub getMandatory {
     my ($self, $source, $target) = @_;
 
-    
-    my ($numberpatch, $charpatch) = $self->findMandatory($target);
+    my %targetmandatory = ("CAT" => 1);
+    my ($numberpatch, $charpatch) = $self->findMandatory($target, %targetmandatory);
     my $sorted;
     if ($numberpatch || $charpatch) {
 
@@ -35,9 +35,7 @@ sub getMandatory {
 }
 
 sub findMandatory {
-    my ($self, $target) = @_;
-
-    my %mandatory = ("CAT" => 1, "035" => "a");
+    my ($self, $target, %mandatory) = @_;
 
     my ($numberpatch, $charpatch);
 

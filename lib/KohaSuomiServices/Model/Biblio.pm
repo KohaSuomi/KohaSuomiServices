@@ -42,12 +42,12 @@ sub export {
     
     my $type = defined $params->{target_id} ? "update" :"add";
     my $authuser = $self->exportauth->checkAuthUser($schema, $params->{username}, $interface->{id});
-    my $exporter = $self->exporter->setExporterParams($interface, $type, "pending", $params->{source_id}, $params->{target_id}, $authuser);
+    my $exporter = $self->exporter->setExporterParams($interface, $type, "waiting", $params->{source_id}, $params->{target_id}, $authuser);
     my $data = $self->exporter->insert($schema, $exporter);
 
     $params->{marc} = ref($params->{marc}) eq "HASH" ? $params->{marc} : $self->convert->formatjson($params->{marc});
     $self->fields->store($data->id, $params->{marc});
-    
+
     return {message => "Success"};
     
 }

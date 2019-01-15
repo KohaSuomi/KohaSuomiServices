@@ -35,7 +35,7 @@ sub getAndUpdate {
 sub parseResponse {
     my ($self, $interface, $params, $headers) = @_;
     my $match;
-    my $identifier = $self->find({interface_id => $interface->{id}})->identifier_name;
+    my $identifier = $self->find({interface_id => $interface->{id}})->identifier_name if $self->find({interface_id => $interface->{id}});
     return {target_id => $headers->header($identifier)} if $headers->header($identifier);
     my @keys = %{$params};
     foreach my $key (@keys) {
