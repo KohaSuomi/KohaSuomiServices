@@ -7,7 +7,7 @@ use utf8;
 use Try::Tiny;
 use XML::Simple;
 use XML::LibXML;
-use Unicode::Map;
+use Encode;
 
 
 
@@ -52,6 +52,7 @@ sub xmltohash {
 
 sub xmlescape {
     my ($self, $string) = @_;
+    $string = Encode::encode("UTF-8", $string);
     return XML::Simple->new()->escape_value($string);
 }
 
