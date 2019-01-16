@@ -60,9 +60,9 @@ sub findMandatory {
 }
 
 sub mandatoryCheck {
-    my ($self, $source, $interface) = @_;
+    my ($self, $source, $interface_name) = @_;
     my $schema = $self->schema->client($self->config);
-    my $interface = $self->interface->load({name => $interface, type => "search"});
+    my $interface = $self->interface->load({name => $interface_name, type => "search"});
     my %matchers = $self->matchers->find($schema, $interface->{id}, "mandatory");
     return 1 unless %matchers;
     my ($numberpatch, $charpatch) = $self->findMandatory($source, %matchers);
