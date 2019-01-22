@@ -23,6 +23,7 @@ sub startup {
   $self->app->sessions->cookie_path('/');
   $self->app->sessions->default_expiration('600');
   my $log = Mojo::Log->new(path => $config->{logs}, level => $config->{log_level});
+  $self->log($log);
 
   push @{ $self->commands->namespaces }, 'KohaSuomiServices::Command';
 
