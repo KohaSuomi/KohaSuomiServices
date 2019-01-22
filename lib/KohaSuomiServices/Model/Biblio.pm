@@ -111,9 +111,8 @@ sub list {
 
 sub callInterface {
     my ($self, $method, $format, $path, $body, $authentication) = @_;
-    
+
     my $tx = $self->interface->buildTX($method, $format, $path, $body, $authentication);
-    $self->log->debug($tx->res->error) if $tx->res->error;
     return ($tx->res->code, $tx->res->error->{message}) if $tx->res->error;
     return ($tx->res->code, from_json($tx->res->body), $tx->res->headers);
     
