@@ -75,7 +75,7 @@ sub broadcast {
     return {message => "Success"};
 }
 
-sub push {
+sub pushExport {
     my ($self, $type) = @_;
 
     my $exports = $self->exporter->getExports($type);

@@ -26,8 +26,8 @@ sub run {
   );
 
   while($loopcount < 5) {
-    $app->biblio->push("update");
-    $app->biblio->push("add");
+    $app->biblio->pushExport("update");
+    $app->biblio->pushExport("add");
     sleep $wait if $wait;
   }
 

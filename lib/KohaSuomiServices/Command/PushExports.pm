@@ -23,7 +23,7 @@ sub run {
     't|type=s' => \my $type,
   );
   
-  $app->biblio->push($type);
+  $app->biblio->pushExport($type);
 
 }
 

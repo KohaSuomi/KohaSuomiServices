@@ -45,8 +45,8 @@ sub export {
         my $req  = $c->req->json;
         my $response = $c->biblio->export($req);
         if (defined $response && $response->{message} eq "Success" && $c->configs->service("biblio")->load->{export} eq "automatic") {
-            $c->biblio->push("update");
-            $c->biblio->push("add");
+            $c->biblio->pushExport("update");
+            $c->biblio->pushExport("add");
         }
         $c->render(status => 200, openapi => $response);
     } catch {
