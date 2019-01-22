@@ -104,9 +104,15 @@ sub list {
     my ($self, $params) = @_;
     
     my $schema = $self->schema->client($self->config);
-    my @data = $self->exporter->find($schema, $params );
-    
-    return $self->schema->get_columns(@data);
+    my @data = $self->exporter->find($schema, $params);
+    my @results;
+    foreach my $data (@{$self->schema->get_columns(@data)}) {
+        my $d = $data;
+        my $interface = $self->interface->load({id=> $data->{interface_id}})->{name};
+        $d->{interface_name} = $interface;
+        push @results, $d;
+    }  
+    return \@results;
 }
 
 sub callInterface {
