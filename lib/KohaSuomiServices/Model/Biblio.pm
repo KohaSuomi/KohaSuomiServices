@@ -7,6 +7,7 @@ use utf8;
 use Try::Tiny;
 use POSIX 'strftime';
 use Mojo::UserAgent;
+use Mojo::Log;
 use Mojo::URL;
 use KohaSuomiServices::Model::Convert;
 use Mojo::JSON qw(decode_json encode_json from_json);
@@ -33,6 +34,7 @@ has response => sub {KohaSuomiServices::Model::Biblio::Response->new};
 has convert => sub {KohaSuomiServices::Model::Convert->new};
 has ua => sub {Mojo::UserAgent->new};
 has config => sub {KohaSuomiServices::Model::Config->new->service("biblio")->load};
+has log => sub {Mojo::Log->new(path => KohaSuomiServices::Model::Config->new->load->{"logs"}, level => KohaSuomiServices::Model::Config->new->load->{"log_level"})};
 
 sub export {
     my ($self, $params) = @_;
@@ -88,8 +90,10 @@ sub push {
         if ($resCode eq "200" || $resCode eq "201") {
             $self->exporter->update($export->{id}, {status => "success", errorstatus => ""});
             $self->response->getAndUpdate($interface, $resBody, $resHeaders, $export->{source_id});
+            $self->log->info("Export ".$export->{id}." finished successfully");
         } else {
             $self->exporter->update($export->{id}, {status => "failed", errorstatus => $resBody});
+            $self->log->info("Export ".$export->{id}." failed with ".$resBody);
         }
     }
 
@@ -107,8 +111,9 @@ sub list {
 
 sub callInterface {
     my ($self, $method, $format, $path, $body, $authentication) = @_;
-
+    
     my $tx = $self->interface->buildTX($method, $format, $path, $body, $authentication);
+    $self->log->debug($tx->res->error) if $tx->res->error;
     return ($tx->res->code, $tx->res->error->{message}) if $tx->res->error;
     return ($tx->res->code, from_json($tx->res->body), $tx->res->headers);
     
