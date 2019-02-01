@@ -10,7 +10,7 @@ __PACKAGE__->add_columns(
   id => { data_type => 'integer',  is_auto_increment => 1 },
   name => { data_type => 'varchar', size => 255 },
   interface => { data_type => 'varchar', is_enum => 1, extra => { list => [qw/REST SRU/]} },
-  type => { data_type => 'varchar', is_enum => 1, extra => { list => [qw/search get add update delete/]} },
+  type => { data_type => 'varchar', is_enum => 1, extra => { list => [qw/search get add update delete getcomponentparts/]} },
   method => { data_type => 'enum', is_enum => 1, is_nullable => 1, extra => { list => [qw/get post put patch delete/]} },
   format => { data_type => 'enum', is_enum => 1, is_nullable => 1, extra => { list => [qw/json form/]} },
   endpoint_url => { data_type => 'varchar', size => 255 },

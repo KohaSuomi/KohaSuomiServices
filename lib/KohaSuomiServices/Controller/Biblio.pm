@@ -68,14 +68,16 @@ sub check {
         my $remote = $c->biblio->searchTarget($req->{interface}, $biblio);
 
         my $target_id;
-        if ($remote) {
+        my $componentparts;
+        if (@{$remote}) {
             $remote = shift @{$remote};
             $target_id = $c->biblio->getTargetId($req->{interface}, $remote);
             $c->compare->getMandatory($biblio, $remote);
+            $componentparts = $c->biblio->componentparts->find($req->{interface}, $target_id);
             $data = $remote;
-        } 
+        }
 
-        $response = (!$mandatorynum && $data) ? {source_id => $target_id, targetrecord => $data, sourcerecord => $biblio} : {target_id => $target_id, targetrecord => $data, sourcerecord => $biblio};
+        $response = (!$mandatorynum && $data) ? {source_id => $target_id, targetrecord => $data, sourcerecord => $biblio, targetcomponentparts => $componentparts} : {target_id => $target_id, targetrecord => $data, sourcerecord => $biblio, targetcomponentparts => $componentparts};
         
         if ($req) {
             $c->render(status => 200, openapi => $response);

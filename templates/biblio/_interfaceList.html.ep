@@ -20,6 +20,7 @@
             <option value='get'>get</option>
             <option value='add'>add</option>
             <option value='update'>update</option>
+            <option value='getcomponentparts'>component parts</option>
         </select>
         </div>
         <div v-else>{{config.type}}</div>

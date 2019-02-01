@@ -19,8 +19,9 @@ sub search {
 
     KohaSuomiServices::Model::Exception::NotFound->throw(error => "SRU query parameter not found") unless $params->{query};
     my $path = $params->{url}."?operation=".$params->{operation}."&query=".$params->{query};
+    $path .= "&startRecord=".$params->{startRecord} if ($params->{startRecord});
     $path .= defined $params->{version} ? "&version=".$params->{version} : "&version=1.1";
-    $path .= defined $params->{maxrecords} ? "&maximumRecords=".$params->{maxrecords} : "&maximumRecords=1";
+    $path .= defined $params->{maximumRecords} ? "&maximumRecords=".$params->{maximumRecords} : "&maximumRecords=1";
     my $tx = $self->ua->build_tx(GET => $path);
     $tx = $self->ua->start($tx);
     my $records = $self->getRecords($tx->res->body);
@@ -31,26 +32,28 @@ sub getRecords {
     my ($self, $res) = @_;
 
     try {
-        #my $hash = $self->convert->xmltohash($res);
+        my $xml = $self->convert->xmltohashsimple($res);
         my $fields;
         my @records;
-        # my $records = first { m/records/ } keys %{$xml};
-        # if ($records) {
-        #     my $record = first { m/record/ } keys %{$xml->{$records}};
-        #     my $recordData = first { m/recordData/ } keys %{$xml->{$records}->{$record}};
-        #     my $marcrecord = first { m/record/ } keys %{$xml->{$records}->{$record}->{$recordData}};
+        my $records = first { m/records/ } keys %{$xml};
+        if ($records) {
+            my $record = first { m/record/ } keys %{$xml->{$records}};
             
-        #     if (ref($xml->{$records}->{$record}) eq "HASH") {
-        #         my $data = $xml->{$records}->{$record}->{$recordData}->{$marcrecord};
-        #         push @records, $self->convert->formatjson($data);
-        #     } else {
-        #         foreach my $record (@{$xml->{$records}->{$record}}) {
-        #             my $data = $record->{$recordData}->{$marcrecord};
-        #             push @records, $self->convert->formatjson($data);
-        #         }
-        #     }
-        # }
-        push @records, $self->convert->formatjson($res);
+            if (ref($xml->{$records}->{$record}) eq "HASH") {
+                my $recordData = first { m/recordData/ } keys %{$xml->{$records}->{$record}};
+                my $marcrecord = first { m/record/ } keys %{$xml->{$records}->{$record}->{$recordData}};
+                my $data = $xml->{$records}->{$record}->{$recordData}->{$marcrecord};
+                push @records, $self->convert->formatjson($data);
+            } else {
+                foreach my $record (@{$xml->{$records}->{$record}}) {
+                    my $recordData = first { m/recordData/ } keys %{$record};
+                    my $marcrecord = first { m/record/ } keys %{$record->{$recordData}};
+                    my $data = $record->{$recordData}->{$marcrecord};
+                    push @records, $self->convert->formatjson($data);
+                }
+            }
+        }
+        #push @records, $self->convert->formatjson($res);
         return \@records;
     } catch {
         my $e = $_;

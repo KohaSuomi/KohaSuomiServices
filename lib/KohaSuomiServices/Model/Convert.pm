@@ -50,6 +50,13 @@ sub xmltohash {
     return $hash;
 }
 
+sub xmltohashsimple {
+    my ($self, $res) = @_;
+    my $parser = XML::Simple->new();
+    my $xml = $parser->XMLin($res, KeyAttr => []);
+    return $xml;
+}
+
 sub xmlescape {
     my ($self, $string) = @_;
     $string = Encode::encode("UTF-8", $string);
