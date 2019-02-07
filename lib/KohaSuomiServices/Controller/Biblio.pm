@@ -73,7 +73,6 @@ sub check {
             $remote = shift @{$remote};
             $target_id = $c->biblio->getTargetId($req->{interface}, $remote);
             $c->compare->getMandatory($biblio, $remote);
-            $componentparts = $c->biblio->componentparts->find($req->{interface}, $target_id);
             $data = $remote;
         }
 

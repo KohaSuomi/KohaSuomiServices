@@ -15,6 +15,16 @@ has biblio => sub {KohaSuomiServices::Model::Biblio->new};
 has interface => sub {KohaSuomiServices::Model::Biblio::Interface->new};
 has config => sub {KohaSuomiServices::Model::Config->new->service("biblio")->load};
 
+sub exportComponentParts {
+    my ($self, $componentparts) = @_;
+
+    foreach my $componentpart (@{$componentparts}) {
+        my $host = $self->interface->host("update");
+        my $req = $resBody->{marcxml} ? {marc => $resBody->{marcxml}, source_id => $targetId->{target_id}, target_id => $source_id, interface => $host->{name}} : {marc => $resBody, source_id => $targetId->{target_id}, target_id => $source_id, interface => $host->{name}};
+        $self->biblio->export($req);
+    }
+}
+
 sub find {
     my ($self, $remote_interface, $target_id) = @_;
     my $interface = $self->interface->load({name => $remote_interface, type => "getcomponentparts"});
