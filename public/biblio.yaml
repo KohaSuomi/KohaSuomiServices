@@ -1,7 +1,7 @@
 swagger: '2.0'
 info:
   version: '0.1'
-  title: Test
+  title: Biblio exporter
 schemes: [ http ]
 basePath: "/api"
 securityDefinitions:
@@ -14,8 +14,8 @@ security:
 paths:
   /biblio:
     get:
-      x-mojo-to: "biblio#get"
-      operationId: biblioGet
+      x-mojo-to: "biblio#list"
+      operationId: biblioList
       consumes:
         - application/json
       parameters:
@@ -23,6 +23,33 @@ paths:
         name: body
         schema:
           type: object
+      responses:
+        200:
+          description: Ok status
+          schema:
+            type: array
+        401:
+          $ref: "#/responses/UnauthorizedError"
+        404:
+          description: Not found
+          schema:
+            type: object
+        500:
+          description: Internal server error
+          schema:
+            type: object
+  /biblio/{id}:
+    get:
+      x-mojo-to: "biblio#get"
+      operationId: biblioGet
+      consumes:
+        - application/json
+      parameters:
+      - in: path
+        name: id
+        required: true
+        type: integer
+        description: Get export report from biblio
       responses:
         200:
           description: Ok status

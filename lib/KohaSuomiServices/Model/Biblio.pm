@@ -104,7 +104,7 @@ sub list {
     my ($self, $params) = @_;
     
     my $schema = $self->schema->client($self->config);
-    my @data = $self->exporter->find($schema, $params);
+    my @data = $self->exporter->find($schema, $params, { order_by => { -desc => [qw/timestamp/] }});
     my @results;
     foreach my $data (@{$self->schema->get_columns(@data)}) {
         my $d = $data;

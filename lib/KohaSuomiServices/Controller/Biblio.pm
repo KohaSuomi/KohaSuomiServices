@@ -24,13 +24,28 @@ sub config {
     $self->render(apikey => $self->configs->load->{apikey}, baseendpoint => $self->configs->service("biblio")->load->{baseendpoint});
 }
 
-sub get {
+sub list {
     my $c = shift->openapi->valid_input or return;
 
     try {
         my $req = $c->req->params->to_hash;
         my @data = $c->biblio->list($req);
         $c->render(status => 200, openapi => @data);
+    } catch {
+        my $e = $_;
+        $c->render(KohaSuomiServices::Model::Exception::handleDefaults($e));
+    }
+    
+}
+
+sub get {
+    my $c = shift->openapi->valid_input or return;
+
+    try {
+        my $id = $c->validation->param('id');
+        my $data;
+        push @{$data}, @{$c->biblio->list({source_id => $id})}, @{$c->biblio->list({target_id => $id})};
+        $c->render(status => 200, openapi => $data);
     } catch {
         my $e = $_;
         $c->render(KohaSuomiServices::Model::Exception::handleDefaults($e));

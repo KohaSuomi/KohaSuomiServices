@@ -17,8 +17,8 @@ has config => sub {KohaSuomiServices::Model::Config->new->service("biblio")->loa
 
 
 sub find {
-    my ($self, $client, $params) = @_;
-    return $client->resultset('Exporter')->search($params);
+    my ($self, $client, $params, $conditions) = @_;
+    return $client->resultset('Exporter')->search($params, $conditions);
 }
 
 sub insert {
@@ -36,7 +36,7 @@ sub getExports {
     my ($self, $type) = @_;
 
     my $schema = $self->schema->client($self->config);
-    my @data = $self->find($schema, {type => $type, status => "pending"});
+    my @data = $self->find($schema, {type => $type, status => "pending"}, undef);
     return $self->schema->get_columns(@data);
 
 }
