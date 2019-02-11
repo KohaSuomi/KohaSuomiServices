@@ -17,7 +17,7 @@ has convert => sub {KohaSuomiServices::Model::Convert->new};
 sub search {
     my ($self, $params) = @_;
 
-    KohaSuomiServices::Model::Exception::NotFound->throw(error => "SRU query parameter not found") unless $params->{query};
+    KohaSuomiServices::Model::Exception::NotFound->throw(error => "No search parameter") unless $params->{query};
     my $path = $params->{url}."?operation=".$params->{operation}."&query=".$params->{query};
     $path .= "&startRecord=".$params->{startRecord} if ($params->{startRecord});
     $path .= defined $params->{version} ? "&version=".$params->{version} : "&version=1.1";
