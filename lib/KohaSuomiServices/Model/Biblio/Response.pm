@@ -28,7 +28,7 @@ sub getAndUpdate {
     my ($resCode, $resBody, $resHeaders) = $self->biblio->callInterface($getInterface->{method}, $getInterface->{format}, $path, undef, $authentication);
     my $host = $self->interface->host("update");
     my $req = $resBody->{marcxml} ? {marc => $resBody->{marcxml}, source_id => $targetId->{target_id}, target_id => $source_id, interface => $host->{name}} : {marc => $resBody, source_id => $targetId->{target_id}, target_id => $source_id, interface => $host->{name}};
-    warn Data::Dumper::Dumper $req;
+    $self->biblio->log->debug($req);
     $self->biblio->export($req);
 }
 
@@ -37,7 +37,7 @@ sub parseResponse {
     my $match;
     my $identifier = $self->find({interface_id => $interface->{id}})->identifier_name if $self->find({interface_id => $interface->{id}});
     return {target_id => $headers->header($identifier)} if $headers->header($identifier);
-    my @keys = %{$params};
+    my @keys = %{$params} if (defined $params && ref($params) eq "HASH");
     foreach my $key (@keys) {
         if (ref($key) eq "HASH") {
             $match = $key->{$identifier};
