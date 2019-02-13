@@ -28,7 +28,7 @@ sub getAndUpdate {
     my ($resCode, $resBody, $resHeaders) = $self->biblio->callInterface($getInterface->{method}, $getInterface->{format}, $path, undef, $authentication);
     my $host = $self->interface->host("update");
     my $req = $resBody->{marcxml} ? {marc => $resBody->{marcxml}, source_id => $targetId->{target_id}, target_id => $source_id, interface => $host->{name}} : {marc => $resBody, source_id => $targetId->{target_id}, target_id => $source_id, interface => $host->{name}};
-    $self->biblio->log->debug($req);
+    $self->biblio->log->debug(Data::Dumper::Dumper $req);
     $self->biblio->export($req);
 }
 
