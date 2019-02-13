@@ -93,8 +93,9 @@ sub pushExport {
             $self->log->info("Export ".$export->{id}." finished successfully with");
             $self->log->debug($resBody);
         } else {
-            $self->exporter->update($export->{id}, {status => "failed", errorstatus => $resBody});
-            $self->log->info("Export ".$export->{id}." failed with ".$resBody);
+            $self->exporter->update($export->{id}, {status => "failed", errorstatus => $resHeaders});
+            $self->log->info("Export ".$export->{id}." failed with ".$resHeaders);
+            $self->log->debug($resBody);
         }
     }
 
@@ -120,7 +121,7 @@ sub callInterface {
     my ($self, $method, $format, $path, $body, $authentication) = @_;
 
     my $tx = $self->interface->buildTX($method, $format, $path, $body, $authentication);
-    return ($tx->res->code, $tx->res->error->{message}) if $tx->res->error;
+    return ($tx->res->code, $tx->res->body, $tx->res->error->{message}) if $tx->res->error;
     return ($tx->res->code, from_json($tx->res->body), $tx->res->headers);
     
 }
