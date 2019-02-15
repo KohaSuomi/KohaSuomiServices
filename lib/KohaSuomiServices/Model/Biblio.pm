@@ -93,9 +93,10 @@ sub pushExport {
             $self->log->info("Export ".$export->{id}." finished successfully with");
             $self->log->debug($resBody);
         } else {
-            $self->exporter->update($export->{id}, {status => "failed", errorstatus => $resHeaders});
-            $self->log->info("Export ".$export->{id}." failed with ".$resHeaders);
-            $self->log->debug($resBody) if defined $resBody && $resBody;
+            my $error = $resHeaders
+            $error = $resHeaders.' '.$resBody if ($type eq "add");
+            $self->exporter->update($export->{id}, {status => "failed", errorstatus => $error});
+            $self->log->info("Export ".$export->{id}." failed with ".$error);
         }
     }
 
