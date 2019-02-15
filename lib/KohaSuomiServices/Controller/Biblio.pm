@@ -84,7 +84,7 @@ sub check {
 
         my $target_id;
         my $componentparts;
-        if (@{$remote}) {
+        if (defined $remote && ref($remote) eq 'ARRAY' && @{$remote}) {
             $remote = shift @{$remote};
             $target_id = $c->biblio->getTargetId($req->{interface}, $remote);
             $c->compare->getMandatory($biblio, $remote);
