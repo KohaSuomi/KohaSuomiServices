@@ -80,26 +80,25 @@ sub pushExport {
 
     my $exports = $self->exporter->getExports($type, $parent_id);
     foreach my $export (@{$exports}){
-        warn Data::Dumper::Dumper $export;
-        # my $interface = $self->interface->load({id=> $export->{interface_id}}); 
-        # my $path = $self->create_path($interface, $export);
-        # my %removeMatchers = $self->matchers->removeMatchers($interface->{id});
-        # my $data = $self->fields->find($export->{id}, %removeMatchers);
-        # my $body = $self->create_body($interface->{params}, $data);
-        # my $authentication = $self->exportauth->interfaceAuthentication($interface, $export->{authuser_id}, $interface->{method});
-        # my ($resCode, $resBody, $resHeaders) = $self->callInterface($interface->{method}, $interface->{format}, $path, $body, $authentication);
-        # if ($resCode eq "200" || $resCode eq "201") {
-        #     $self->exporter->update($export->{id}, {status => "success", errorstatus => ""});
-        #     $self->response->getAndUpdate($interface, $resBody, $resHeaders, $export->{source_id});
-        #     $self->log->info("Export ".$export->{id}." finished successfully with");
-        #     $self->log->debug($resBody);
-        # } else {
-        #     my $error = $resHeaders;
-        #     $error = $resHeaders.' '.$resBody if ($type eq "add");
-        #     $self->exporter->update($export->{id}, {status => "failed", errorstatus => $error});
-        #     $self->log->info("Export ".$export->{id}." failed with ".$error);
+        my $interface = $self->interface->load({id=> $export->{interface_id}}); 
+        my $path = $self->create_path($interface, $export);
+        my %removeMatchers = $self->matchers->removeMatchers($interface->{id});
+        my $data = $self->fields->find($export->{id}, %removeMatchers);
+        my $body = $self->create_body($interface->{params}, $data);
+        my $authentication = $self->exportauth->interfaceAuthentication($interface, $export->{authuser_id}, $interface->{method});
+        my ($resCode, $resBody, $resHeaders) = $self->callInterface($interface->{method}, $interface->{format}, $path, $body, $authentication);
+        if ($resCode eq "200" || $resCode eq "201") {
+            $self->exporter->update($export->{id}, {status => "success", errorstatus => ""});
+            $self->response->getAndUpdate($interface, $resBody, $resHeaders, $export->{source_id});
+            $self->log->info("Export ".$export->{id}." finished successfully with");
+            $self->log->debug($resBody);
+        } else {
+            my $error = $resHeaders;
+            $error = $resHeaders.' '.$resBody if ($type eq "add");
+            $self->exporter->update($export->{id}, {status => "failed", errorstatus => $error});
+            $self->log->info("Export ".$export->{id}." failed with ".$error);
 
-        # }
+        }
     }
 
     return {message => "Success"};
