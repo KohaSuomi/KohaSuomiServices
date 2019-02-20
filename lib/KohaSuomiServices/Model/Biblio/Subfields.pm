@@ -17,10 +17,21 @@ sub find {
     return $self->schema->get_columns(@data);
 }
 
+sub findAll {
+    my ($self, $client, $id) = @_;
+    my @data = $client->resultset('Subfields')->search({field_id => $id});
+    return $self->schema->get_columns(@data);
+}
+
 sub insert {
     my ($self, $client, $field) = @_;
     my $data = $client->resultset('Subfields')->new($field)->insert();
     return $data;
+}
+
+sub update {
+    my ($self, $client, $id, $params) = @_;
+    return $client->resultset('Subfields')->find($id)->update($params);
 }
 
 1;

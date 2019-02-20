@@ -10,11 +10,12 @@ __PACKAGE__->add_columns(
   id => { data_type => 'integer',  is_auto_increment => 1 },
   interface_id => { data_type => 'integer', is_foreign_key => 1 },
   authuser_id => { data_type => 'integer', is_foreign_key => 1 },
-  source_id => { data_type => 'varchar', size => 30 },
-  target_id => { data_type => 'varchar', size => 30 },
+  source_id => { data_type => 'varchar', size => 30, is_nullable => 1 },
+  target_id => { data_type => 'varchar', size => 30, is_nullable => 1 },
   type => { data_type => 'varchar', is_enum => 1, extra => { list => [qw/add update delete/]} },
   status => { data_type => 'varchar', is_enum => 1, extra => { list => [qw/pending success failed waiting/]} },
   errorstatus => { data_type => 'text' },
+  parent_id => {data_type => 'varchar', size => 30, is_nullable => 1},
   timestamp => { data_type => 'datetime', default_value => \"current_timestamp", is_nullable => 0 },
 );
 __PACKAGE__->set_primary_key('id');

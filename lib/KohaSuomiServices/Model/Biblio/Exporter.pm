@@ -33,16 +33,17 @@ sub update {
 }
 
 sub getExports {
-    my ($self, $type) = @_;
+    my ($self, $type, $parent_id) = @_;
 
+    my $params = $parent_id ? {type => $type, status => "pending", parent_id => $parent_id} : {type => $type, status => "pending", parent_id => undef };
     my $schema = $self->schema->client($self->config);
-    my @data = $self->find($schema, {type => $type, status => "pending"}, undef);
+    my @data = $self->find($schema, $params, undef);
     return $self->schema->get_columns(@data);
 
 }
 
 sub setExporterParams {
-    my ($self, $interface, $type, $status, $source_id, $target_id, $authuser) = @_;
+    my ($self, $interface, $type, $status, $source_id, $target_id, $authuser, $parent_id) = @_;
 
     my $exporter->{status} = $status;
     $exporter->{type} = $type;
@@ -50,6 +51,7 @@ sub setExporterParams {
     $exporter->{target_id} = $target_id if (defined $target_id);
     $exporter->{interface_id} = $interface->{id};
     $exporter->{authuser_id} = $authuser;
+    $exporter->{parent_id} = $parent_id;
 
     return $exporter;
 }

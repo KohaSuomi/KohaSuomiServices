@@ -37,6 +37,11 @@ sub insert {
     return $client->resultset('Fields')->new($field)->insert();
 }
 
+sub update {
+    my ($self, $client, $id, $params) = @_;
+    return $client->resultset('Fields')->find($id)->update($params);
+}
+
 sub find {
     my ($self, $id, %matcher) = @_;
     
@@ -70,6 +75,45 @@ sub find {
     }
     $format->{fields} = \@fields;
     return $format;
+}
+
+sub findValue {
+    my ($self, $id, $tag, $code) = @_;
+    my $client = $self->schema->client($self->config);
+    my @data = $client->resultset('Fields')->search({exporter_id => $id, tag => $tag});
+    foreach my $field (@{$self->schema->get_columns(@data)}) {
+        if (defined $code && $code) {
+            my $subfields = $self->subfields->findAll($client, $field->{id});
+            foreach my $subfield (@{$subfields}) {
+                if (defined $subfield && $subfield->{code} eq $code) {
+                    return $subfield->{value};
+                }
+            }
+        }
+        return $field->{value};
+    }
+}
+
+sub replaceValue {
+    my ($self, $id, $tag, $code, $newvalue) = @_;
+    my $client = $self->schema->client($self->config);
+    my @data = $client->resultset('Fields')->search({exporter_id => $id});
+    foreach my $field (@{$self->schema->get_columns(@data)}) {
+        if (defined $code && $code && $field->{type} eq "datafield") {
+            my $subfields = $self->subfields->findAll($client, $field->{id});
+            foreach my $subfield (@{$subfields}) {
+                if (defined $subfield && $subfield->{code} eq $code) {
+                    warn Data::Dumper::Dumper $subfield, $newvalue;
+                    $self->subfields->update($client, $subfield->{id}, {value => $newvalue});
+                    return;
+                }
+            }
+        }
+        if ($field->{tag} eq $tag && $field->{type} eq "controlfield") {
+            $self->update($client, $field->{id}, {value => $newvalue});
+            return;
+        }
+    }
 }
 
 sub parse {

@@ -16,13 +16,15 @@ has interface => sub {KohaSuomiServices::Model::Biblio::Interface->new};
 has config => sub {KohaSuomiServices::Model::Config->new->service("biblio")->load};
 
 sub exportComponentParts {
-    my ($self, $componentparts) = @_;
+    my ($self, $parent_id, $linkvalue) = @_;
 
-    foreach my $componentpart (@{$componentparts}) {
-        my $host = $self->interface->host("update");
-        my $req = $resBody->{marcxml} ? {marc => $resBody->{marcxml}, source_id => $targetId->{target_id}, target_id => $source_id, interface => $host->{name}} : {marc => $resBody, source_id => $targetId->{target_id}, target_id => $source_id, interface => $host->{name}};
-        $self->biblio->export($req);
+    my $schema = $self->schema->client($self->config);
+    my @componentparts = $app->biblio->exporter->find($schema, {status => "pending", parent_id => $parent_id}, undef);
+    foreach my $d (@{$app->schema->get_columns(@componentparts)}) {
+        $app->biblio->fields->replaceValue($d->{id}, "773", "w", $linkvalue);
     }
+
+    $self->biblio->pushExport("add", $parent_id);
 }
 
 sub find {

@@ -8,11 +8,13 @@ use Try::Tiny;
 use Mojo::JSON qw(decode_json encode_json);
 
 use KohaSuomiServices::Model::Exception::NotFound;
+use KohaSuomiServices::Model::Biblio::ComponentParts;
 
 has schema => sub {KohaSuomiServices::Database::Client->new};
 has biblio => sub {KohaSuomiServices::Model::Biblio->new};
 has exportauth => sub {KohaSuomiServices::Model::Biblio::ExportAuth->new};
 has interface => sub {KohaSuomiServices::Model::Biblio::Interface->new};
+has componentparts => sub {KohaSuomiServices::Model::Biblio::ComponentParts->new};
 has config => sub {KohaSuomiServices::Model::Config->new->service("biblio")->load};
 
 sub getAndUpdate {
@@ -27,9 +29,16 @@ sub getAndUpdate {
     my $authentication = $self->exportauth->interfaceAuthentication($getInterface, $user, $getInterface->{method});
     my ($resCode, $resBody, $resHeaders) = $self->biblio->callInterface($getInterface->{method}, $getInterface->{format}, $path, undef, $authentication);
     my $host = $self->interface->host("update");
-    my $req = $resBody->{marcxml} ? {marc => $resBody->{marcxml}, source_id => $targetId->{target_id}, target_id => $source_id, interface => $host->{name}} : {marc => $resBody, source_id => $targetId->{target_id}, target_id => $source_id, interface => $host->{name}};
+    my $req = $resBody->{biblio}->{marcxml} ? {marc => $resBody->{biblio}->{marcxml}, source_id => $targetId->{target_id}, target_id => $source_id, interface => $host->{name}} : {marc => $resBody, source_id => $targetId->{target_id}, target_id => $source_id, interface => $host->{name}};
     $self->biblio->log->debug(Data::Dumper::Dumper $req);
-    $self->biblio->export($req);
+    my $res = $self->biblio->export($req);
+    if ($res->{message} eq "Success") {
+        my $link001 = $self->biblio->fields->findValue($res->{export}, "001", undef);
+        my $link003 = $self->biblio->fields->findValue($res->{export}, "003", undef);
+        my $linkvalue = '('.$link003.')'.$link001;
+        $self->componentparts->exportComponentParts($source_id, $linkvalue);
+    }
+    
 }
 
 sub parseResponse {

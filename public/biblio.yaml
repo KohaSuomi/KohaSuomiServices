@@ -91,6 +91,8 @@ paths:
               type: string
             username:
               type: string
+            parent_id:
+              type: [integer, string, "null"]
       responses:
         200:
           description: Ok status
