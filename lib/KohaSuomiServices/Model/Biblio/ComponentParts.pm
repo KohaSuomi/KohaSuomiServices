@@ -21,7 +21,7 @@ sub exportComponentParts {
     my $schema = $self->schema->client($self->config);
     my @componentparts = $app->biblio->exporter->find($schema, {status => "pending", parent_id => $parent_id}, undef);
     foreach my $d (@{$app->schema->get_columns(@componentparts)}) {
-        $app->biblio->fields->replaceValue($d->{id}, "773", "w", $linkvalue);
+        $self->biblio->fields->replaceValue($d->{id}, "773", "w", $linkvalue);
     }
 
     $self->biblio->pushExport("add", $parent_id);
