@@ -264,9 +264,9 @@ sub create_path {
         my $firstkey = (%{$query})[0];
         foreach my $q (keys %{$query}) {
             if ($firstkey eq $q) {
-                $interface->{endpoint_url} = $interface->{endpoint_url}.'&'.$q.'='.$query->{$q};
-            } else {
                 $interface->{endpoint_url} = $interface->{endpoint_url}.'?'.$q.'='.$query->{$q};
+            } else {
+                $interface->{endpoint_url} = $interface->{endpoint_url}.'&'.$q.'='.$query->{$q};
             }
         }
     }
