@@ -103,7 +103,6 @@ sub replaceValue {
             my $subfields = $self->subfields->findAll($client, $field->{id});
             foreach my $subfield (@{$subfields}) {
                 if (defined $subfield && $subfield->{code} eq $code) {
-                    warn Data::Dumper::Dumper $subfield, $newvalue;
                     $self->subfields->update($client, $subfield->{id}, {value => $newvalue});
                     return;
                 }

@@ -93,6 +93,8 @@ paths:
               type: string
             parent_id:
               type: [integer, string, "null"]
+            force: 
+              type: [integer, "null"]
       responses:
         200:
           description: Ok status

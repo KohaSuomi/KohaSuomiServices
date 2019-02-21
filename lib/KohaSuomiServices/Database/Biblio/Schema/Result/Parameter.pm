@@ -12,6 +12,7 @@ __PACKAGE__->add_columns(
   name => { data_type => 'varchar', size => 255 },
   value => { data_type => 'varchar', size => 255 },
   type => { data_type => 'varchar', is_enum => 1, extra => { list => [qw/query path body cookie header/]} },
+  force_tag => {data_type => 'integer', is_boolean  => 1, default_value => 0, false_is    => ['0', '-1']},
 );
 __PACKAGE__->set_primary_key('id');
 ## ## ##   DONE WITH DBIx::Schema   ## ## ##

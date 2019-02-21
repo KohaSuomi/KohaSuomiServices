@@ -16,7 +16,8 @@ new Vue({
         auth_url: "",
         parametername: "",
         parametertype: "",
-        parametervalue: ""
+        parametervalue: "",
+        parameterforce: "",
     },
     methods: {
         fetchData() {
@@ -186,13 +187,14 @@ Vue.component('modal-component', {
     return {
       parametername: "",
       parametertype: "",
-      parametervalue: ""
+      parametervalue: "",
+      parameterforce: ""
     }
   },
   methods: {
     addParameter(interface_id, e) {
       e.preventDefault();
-      var params = {interface_id: interface_id, name: this.parametername, type: this.parametertype, value: this.parametervalue};
+      var params = {interface_id: interface_id, name: this.parametername, type: this.parametertype, value: this.parametervalue, force_tag: this.parameterforce};
       this.$parent.$parent.addParameter(params);
       this.$parent.$parent.fetchParameters(interface_id);
     },

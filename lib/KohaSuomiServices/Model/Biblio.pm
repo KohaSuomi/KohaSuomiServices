@@ -44,7 +44,7 @@ sub export {
     
     my $type = defined $params->{target_id} ? "update" :"add";
     my $authuser = $self->exportauth->checkAuthUser($schema, $params->{username}, $interface->{id});
-    my $exporter = $self->exporter->setExporterParams($interface, $type, "waiting", $params->{source_id}, $params->{target_id}, $authuser, $params->{parent_id});
+    my $exporter = $self->exporter->setExporterParams($interface, $type, "waiting", $params->{source_id}, $params->{target_id}, $authuser, $params->{parent_id}, $params->{force});
     my $data = $self->exporter->insert($schema, $exporter);
 
     $params->{marc} = ref($params->{marc}) eq "HASH" ? $params->{marc} : $self->convert->formatjson($params->{marc});
@@ -80,8 +80,9 @@ sub pushExport {
 
     my $exports = $self->exporter->getExports($type, $parent_id);
     foreach my $export (@{$exports}){
-        my $interface = $self->interface->load({id=> $export->{interface_id}}); 
-        my $path = $self->create_path($interface, $export);
+        my $interface = $self->interface->load({id=> $export->{interface_id}}, $export->{force_tag});
+        my $query = $self->create_query($interface->{params});
+        my $path = $self->create_path($interface, $export, $query);
         my %removeMatchers = $self->matchers->removeMatchers($interface->{id});
         my $data = $self->fields->find($export->{id}, %removeMatchers);
         my $body = $self->create_body($interface->{params}, $data);
@@ -97,7 +98,6 @@ sub pushExport {
             $error = $resHeaders.' '.$resBody if ($type eq "add");
             $self->exporter->update($export->{id}, {status => "failed", errorstatus => $error});
             $self->log->info("Export ".$export->{id}." failed with ".$error);
-
         }
     }
 
@@ -253,12 +253,22 @@ sub search_fields {
 }
 
 sub create_path {
-    my ($self, $interface, $params) = @_;
+    my ($self, $interface, $params, $query) = @_;
     my @matches = $interface->{endpoint_url} =~ /{(.*?)}/g;
 
     foreach my $match (@matches) {
         my $m = $params->{$match};
         $interface->{endpoint_url} =~ s/{$match}/$m/g;
+    }
+    if (defined $query && $query) {
+        my $firstkey = (%{$query})[0];
+        foreach my $q (keys %{$query}) {
+            if ($firstkey eq $q) {
+                $interface->{endpoint_url} = $interface->{endpoint_url}.'&'.$q.'='.$query->{$q};
+            } else {
+                $interface->{endpoint_url} = $interface->{endpoint_url}.'?'.$q.'='.$query->{$q};
+            }
+        }
     }
     return $interface->{endpoint_url};
 }

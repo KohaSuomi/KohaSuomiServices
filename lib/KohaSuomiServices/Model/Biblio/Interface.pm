@@ -18,12 +18,12 @@ has exportauth => sub {KohaSuomiServices::Model::Biblio::ExportAuth->new};
 has ua => sub {Mojo::UserAgent->new};
 
 sub load {
-    my ($self, $params) = @_;
+    my ($self, $params, $force) = @_;
 
     my $client = $self->schema->client($self->config);
     my $localInterface = $client->resultset("Interface")->search($params)->next;
     KohaSuomiServices::Model::Exception::NotFound->throw(error => "No ".$params->{type}." interface defined for ".$params->{name}) unless $localInterface;
-    my $interfaceParams = $self->parameter->find({interface_id => $localInterface->id});
+    my $interfaceParams = defined $force && $force ? $self->parameter->find({interface_id => $localInterface->id}) : $self->parameter->find({interface_id => $localInterface->id, force_tag => 0});
     return $self->parse($localInterface, $interfaceParams);
 }
 
