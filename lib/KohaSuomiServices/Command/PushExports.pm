@@ -11,6 +11,7 @@ has usage => <<"USAGE";
 $0 PushExports [OPTIONS]
 OPTIONS:
   -y, --type  Define wanted export type, available values are update and add
+  -p, --parent  Define parent record for pushing component parts
 Defaults to pushing all exports
 USAGE
 
@@ -21,9 +22,10 @@ sub run {
   getopt(
     \@args,
     't|type=s' => \my $type,
+    'p|parent=s' => \my $parent,
   );
   
-  $app->biblio->pushExport($type);
+  $app->biblio->pushExport($type, $parent);
 
 }
 
