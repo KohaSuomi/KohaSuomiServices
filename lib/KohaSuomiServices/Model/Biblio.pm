@@ -10,7 +10,7 @@ use Mojo::UserAgent;
 use Mojo::Log;
 use Mojo::URL;
 use KohaSuomiServices::Model::Convert;
-use Mojo::JSON qw(decode_json encode_json from_json);
+use Mojo::JSON qw(decode_json encode_json from_json to_json);
 use KohaSuomiServices::Model::Exception::NotFound;
 use KohaSuomiServices::Model::Exception::BadParameter;
 use KohaSuomiServices::Model::Biblio::Interface;
