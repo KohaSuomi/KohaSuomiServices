@@ -97,6 +97,7 @@ sub pushExport {
             my $error = $resHeaders;
             $error = $resHeaders.' '.$resBody if ($type eq "add");
             $self->exporter->update($export->{id}, {status => "failed", errorstatus => $error});
+            $self->response->componentparts->failWithParent($export->{source_id});
             $self->log->info("Export ".$export->{id}." failed with ".$error);
         }
     }

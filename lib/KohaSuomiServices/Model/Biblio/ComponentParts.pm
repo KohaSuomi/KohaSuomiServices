@@ -38,6 +38,16 @@ sub find {
     return $search;
 }
 
+sub failWithParent {
+    my ($self, $parent_id) = @_;
+
+    my $schema = $self->schema->client($self->config);
+    my @componentparts = $self->biblio->exporter->find($schema, {status => "waiting", parent_id => $parent_id}, undef);
+    foreach my $d (@{$self->schema->get_columns(@componentparts)}) {
+        $self->exporter->update($d->{id}, {status => "failed"});
+    }
+}
+
 sub sruLoopAll {
     my ($self, $interface, $matcher) = @_;
 
