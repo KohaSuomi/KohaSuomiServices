@@ -5,12 +5,13 @@ use utf8;
 
 use Mojo::Util 'getopt';
 
-has description => 'Pushes pending exports to interfaces';
+has description => 'Pushes pending exports to interfaces with daemonized loop';
 has usage => <<"USAGE";
 
 $0 ExportDaemon [OPTIONS]
 OPTIONS:
-  -w, --wait  Define wanted export type, available values are update and add
+  -y, --type  Define wanted export type, available values are update and add
+  -w, --wait  Define sleep time
 Defaults to pushing all exports
 USAGE
 
@@ -23,11 +24,11 @@ sub run {
   getopt(
     \@args,
     'w|wait=i' => \my $wait,
+    't|type=s' => \my $type,
   );
 
   while($loopcount < 5) {
-    $app->biblio->pushExport("add");
-    $app->biblio->pushExport("update");
+    $app->biblio->pushExport($type);
     sleep $wait if $wait;
   }
 
