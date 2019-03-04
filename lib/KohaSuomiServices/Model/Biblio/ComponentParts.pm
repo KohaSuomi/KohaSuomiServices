@@ -13,18 +13,17 @@ has schema => sub {KohaSuomiServices::Database::Client->new};
 has sru => sub {KohaSuomiServices::Model::SRU->new};
 has biblio => sub {KohaSuomiServices::Model::Biblio->new};
 has interface => sub {KohaSuomiServices::Model::Biblio::Interface->new};
+has exporter => sub {KohaSuomiServices::Model::Biblio::Exporter->new};
 has config => sub {KohaSuomiServices::Model::Config->new->service("biblio")->load};
 
 sub exportComponentParts {
     my ($self, $parent_id, $linkvalue) = @_;
-
     my $schema = $self->schema->client($self->config);
-    my @componentparts = $self->biblio->exporter->find($schema, {status => "pending", parent_id => $parent_id}, undef);
+    my @componentparts = $self->biblio->exporter->find($schema, {status => "waiting", parent_id => $parent_id}, undef);
     foreach my $d (@{$self->schema->get_columns(@componentparts)}) {
         $self->biblio->fields->replaceValue($d->{id}, "773", "w", $linkvalue);
+        $self->exporter->update($d->{id}, {status => "pending"});
     }
-
-    $self->biblio->pushExport("add", $parent_id);
 }
 
 sub find {

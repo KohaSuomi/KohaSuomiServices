@@ -48,7 +48,7 @@ sub export {
     my $data = $self->exporter->insert($schema, $exporter);
 
     $params->{marc} = ref($params->{marc}) eq "HASH" ? $params->{marc} : $self->convert->formatjson($params->{marc});
-    $self->fields->store($data->id, $params->{marc});
+    $self->fields->store($data->id, $params->{parent_id}, $params->{marc});
 
     return {export => $data->id, message => "Success"};
     

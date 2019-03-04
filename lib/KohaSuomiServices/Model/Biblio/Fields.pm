@@ -18,7 +18,7 @@ has subfields => sub {KohaSuomiServices::Model::Biblio::Subfields->new};
 has exporter => sub {KohaSuomiServices::Model::Biblio::Exporter->new};
 
 sub store {
-    my ($self, $exporter_id, $record) = @_;
+    my ($self, $exporter_id, $parent_id, $record) = @_;
 
     my $client = $self->schema->client($self->config);
     KohaSuomiServices::Model::Exception::NotFound->throw(error => "No fields defined") unless @{$record->{fields}};
@@ -29,7 +29,7 @@ sub store {
             $self->subfields->insert($client, $self->parse($data->id, $subfield));
         }
     }
-    $self->exporter->update($exporter_id, {status => "pending"});
+    $self->exporter->update($exporter_id, {status => "pending"}) unless defined $parent_id && $parent_id;
 }
 
 sub insert {

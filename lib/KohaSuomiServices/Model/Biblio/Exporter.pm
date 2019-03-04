@@ -35,7 +35,8 @@ sub update {
 sub getExports {
     my ($self, $type, $parent_id) = @_;
 
-    my $params = $parent_id ? {type => $type, status => "pending", parent_id => $parent_id} : {type => $type, status => "pending", parent_id => undef };
+    my $params = {type => $type, status => "pending"};
+    $params = {type => $type, status => "pending", parent_id => $parent_id} if defined $parent_id && $parent_id;
     my $schema = $self->schema->client($self->config);
     my @data = $self->find($schema, $params, undef);
     return $self->schema->get_columns(@data);
