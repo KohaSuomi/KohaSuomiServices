@@ -44,7 +44,7 @@ sub getExports {
 }
 
 sub setExporterParams {
-    my ($self, $interface, $type, $status, $source_id, $target_id, $authuser, $parent_id, $force) = @_;
+    my ($self, $interface, $type, $status, $source_id, $target_id, $authuser, $parent_id, $force, $componentparts) = @_;
 
     my $exporter->{status} = $status;
     $exporter->{type} = $type;
@@ -55,6 +55,7 @@ sub setExporterParams {
     $exporter->{parent_id} = $parent_id;
     $force = 0 unless (defined $force && $force);
     $exporter->{force_tag} = $force;
+    $exporter->{componentparts} = defined $componentparts && $componentparts ? $componentparts : 0;
 
     return $exporter;
 }

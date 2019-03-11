@@ -95,6 +95,8 @@ paths:
               type: [integer, string, "null"]
             force: 
               type: [integer, "null"]
+            componentparts:
+              type: [integer, "null"]
       responses:
         200:
           description: Ok status

@@ -35,6 +35,11 @@ sub find {
         $search = $self->sruLoopAll($interface, $matcher);
 
     }
+
+    if ($interface->{interface} eq "REST") {
+        my $matcher = {target_id => $target_id};
+    }
+
     return $search;
 }
 
@@ -45,6 +50,17 @@ sub failWithParent {
     my @componentparts = $self->biblio->exporter->find($schema, {status => "waiting", parent_id => $parent_id}, undef);
     foreach my $d (@{$self->schema->get_columns(@componentparts)}) {
         $self->exporter->update($d->{id}, {status => "failed", errorstatus => "Parent failed"});
+    }
+}
+
+sub fetchComponentParts {
+    my ($self, $remote_interface, $target_id) = @_;
+    my $host = $self->interface->host("add");
+    my $results = $self->find($remote_interface, $target_id);
+    foreach my $result (@{$results}) {
+        my $sourceid = $self->biblio->getTargetId($remote_interface, $result);
+        my $res = $self->biblio->export({source_id => $sourceid, marc => $result, interface => $host->{name}});
+        $self->biblio->log->info("Component part ".$res->{export}." fetched");
     }
 }
 

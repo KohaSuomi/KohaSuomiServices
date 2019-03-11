@@ -44,9 +44,8 @@ sub export {
     
     my $type = defined $params->{target_id} ? "update" :"add";
     my $authuser = $self->exportauth->checkAuthUser($schema, $params->{username}, $interface->{id});
-    my $exporter = $self->exporter->setExporterParams($interface, $type, "waiting", $params->{source_id}, $params->{target_id}, $authuser, $params->{parent_id}, $params->{force});
+    my $exporter = $self->exporter->setExporterParams($interface, $type, "waiting", $params->{source_id}, $params->{target_id}, $authuser, $params->{parent_id}, $params->{force}, $params->{componentparts});
     my $data = $self->exporter->insert($schema, $exporter);
-
     $params->{marc} = ref($params->{marc}) eq "HASH" ? $params->{marc} : $self->convert->formatjson($params->{marc});
     $self->fields->store($data->id, $params->{parent_id}, $params->{marc});
 
@@ -81,6 +80,9 @@ sub pushExport {
     my $exports = $self->exporter->getExports($type, $parent_id);
     foreach my $export (@{$exports}){
         my $interface = $self->interface->load({id=> $export->{interface_id}}, $export->{force_tag});
+        if ($export->{componentparts}) {
+            $self->response->componentparts->fetchComponentParts($interface->{name}, $export->{target_id});
+        }
         my $query = $self->create_query($interface->{params});
         my $path = $self->create_path($interface, $export, $query);
         my %removeMatchers = $self->matchers->removeMatchers($interface->{id});

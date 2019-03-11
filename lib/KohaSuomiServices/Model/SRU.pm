@@ -22,6 +22,7 @@ sub search {
     $path .= "&startRecord=".$params->{startRecord} if ($params->{startRecord});
     $path .= defined $params->{version} ? "&version=".$params->{version} : "&version=1.1";
     $path .= defined $params->{maximumRecords} ? "&maximumRecords=".$params->{maximumRecords} : "&maximumRecords=1";
+    $path .= "&recordSchema=".$params->{recordSchema} if defined $params->{recordSchema} && $params->{recordSchema};
     my $tx = $self->ua->build_tx(GET => $path);
     $tx = $self->ua->start($tx);
     my $records = $self->getRecords($tx->res->body);
