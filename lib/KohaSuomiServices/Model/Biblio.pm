@@ -80,7 +80,7 @@ sub pushExport {
     my $exports = $self->exporter->getExports($type, $parent_id);
     foreach my $export (@{$exports}){
         my $interface = $self->interface->load({id=> $export->{interface_id}}, $export->{force_tag});
-        if ($export->{componentparts}) {
+        if ($export->{componentparts} && $export->{fetch_interface}) {
             $self->response->componentparts->fetchComponentParts($export->{fetch_interface}, $export->{source_id});
         }
         my $query = $self->create_query($interface->{params});
