@@ -37,7 +37,7 @@ sub getExports {
 
     my $params = {type => $type, status => "pending", parent_id => undef};
     $params = {type => $type, status => "pending", parent_id => {'!=', undef}} if defined $components && $components;
-    my $order = defined $components && $components ? {order_by => { -asc => [qw/parent_id source_id/] }} : undef;
+    my $order = defined $components && $components ? {order_by => { -asc => [qw/source_id id/] }} : undef;
     my $schema = $self->schema->client($self->config);
     my @data = $self->find($schema, $params, $order);
     return $self->schema->get_columns(@data);
