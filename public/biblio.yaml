@@ -97,6 +97,8 @@ paths:
               type: [integer, "null"]
             componentparts:
               type: [integer, "null"]
+            fetch_interface:
+              type: [string, "null"]
       responses:
         200:
           description: Ok status
