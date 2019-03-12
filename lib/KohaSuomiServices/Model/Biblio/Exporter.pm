@@ -33,12 +33,13 @@ sub update {
 }
 
 sub getExports {
-    my ($self, $type, $parent_id) = @_;
+    my ($self, $type, $components) = @_;
 
-    my $params = {type => $type, status => "pending"};
-    $params = {type => $type, status => "pending", parent_id => $parent_id} if defined $parent_id && $parent_id;
+    my $params = {type => $type, status => "pending", parent_id => undef};
+    $params = {type => $type, status => "pending", parent_id => {'!=', undef}} if defined $components && $components;
+    my $order = defined $components && $components ? {order_by => { -asc => [qw/parent_id source_id/] }} : undef;
     my $schema = $self->schema->client($self->config);
-    my @data = $self->find($schema, $params, undef);
+    my @data = $self->find($schema, $params, $order);
     return $self->schema->get_columns(@data);
 
 }

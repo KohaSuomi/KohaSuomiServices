@@ -75,9 +75,9 @@ sub broadcast {
 }
 
 sub pushExport {
-    my ($self, $type, $parent_id) = @_;
+    my ($self, $type, $componentparts) = @_;
 
-    my $exports = $self->exporter->getExports($type, $parent_id);
+    my $exports = $self->exporter->getExports($type, $componentparts);
     foreach my $export (@{$exports}){
         my $interface = $self->interface->load({id=> $export->{interface_id}}, $export->{force_tag});
         if ($export->{componentparts} && $export->{fetch_interface}) {

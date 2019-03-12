@@ -11,6 +11,7 @@ has usage => <<"USAGE";
 $0 ExportDaemon [OPTIONS]
 OPTIONS:
   -y, --type  Define wanted export type, available values are update and add
+  -c, --componentparts  Define wanted export type, available values are update and add
   -w, --wait  Define sleep time
 Defaults to pushing all exports
 USAGE
@@ -25,10 +26,11 @@ sub run {
     \@args,
     'w|wait=i' => \my $wait,
     't|type=s' => \my $type,
+    'c|componentparts=i' => \my $componentparts,
   );
 
   while($loopcount < 5) {
-    $app->biblio->pushExport($type);
+    $app->biblio->pushExport($type, $componentparts);
     sleep $wait if $wait;
   }
 
