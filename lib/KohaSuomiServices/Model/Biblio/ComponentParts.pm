@@ -27,17 +27,17 @@ sub exportComponentParts {
 }
 
 sub find {
-    my ($self, $remote_interface, $target_id) = @_;
+    my ($self, $remote_interface, $source_id) = @_;
     my $interface = $self->interface->load({name => $remote_interface, type => "getcomponentparts"});
     my $search;
     if ($interface->{interface} eq "SRU") {
-        my $matcher = {target_id => $target_id};
+        my $matcher = {source_id => $source_id};
         $search = $self->sruLoopAll($interface, $matcher);
 
     }
 
     if ($interface->{interface} eq "REST") {
-        my $matcher = {target_id => $target_id};
+        my $matcher = {source_id => $source_id};
     }
 
     return $search;
@@ -54,9 +54,9 @@ sub failWithParent {
 }
 
 sub fetchComponentParts {
-    my ($self, $remote_interface, $target_id) = @_;
+    my ($self, $remote_interface, $source_id) = @_;
     my $host = $self->interface->host("add");
-    my $results = $self->find($remote_interface, $target_id);
+    my $results = $self->find($remote_interface, $source_id);
     $self->biblio->log->info("Component parts not found from ".$remote_interface) unless defined $results && $results;
     foreach my $result (@{$results}) {
         my $sourceid = $self->biblio->getTargetId($remote_interface, $result);

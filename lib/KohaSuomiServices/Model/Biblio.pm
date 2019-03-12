@@ -81,7 +81,7 @@ sub pushExport {
     foreach my $export (@{$exports}){
         my $interface = $self->interface->load({id=> $export->{interface_id}}, $export->{force_tag});
         if ($export->{componentparts}) {
-            $self->response->componentparts->fetchComponentParts($export->{fetch_interface}, $export->{target_id});
+            $self->response->componentparts->fetchComponentParts($export->{fetch_interface}, $export->{source_id});
         }
         my $query = $self->create_query($interface->{params});
         my $path = $self->create_path($interface, $export, $query);
