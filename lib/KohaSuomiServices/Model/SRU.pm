@@ -10,9 +10,11 @@ use Mojo::JSON qw(decode_json encode_json);
 use Mojo::UserAgent;
 use KohaSuomiServices::Model::Convert;
 use KohaSuomiServices::Model::Exception::NotFound;
+use KohaSuomiServices::Model::Biblio
 
 has ua => sub {Mojo::UserAgent->new};
 has convert => sub {KohaSuomiServices::Model::Convert->new};
+has log => sub {Mojo::Log->new(path => KohaSuomiServices::Model::Config->new->load->{"logs"}, level => KohaSuomiServices::Model::Config->new->load->{"log_level"})};
 
 sub search {
     my ($self, $params) = @_;
@@ -23,6 +25,7 @@ sub search {
     $path .= defined $params->{version} ? "&version=".$params->{version} : "&version=1.1";
     $path .= defined $params->{maximumRecords} ? "&maximumRecords=".$params->{maximumRecords} : "&maximumRecords=1";
     $path .= "&recordSchema=".$params->{recordSchema} if defined $params->{recordSchema} && $params->{recordSchema};
+    $self->log->debug("SRU path: ".$path);
     my $tx = $self->ua->build_tx(GET => $path);
     $tx = $self->ua->start($tx);
     my $records = $self->getRecords($tx->res->body);
