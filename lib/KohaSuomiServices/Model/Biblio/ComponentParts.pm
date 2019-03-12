@@ -57,6 +57,7 @@ sub fetchComponentParts {
     my ($self, $remote_interface, $target_id) = @_;
     my $host = $self->interface->host("add");
     my $results = $self->find($remote_interface, $target_id);
+    $self->biblio->log->info("Component parts not found") unless defined $results && $results;
     foreach my $result (@{$results}) {
         my $sourceid = $self->biblio->getTargetId($remote_interface, $result);
         my $res = $self->biblio->export({source_id => $sourceid, marc => $result, interface => $host->{name}});
