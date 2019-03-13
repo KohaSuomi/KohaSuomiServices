@@ -20,10 +20,12 @@ function start {
     echo "Starting Hypnotoad"
     su -c "hypnotoad $BASEDIR/koha_suomi_services" $USER
     echo "ALL GLORY TO THE HYPNOTOAD."
+    runscripts
 }
 
 function stop {
     su -c "hypnotoad $BASEDIR/koha_suomi_services -s" $USER
+    killscripts
 }
 
 function runscripts {
@@ -45,11 +47,9 @@ function printresults {
 case "$1" in
     start)
         start
-        runscripts
       ;;
     stop)
         stop
-        killscripts
       ;;
     restart)
         echo "Restarting Hypnotoad"
