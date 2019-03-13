@@ -21,26 +21,25 @@ function start {
     su -c "hypnotoad $BASEDIR/koha_suomi_services" $USER
     echo "ALL GLORY TO THE HYPNOTOAD."
 }
+
 function stop {
     su -c "hypnotoad $BASEDIR/koha_suomi_services -s" $USER
 }
 
 function runscripts {
-  if test -n "$(config)"; then
-    echo "Starting daemon scripts"
-    $(config) > /dev/null 2>&1 &
-  fi
+  echo "Start background scripts"
+  su -c "perl $BASEDIR/background.pl" $USER
 }
 
 function killscripts {
-  if test -n "$(config)"; then
-    echo "Killing daemon scripts"
-    ps aux  |  grep -i "$(config)"  |  awk '{print $2}'  |  xargs sudo kill
+  if test -n "$(printresults)"; then
+    echo "Killing background scripts"
+    ps aux  |  grep -i "$(printresults)"  |  awk '{print $2}'  |  xargs sudo kill
   fi
 }
 
-function config {
-  perl "$BASEDIR/background.pl"
+function printresults {
+  su -c "perl $BASEDIR/background.pl -p" $USER
 }
 
 case "$1" in

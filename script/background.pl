@@ -19,17 +19,27 @@
 
 use Modern::Perl;
 use FindBin;
+use Getopt::Long qw(:config no_ignore_case);
 BEGIN { unshift @INC, "$FindBin::Bin/../lib" }
 use KohaSuomiServices::Model::Config;
+
+my $print = 0;
+
+GetOptions(
+    'p|print'                     => \$print,
+);
 
 my $config = KohaSuomiServices::Model::Config->new->load->{background};
 if (defined $config && $config) {
     my @arr = @{$config};
-    my $count = 0;
     foreach my $c (@arr) {
         my $string =  "perl $FindBin::Bin/koha_suomi_services $c";
-        $string .= " && " if ($count != $#arr);
-        print "$string";
-        $count++;
+        if ($print) {
+            print "$string\n";
+        } else {
+            $string .= " > /dev/null 2>&1 &";
+            system($string);
+        }
+        
     }
 }
