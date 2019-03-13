@@ -7,8 +7,9 @@
 # Default-Start:     2 3 4 5
 # Default-Stop:      0 1 6
 # Short-Description: Hypnotoad Mojolicious Server for handling API requests
+### END INIT INFO
 
-BASEDIR=$(dirname "$0")
+BASEDIR="$(dirname "$(readlink --canonicalize "$0")")"
 
 if [[ $EUID -ne 0 ]]; then
     echo "You must run this script as 'root'";
@@ -24,12 +25,32 @@ function stop {
     su -c "hypnotoad $BASEDIR/koha_suomi_services -s" $USER
 }
 
+function runscripts {
+  if test -n "$(config)"; then
+    echo "Starting daemon scripts"
+    $(config) > /dev/null 2>&1 &
+  fi
+}
+
+function killscripts {
+  if test -n "$(config)"; then
+    echo "Killing daemon scripts"
+    ps aux  |  grep -i "$(config)"  |  awk '{print $2}'  |  xargs sudo kill
+  fi
+}
+
+function config {
+  perl "$BASEDIR/background.pl"
+}
+
 case "$1" in
     start)
         start
+        runscripts
       ;;
     stop)
         stop
+        killscripts
       ;;
     restart)
         echo "Restarting Hypnotoad"
