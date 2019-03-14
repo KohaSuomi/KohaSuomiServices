@@ -50,16 +50,16 @@
         <div v-else>{{config.endpoint_url}}</div>
     </td>
     <td>
-        <button v-on:click="fetchParameters(config)" class="btn btn-sm btn-primary" data-toggle="modal" :data-target="'#parameterModal' + config.id"><i class="fas fa-sliders-h"></i></button>
-        <modal-component v-bind:config="config" v-bind:parameters="parameters"></modal-component>
-        <button class="btn btn-sm btn-primary" data-toggle="modal" :data-target="'#authModal_' + config.id"><i class="fas fa-key"></i></button>
+        <button class="btn btn-sm btn-info" data-toggle="modal" :data-target="'#parameterModal' + config.id"><i class="fas fa-sliders-h"></i></button>
+        <parameter-component v-bind:config="config"></parameter-component>
+        <button class="btn btn-sm btn-info" data-toggle="modal" :data-target="'#authModal_' + config.id"><i class="fas fa-key"></i></button>
         <auth-component v-bind:config="config"></auth-component>
-        <button class="btn btn-sm btn-primary" data-toggle="modal" :data-target="'#responseModal_' + config.id"><i class="fas fa-exchange-alt"></i></button>
+        <button class="btn btn-sm btn-info" data-toggle="modal" :data-target="'#responseModal_' + config.id"><i class="fas fa-exchange-alt"></i></button>
         <response-component v-bind:config="config"></response-component>
     </td>
     <td>
-        <div class="d-inline-block" v-if="showUpdate"><button v-on:click="updateConfig(config)" class="btn btn-sm btn-secondary" type="submit">Update</button></div>
-        <div class="d-inline-block" v-if="showUpdate"><button v-on:click="deleteConfig(config)" class="btn btn-sm btn-warning" type="submit">Delete</button></div>
-        <div class="d-inline-block float-right mr-2" style="cursor:pointer"><i v-on:click="updateToggle" class="fas fa-cog"></i></div>
+        <div class="d-inline-block" v-if="showUpdate"><button v-on:click="updateConfig(config)" class="btn btn-sm btn-primary" type="submit"><i class="far fa-save"></i></button></div>
+        <div class="d-inline-block" v-if="showUpdate"><button v-on:click="deleteConfig(config)" class="btn btn-sm btn-warning" type="submit"><i class="far fa-trash-alt"></i></button></div>
+        <div class="d-inline-block float-right mr-2" style="cursor:pointer"><i v-on:click="updateToggle" class="fas fa-edit"></i></div>
     </td>
 </tr>

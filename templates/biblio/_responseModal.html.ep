@@ -22,7 +22,7 @@
                 <option value='update'>update source</option>
                 <option value='delete'>delete source</option>
             </select>
-            <button class="btn btn-sm btn-primary" type="submit"><i class="far fa-edit"></i></button>
+            <button class="btn btn-sm btn-primary" type="submit"><i class="far fa-save"></i></button>
             <button v-on:click="deleteResponse($event)" class="btn btn-sm btn-warning" type="button"><i class="far fa-trash-alt"></i></button>
             </div>
         </form>

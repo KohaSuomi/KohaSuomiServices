@@ -1,0 +1,37 @@
+<tr>
+    <td>
+        <div class="d-inline-block" v-if="showUpdate">
+        <input type="text" class="form-control" v-model="parameter.name">
+        </div>
+        <div v-else>{{parameter.name}}</div>
+    </td>
+    <td>
+        <div class="d-inline-block" v-if="showUpdate">
+        <select class="form-control" v-model="parameter.type" placeholder="Type">
+            <option value='query'>query</option>
+            <option value='path'>path</option>
+            <option value='body'>body</option>
+            <option value='cookie'>cookie</option>
+            <option value='header'>header</option>
+        </select>
+        </div>
+        <div v-else>{{parameter.type}}</div>
+    </td>
+    <td>
+        <div class="d-inline-block" v-if="showUpdate">
+        <input type="text" class="form-control" v-model="parameter.value">
+        </div>
+        <div v-else>{{parameter.value}}</div>
+    </td>
+    <td>
+        <div class="d-inline-block" v-if="showUpdate">
+        <input type="checkbox" class="form-control" v-model="parameter.force_tag">
+        </div>
+        <div v-else>{{parameter.force_tag}}</div>
+    </td>
+    <td class="col-sm-2">
+        <button v-if="showUpdate" v-on:click="updateParameter($event)" class="btn btn-sm btn-primary" type="submit"><i class="far fa-save"></i></button>
+        <button v-if="showUpdate" v-on:click="deleteParameter($event)" class="btn btn-sm btn-warning" type="submit"><i class="far fa-trash-alt"></i></button>
+        <div class="d-inline-block float-right mr-2" style="cursor:pointer"><i v-on:click="updateToggle" class="far fa-edit"></i></div>
+    </td>
+</tr>

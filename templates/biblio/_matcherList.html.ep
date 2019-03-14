@@ -20,8 +20,8 @@
         <div v-else>{{matcher.type}}</div>
     </td>
     <td style="cursor:pointer">
-        <div class="d-inline-block" v-if="showUpdate"><button v-on:click="updateMatcher()" class="btn btn-sm btn-secondary" type="submit">Update</button></div>
-        <div class="d-inline-block" v-if="showUpdate"><button v-on:click="deleteMatcher()" class="btn btn-sm btn-warning" type="submit">Delete</button></div>
-        <div class="d-inline-block float-right mr-2"><i v-on:click="updateToggle" class="fas fa-cog"></i></div>
+        <div class="d-inline-block" v-if="showUpdate"><button v-on:click="updateMatcher()" class="btn btn-sm btn-primary" type="submit"><i class="fas fa-save"></i></button></div>
+        <div class="d-inline-block" v-if="showUpdate"><button v-on:click="deleteMatcher()" class="btn btn-sm btn-warning" type="submit"><i class="far fa-trash-alt"></i></button></div>
+        <div class="d-inline-block float-right mr-2"><i v-on:click="updateToggle" class="fas fa-edit"></i></div>
     </td>
 </tr>

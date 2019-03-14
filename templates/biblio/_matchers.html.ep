@@ -1,5 +1,20 @@
 <div id="matcherApp">
     <h2>Interface matchers</h2>
+    <ul class="nav nav-pills mb-3 mt-3">
+        <li class="nav-item">
+            <a id="selectall" class="nav-link active" v-on:click="selectFilter('all', $event)" href="#">All</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" v-on:click="selectFilter('select', $event)" href="#">Filter interface</a>
+        </li>
+        <li id="select-interfaces" class="nav-item d-none">
+            <select class="form-control" placeholder="Interface" @change="getMatchers" v-model="filter_id">
+                <option v-for="interface in interfaces" :value="interface.id">
+                {{interface.name}} {{interface.type}} 
+            </option>
+        </select>
+        </li>
+    </ul>
     <div class="table-responsive">
         <table class="table table-striped table-sm">
         <thead>

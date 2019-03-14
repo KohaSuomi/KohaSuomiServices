@@ -1,5 +1,5 @@
 <div class="modal fade" :id="'parameterModal' + config.id" tabindex="-1" role="dialog" aria-labelledby="parameterModalLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
+  <div class="modal-dialog modal-lg" role="document">
     <div id="parameters" class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="parameterModalLabel">{{config.name}} parameters</h5>
@@ -19,19 +19,16 @@
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="parameter in parameters">
-                    <td>{{parameter.name}}</td>
-                    <td>{{parameter.type}}</td>
-                    <td>{{parameter.value}}</td>
-                    <td>{{parameter.force_tag}}</td>
-                    <td><button v-on:click="deleteParameter(parameter, $event)" class="btn btn-sm btn-warning" type="submit"><i class="far fa-trash-alt"></button></td>
+                <tr is="parameter-list"
+                  v-for="(parameter, index) in parameters"
+                  v-bind:parameter="parameter">
                 </tr>
             </tbody>
         </table>
-        <form @submit="addParameter(config.id, $event)">
+        <form @submit="addParameter($event)">
             <div class="input-group">
-            <input type="text" class="form-control" v-model="parametername" placeholder="Name">
-            <select class="form-control" v-model="parametertype" placeholder="Type">
+            <input type="text" class="form-control" v-model="name" placeholder="Name">
+            <select class="form-control" v-model="type" placeholder="Type">
                 <option value='' selected>Select type</option>
                 <option value='query'>query</option>
                 <option value='path'>path</option>
@@ -39,9 +36,13 @@
                 <option value='cookie'>cookie</option>
                 <option value='header'>header</option>
             </select>
-            <input type="text" class="form-control" v-model="parametervalue" placeholder="Value">
-            <input type="checkbox" class="form-control" v-model="parameterforce" placeholder="Force">
-            <button class="btn btn-sm btn-primary" type="submit">Submit</button>
+            <input type="text" class="form-control" v-model="value" placeholder="Value">
+            <div class="form-check">
+              <input type="checkbox" value="" v-model="force_tag">
+            </div>
+            <div class="col-sm-2">
+              <button class="btn btn-sm btn-success" type="submit">New</button>
+            </div>
             </div>
         </form>
       </div>

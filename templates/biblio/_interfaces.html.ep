@@ -18,8 +18,7 @@
         <tbody>
             <tr is="config-list"
             v-for="(config, index) in configs"
-            v-bind:config="config"
-            v-bind:parameters="parameters">
+            v-bind:config="config">
             </tr>
         </tbody>
         </table>
@@ -60,7 +59,7 @@
                 <option value='form'>form</option>
             </select>
             <input type="text" class="form-control" v-model="endpoint_url" placeholder="Url">
-            <button class="btn btn-sm btn-primary" type="submit">Submit</button>
+            <button class="btn btn-sm btn-success" type="submit">Add new</button>
             </div>
         </form>
         </div>

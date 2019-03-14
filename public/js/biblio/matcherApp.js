@@ -12,6 +12,7 @@ new Vue({
         tag: "",
         code: "",
         type: "",
+        filter_id: ""
     },
     methods: {
         fetchInterfaces() {
@@ -36,6 +37,19 @@ new Vue({
             this.matchers = response.data;
             });
         },
+        getMatchers() {
+        axios.get(baseendpoint+'config', {
+            headers: { Authorization: apitoken },
+            params: {
+            service: 'biblio',
+            table: 'matcher',
+            interface_id: this.filter_id
+            }
+        }).then(response => {
+            this.matchers = response.data;
+            this.interface_id = this.filter_id;
+            });
+        },
         addMatcher(e) {
         e.preventDefault();
         axios.post(baseendpoint+'config',
@@ -55,7 +69,20 @@ new Vue({
             this.tag =  "";
             this.code = "";
             this.type = "";
-            
+        },
+        selectFilter(name, e) {
+            e.preventDefault();
+            $(".nav-link").removeClass("active");
+            $(e.target).addClass("active");
+
+            if (name == "select") {
+                $("#select-interfaces").removeClass("d-none");
+            } else {
+                this.filter_id = "";
+                this.interface_id = "";
+                $("#select-interfaces").addClass("d-none");
+                this.fetchMatchers();
+            }
         }
 }
 });
