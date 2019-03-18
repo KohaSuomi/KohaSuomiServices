@@ -61,7 +61,11 @@ new Vue({
             {headers: { Authorization: apitoken }}
         ).then(response => {
             this.resetForm();
-            this.fetchMatchers();
+            if (this.filter_id) {
+                this.getMatchers();
+            } else {
+                this.fetchMatchers();
+            }
         });
         },
         resetForm() {
@@ -108,6 +112,7 @@ Vue.component('matcher-list', {
             },
             {headers: { Authorization: apitoken }}
         ).then(response => {
+            console.log(this.matcher);
             this.showUpdate = false;
         }).catch(error => {
             console.log(error.response.data);
@@ -124,7 +129,11 @@ Vue.component('matcher-list', {
             }
         }
         ).then(response => {
-            this.$parent.fetchMatchers();
+            if (this.filter_id) {
+                this.$parent.getMatchers();
+            } else {
+                this.$parent.fetchMatchers();
+            }
         }).catch(error => {
             console.log(error.response.data);
         });
@@ -147,5 +156,5 @@ Vue.component('matcher-list', {
             this.showUpdate = !this.showUpdate;
         }
     },
-    props: ['matcher']
+    props: ['matcher', 'filter_id']
   });

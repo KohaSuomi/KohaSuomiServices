@@ -29,7 +29,8 @@
         <tbody>
             <tr is="matcher-list"
             v-for="(matcher, index) in matchers"
-            v-bind:matcher="matcher">
+            v-bind:matcher="matcher"
+            v-bind:filter_id="filter_id">
             </tr>
         </tbody>
         </table>
