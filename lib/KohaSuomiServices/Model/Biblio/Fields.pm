@@ -124,7 +124,7 @@ sub parse {
         $params = {exporter_id => $id, tag => $field->{tag}, ind1 => $field->{ind1}, ind2 => $field->{ind2}, type => "datafield"};
     }
     if (defined $field->{code}) {
-        $params = {field_id => $id, code => $field->{code}, value => $field->{value}};
+        $params = {field_id => $id, code => $field->{code}, value => defined $field->{value} ? $field->{value} : ""};
     }
 
     return $params;
