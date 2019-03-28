@@ -28,7 +28,7 @@ sub login {
     my $params = {userid => $username, password => $password};
     my $tx = $self->ua->build_tx(POST => $path => {Accept => 'application/x-www-form-urlencoded'} => form => $params);
     $tx = $self->ua->start($tx);
-    $error = {code => $tx->res->error->{code}, message => from_json($tx->res->body)} if defined $tx->res->error && $tx->res->error;
+    $error = {code => defined $tx->res->error->{code} ? $tx->res->error->{code} : 500, message => from_json($tx->res->body)} if defined $tx->res->error && $tx->res->error;
     return ($self->checkPermissions(decode_json($tx->res->body)), $error);
 }
 
