@@ -10,8 +10,6 @@ sub view {
     my $self = shift;
 
     $self->render(
-        apikey => $self->configs->load->{apikey}, 
-        loginpath => $self->configs->load->{auth}->{loginpath},
         baseendpoint => $self->configs->load->{auth}->{baseendpoint}
     );
 }
@@ -25,8 +23,6 @@ sub login {
     }
     
     $self->render(
-        apikey => $self->configs->load->{apikey}, 
-        loginpath => $self->configs->load->{auth}->{loginpath},
         baseendpoint => $self->configs->load->{auth}->{baseendpoint}
     );
 }
@@ -53,8 +49,6 @@ sub isLoggedIn {
     my $self = shift;
     return 1 if $self->auth->get($self->session('logged_in'));
     $self->render(template => "auth/login",
-        apikey => $self->configs->load->{apikey}, 
-        loginpath => $self->configs->load->{auth}->{loginpath},
         baseendpoint => $self->configs->load->{auth}->{baseendpoint} 
     );
     return 0;
