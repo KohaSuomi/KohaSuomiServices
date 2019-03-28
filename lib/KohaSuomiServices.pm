@@ -53,8 +53,12 @@ sub startup {
     billing => sub { state $billing = KohaSuomiServices::Model::Billing->new() });
 
   $self->plugin(OpenAPI => {
+    spec => $self->static->file("/api/auth.yaml")->path
+  });
+  
+  $self->plugin(OpenAPI => {
     route => $self->routes->under("/api")->to("auth#api"),
-    spec => $self->static->file("api.yaml")->path
+    spec => $self->static->file("/api/general.yaml")->path
   });
 
 
@@ -69,7 +73,7 @@ sub startup {
     KohaSuomiServices::Database::Build->new()->migrate($service);
     $self->plugin(OpenAPI => {
       route => $self->routes->under("/api")->to("auth#api"),
-      spec => $self->static->file($service.".yaml")->path}
+      spec => $self->static->file("/api/".$service.".yaml")->path}
     );
     $auth->get('/'.$service)->to($service.'#view');
     $auth->get('/'.$service.'/config')->to($service.'#config');

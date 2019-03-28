@@ -31,12 +31,17 @@ sub login {
     );
 }
 
-sub add {
+sub setSession {
     my $c = shift->openapi->valid_input or return;
 
     try {
         my $req  = $c->req->json;
-        $c->session(logged_in => $req->{sessionid});
+        my ($session, $error) = $c->auth->login($req->{username}, $req->{password});
+        if ($error) {
+            $c->render(status => $error->{code}, openapi => $error->{message});
+            return 0;
+        }
+        $c->session(logged_in => $session);
         $c->render(status => 200, openapi => {message => "Success"});
     } catch {
         my $e = $_;

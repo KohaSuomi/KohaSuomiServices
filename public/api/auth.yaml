@@ -1,0 +1,43 @@
+swagger: '2.0'
+info:
+  version: '0.1'
+  title: Test
+schemes: [ http ]
+basePath: "/api"
+paths:
+  /auth:
+    post:
+      x-mojo-to: "auth#setSession"
+      operationId: authSetSession
+      consumes:
+        - application/json
+      parameters:
+      - in: body
+        name: body
+        schema:
+          type: object
+          required:
+            - username
+            - password
+          properties:
+            username:
+              type: string
+            password:
+              type: string
+      responses:
+        200:
+          description: Ok status
+          schema:
+            type: object
+        401:
+          description: Login failed
+          schema:
+            type: object
+        404:
+          description: Not found
+          schema:
+            type: object
+        500:
+          description: Internal server error
+          schema:
+            type: object

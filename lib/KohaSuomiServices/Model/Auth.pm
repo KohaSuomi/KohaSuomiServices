@@ -7,7 +7,7 @@ use utf8;
 use Try::Tiny;
 
 use KohaSuomiServices::Model::Config;
-use Mojo::JSON qw(decode_json encode_json);
+use Mojo::JSON qw(decode_json encode_json from_json);
 use KohaSuomiServices::Model::Exception::Unauthorized;
 
 has schema => sub {KohaSuomiServices::Database::Client->new};
@@ -19,6 +19,17 @@ sub valid {
     my ($self, $token) = @_;
     KohaSuomiServices::Model::Exception::Unauthorized->throw(error => "Unauthorized access") unless ($self->config->{apikey} eq $token);
     return 1;
+}
+
+sub login {
+    my ($self, $username, $password) = @_;
+    my $path = $self->config->{auth}->{loginpath};
+    my $error;
+    my $params = {userid => $username, password => $password};
+    my $tx = $self->ua->build_tx(POST => $path => {Accept => 'application/x-www-form-urlencoded'} => form => $params);
+    $tx = $self->ua->start($tx);
+    $error = {code => $tx->res->error->{code}, message => from_json($tx->res->body)} if defined $tx->res->error && $tx->res->error;
+    return ($self->checkPermissions(decode_json($tx->res->body)), $error);
 }
 
 sub get {

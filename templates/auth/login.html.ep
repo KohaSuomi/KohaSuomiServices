@@ -32,7 +32,5 @@
 <script>
 var servicepath = "<%= $config->{servicepath}%>";
 var baseendpoint = '<%= $baseendpoint %>';
-var loginpath = '<%= $loginpath %>';
-var apikey = '<%= $apikey %>';
 </script>
 <script src="<%= $config->{servicepath}%>/js/auth/login.js"></script>

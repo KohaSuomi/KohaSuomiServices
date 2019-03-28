@@ -9,8 +9,6 @@ securityDefinitions:
     type: apiKey
     in: header
     name: Authorization
-security:
-  - APIKey: []
 paths:
   /config:
     get:
@@ -18,6 +16,8 @@ paths:
       operationId: configGet
       consumes:
         - application/json
+      security:
+        - APIKey: []
       parameters:
       - in: body
         name: body
@@ -43,6 +43,8 @@ paths:
       operationId: configAdd
       consumes:
         - application/json
+      security:
+        - APIKey: []
       parameters:
       - in: body
         name: body
@@ -68,6 +70,8 @@ paths:
       operationId: configUpdate
       consumes:
         - application/json
+      security:
+        - APIKey: []
       parameters:
       - in: body
         name: body
@@ -95,32 +99,8 @@ paths:
         - application/json
       produces:
         - application/json
-      parameters:
-      - in: body
-        name: body
-        schema:
-          type: object
-      responses:
-        200:
-          description: Ok status
-          schema:
-            type: object
-        401:
-          $ref: "#/responses/UnauthorizedError"
-        404:
-          description: Not found
-          schema:
-            type: object
-        500:
-          description: Internal server error
-          schema:
-            type: object
-  /auth:
-    post:
-      x-mojo-to: "auth#add"
-      operationId: authAdd
-      consumes:
-        - application/json
+      security:
+        - APIKey: []
       parameters:
       - in: body
         name: body
@@ -147,6 +127,8 @@ paths:
       operationId: SRUGet
       consumes:
         - application/json
+      security:
+        - APIKey: []
       parameters:
       - in: query
         name: url
