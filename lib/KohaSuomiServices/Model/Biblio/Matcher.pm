@@ -28,13 +28,62 @@ sub find {
 }
 
 sub defaultSearchMatchers {
-    return ("020" => "a", "024" => "a", "027" => "a", "028" => ["a", "b"]);
+    return ("035" => "a", "020" => "a", "024" => "a", "027" => "a", "028" => ["a", "b"]);
 }
 
 sub removeMatchers {
     my ($self, $id) = @_;
     my $client = $self->schema->client($self->config);
     return $self->find($client, $id, "remove");
+}
+
+sub targetMatchers {
+    my ($self, $matchers) = @_;
+
+    return unless $matchers;
+    
+    my $weighted;
+    foreach my $matcher (keys %{$matchers}) {
+        if($self->weightMatchers($matcher)) {
+            $weighted->{$self->weightMatchers($matcher)} = %{$matchers}{$matcher};
+        }
+    }
+
+    foreach my $weight (keys %{$weighted}) {
+        $matchers = {};
+        if ($weight eq "3") {
+            $matchers->{"035a"} = %{$weighted}{$weight};
+            last;
+        }
+
+        if ($weight eq "2") {
+            $matchers->{"020a"} = %{$weighted}{$weight};
+            last;
+        }
+
+        if ($weight eq "1") {
+            $matchers->{"024a"} = %{$weighted}{$weight};
+            last;
+        }
+    }
+
+    return $matchers;
+}
+
+sub weightMatchers {
+    my ($self, $matcher) = @_;
+
+    if ($matcher eq "035a") {
+        return 3;
+    }
+
+    if ($matcher eq "020a") {
+        return 2;
+    }
+
+    if ($matcher eq "024a") {
+        return 1;
+    }
 }
 
 1;
