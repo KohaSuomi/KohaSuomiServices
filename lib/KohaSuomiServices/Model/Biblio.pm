@@ -63,8 +63,8 @@ sub broadcast {
     my $schema = $self->schema->client($self->config);
     my $results = $self->active->find($schema, {identifier => $identifier});
     foreach my $result (@{$results}) {
-        $self->log->debug(Data::Dumper::Dumper $result);
-        if ($params->{updated} gt $result->{updated} || !defined $result->{updated}) {
+        $self->log->debug($result->{updated});
+        if (($params->{updated} gt $result->{updated}) || !defined $result->{updated}) {
             $self->export({
                 target_id => $result->{target_id},
                 marc => $params->{marc},
