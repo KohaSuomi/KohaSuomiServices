@@ -56,6 +56,7 @@ sub export {
 sub broadcast {
     my ($self, $params) = @_;
     
+    $self->log->debug(Data::Dumper::Dumper $params);
     my %matchers = $self->matchers->defaultSearchMatchers();
     my $identifier = $self->getIdentifier($params->{marc}, %matchers);
     my $schema = $self->schema->client($self->config);
