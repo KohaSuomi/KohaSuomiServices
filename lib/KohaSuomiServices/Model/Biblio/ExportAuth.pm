@@ -14,6 +14,8 @@ use Digest::SHA qw(hmac_sha256_hex);
 has schema => sub {KohaSuomiServices::Database::Client->new};
 has config => sub {KohaSuomiServices::Model::Config->new->service("biblio")->load};
 has ua => sub {Mojo::UserAgent->new};
+has log => sub {Mojo::Log->new(path => KohaSuomiServices::Model::Config->new->load->{"logs"}, level => KohaSuomiServices::Model::Config->new->load->{"log_level"})};
+
 
 sub find {
     my ($self, $client, $params) = @_;
@@ -60,6 +62,7 @@ sub interfaceAuthentication {
 sub signIn {
     my ($self, $path, $body) = @_;
     my $tx = $self->ua->post($path => form => $body);
+    $self->log->debug($tx->res->error);
     KohaSuomiServices::Model::Exception::BadParameter->throw(error => "Bad authuser parameters\n") if $tx->res->error;
     return from_json($tx->res->body);
 }
