@@ -67,6 +67,7 @@ sub broadcast {
         if (($params->{updated} gt $result->{updated}) || !defined $result->{updated}) {
             $self->export({
                 target_id => $result->{target_id},
+                source_id => $params->{source_id},
                 marc => $params->{marc},
                 interface => $result->{interface_name}
             });
