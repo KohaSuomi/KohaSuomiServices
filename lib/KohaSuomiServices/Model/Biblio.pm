@@ -59,9 +59,11 @@ sub broadcast {
     $self->log->debug(Data::Dumper::Dumper $params);
     my %matchers = $self->matchers->defaultSearchMatchers();
     my $identifier = $self->getIdentifier($params->{marc}, %matchers);
+    $self->log->debug($identifier);
     my $schema = $self->schema->client($self->config);
     my $results = $self->active->find($schema, {identifier => $identifier});
     foreach my $result (@{$results}) {
+        $self->log->debug(Data::Dumper::Dumper $result);
         if ($params->{updated} gt $result->{updated} || !defined $result->{updated}) {
             $self->export({
                 target_id => $result->{target_id},
