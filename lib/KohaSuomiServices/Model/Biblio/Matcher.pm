@@ -53,6 +53,10 @@ sub targetMatchers {
         $matchers = {};
         if ($weight eq "3") {
             $matchers->{"035a"} = %{$weighted}{$weight};
+            unless ($matchers->{"035a"} =~ /^\(/){
+                delete $matchers->{"035a"};
+                next;
+            }
             last if $matchers->{"035a"};
         }
         elsif ($weight eq "2") {
