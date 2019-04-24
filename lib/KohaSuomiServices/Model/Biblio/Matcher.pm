@@ -55,16 +55,22 @@ sub targetMatchers {
             $matchers->{"035a"} = %{$weighted}{$weight};
             last;
         }
-
-        if ($weight eq "2") {
+        elsif ($weight eq "2") {
             $matchers->{"020a"} = %{$weighted}{$weight};
             $matchers->{"020a"} =~ s/\D//g;
+            unless (length($matchers->{"020a"}) >= 10){
+                delete $matchers->{"020a"};
+                next;
+            }
             last;
         }
-
-        if ($weight eq "1") {
+        elsif ($weight eq "1") {
             $matchers->{"024a"} = %{$weighted}{$weight};
             $matchers->{"024a"} =~ s/\D//g;
+            unless (length($matchers->{"024a"}) >= 10){
+                delete $matchers->{"024a"};
+                next;
+            }
             last;
         }
     }
