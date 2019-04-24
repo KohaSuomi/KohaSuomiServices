@@ -53,7 +53,7 @@ sub targetMatchers {
         $matchers = {};
         if ($weight eq "3") {
             $matchers->{"035a"} = %{$weighted}{$weight};
-            last;
+            last if $matchers->{"035a"};
         }
         elsif ($weight eq "2") {
             $matchers->{"020a"} = %{$weighted}{$weight};
@@ -62,7 +62,7 @@ sub targetMatchers {
                 delete $matchers->{"020a"};
                 next;
             }
-            last;
+            last if $matchers->{"020a"};
         }
         elsif ($weight eq "1") {
             $matchers->{"024a"} = %{$weighted}{$weight};
@@ -71,7 +71,7 @@ sub targetMatchers {
                 delete $matchers->{"024a"};
                 next;
             }
-            last;
+            last if $matchers->{"024a"};
         }
     }
 
