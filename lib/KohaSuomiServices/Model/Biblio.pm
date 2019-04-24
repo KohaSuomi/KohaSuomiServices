@@ -227,7 +227,7 @@ sub getIdentifier {
     my ($self, $record, %matchers) = @_;
 
     my ($key, $value) = %{$self->search_fields($record, %matchers)} if $self->search_fields($record, %matchers);
-    $value =~ s/\D//g;
+    #$value =~ s/\D//g;
     return $value;
 }
 
