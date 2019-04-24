@@ -44,7 +44,7 @@ sub targetMatchers {
     
     my $weighted;
     foreach my $matcher (keys %{$matchers}) {
-        if($self->weightMatchers($matcher) && (%{$matchers}{$matcher} =~ /^\d/ || $matcher eq '035a')) {
+        if($self->weightMatchers($matcher) && (%{$matchers}{$matcher} =~ /\d/ || $matcher eq '035a')) {
             $weighted->{$self->weightMatchers($matcher)} = %{$matchers}{$matcher};
         }
     }
