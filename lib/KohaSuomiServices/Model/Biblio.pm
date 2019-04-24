@@ -227,6 +227,7 @@ sub getIdentifier {
     my ($self, $record, %matchers) = @_;
 
     my ($key, $value) = %{$self->search_fields($record, %matchers)} if $self->search_fields($record, %matchers);
+    $self->log->debug($key);
     if ($key ne "035a") {
         $value =~ s/\D//g;
     }
