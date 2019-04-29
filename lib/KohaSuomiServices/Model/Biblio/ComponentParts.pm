@@ -5,7 +5,7 @@ use Modern::Perl;
 use utf8;
 
 use Try::Tiny;
-use Mojo::JSON qw(decode_json encode_json);
+use Mojo::JSON qw(decode_json encode_json from_json);
 
 use KohaSuomiServices::Model::Exception::NotFound;
 
@@ -38,6 +38,7 @@ sub find {
 
     if ($interface->{interface} eq "REST") {
         my $matcher = {source_id => $source_id};
+        $search = $self->restGetAll($interface, $matcher);
     }
 
     return $search;
@@ -54,15 +55,22 @@ sub failWithParent {
 }
 
 sub fetchComponentParts {
-    my ($self, $remote_interface, $source_id) = @_;
+    my ($self, $remote_interface, $source_id, $search) = @_;
     my $host = $self->interface->host("add");
+    my $interface = $self->interface->load({name => $remote_interface, type => "add"});
+    if (defined $search and !$source_id) {
+        $source_id = $self->getSourceId($host->{name}, $search);
+        $remote_interface = $host->{name};
+    }
     my $results = $self->find($remote_interface, $source_id);
-    $self->biblio->log->info("Component parts not found from ".$remote_interface. "for ".$source_id) unless defined $results && $results;
+    $self->biblio->log->info("Component parts not found from ".$remote_interface. " for ".$source_id) unless defined $results && $results;
     foreach my $result (@{$results}) {
-        my $sourceid = $self->biblio->getTargetId($remote_interface, $result);
-        my $res = $self->biblio->export({source_id => $sourceid, marc => $result, interface => $host->{name}});
+        my $marc = $result->{marcxml} ? $self->biblio->convert->formatjson($result->{marcxml}) : $result;
+        my $sourceid = $result->{biblionumber} ? $result->{biblionumber} : $self->biblio->getTargetId($remote_interface, $result);
+        my $res = $self->biblio->export({source_id => $sourceid, marc => $marc, interface => $interface->{name}});
         $self->biblio->log->info("Component part ".$res->{export}." fetched");
     }
+    return $source_id;
 }
 
 sub sruLoopAll {
@@ -104,4 +112,26 @@ sub sruLoopAll {
 
     return $search;
 }
+
+sub restGetAll {
+    my ($self, $interface, $matcher) = @_;
+
+    my $authentication; #= $self->biblio->exportauth->interfaceAuthentication($interface, $export->{authuser_id}, $interface->{method});
+    my $path = $self->biblio->create_path($interface, $matcher);
+    my $tx = $self->interface->buildTX($interface->{method}, $interface->{format}, $path, $authentication);
+    $self->biblio->log->error($interface->{name}." REST error: ". $tx->res->message) if $tx->res->error;
+    return if $tx->res->error;
+    my $body = from_json($tx->res->body);
+    if ($body->{componentparts}) {
+        return $body->{componentparts};
+    }
+}
+
+sub getSourceId {
+    my ($self, $remote_interface, $search) = @_;
+
+    my ($interface, %matchers) = $self->biblio->matchers->fetchMatchers($remote_interface, "getcomponentparts", "identifier");
+    return $self->biblio->getIdentifier($search, %matchers);
+}
+
 1;

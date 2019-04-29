@@ -53,15 +53,13 @@ sub buildTX {
 
     ($path, $authentication) = $self->exportauth->basicAuthPath($path, $authentication);
     
-    if ($format eq "json") {
-        return $self->ua->inactivity_timeout($self->config->{inactivitytimeout})->$method($path => $authentication => json => $body);
+    if (defined $format && ($format eq "json" || $format eq "form")) {
+        return $self->ua->inactivity_timeout($self->config->{inactivitytimeout})->$method($path => $authentication => $format => $body) if defined $body && $body;
+        return $self->ua->inactivity_timeout($self->config->{inactivitytimeout})->$method($path => $authentication);
     }
 
-    if ($format eq "form") {
-        return $self->ua->inactivity_timeout($self->config->{inactivitytimeout})->$method($path => $authentication => form => $body);
-    }
-
-    return $self->ua->inactivity_timeout($self->config->{inactivitytimeout})->$method($path => $authentication => $body);
+    return $self->ua->inactivity_timeout($self->config->{inactivitytimeout})->$method($path => $authentication => $body) if defined $body && $body;
+    return $self->ua->inactivity_timeout($self->config->{inactivitytimeout})->$method($path => $authentication);
 }
 
 1;

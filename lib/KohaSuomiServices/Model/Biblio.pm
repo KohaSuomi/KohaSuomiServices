@@ -85,7 +85,7 @@ sub pushExport {
     foreach my $export (@{$exports}){
         my $interface = $self->interface->load({id=> $export->{interface_id}}, $export->{force_tag});
         if ($export->{componentparts} && $export->{fetch_interface}) {
-            $self->response->componentparts->fetchComponentParts($export->{fetch_interface}, $export->{source_id});
+            $self->response->componentparts->fetchComponentParts($export->{fetch_interface}, $export->{source_id}, undef);
         }
         my $query = $self->create_query($interface->{params});
         my $path = $self->create_path($interface, $export, $query);
@@ -161,17 +161,25 @@ sub updateActive {
     my $dt = strftime "%Y-%m-%d 00:00:00", ( localtime(time) );
     my $params = {updated => undef, created => {">=" => $dt}};
     my $results = $self->active->find($schema, $params);
-    my $host = $self->interface->load({host => 1, type => "search"});
     foreach my $result (@{$results}) {
+        my $source_id;
+        my $host = $self->interface->load({host => 1, type => "search"});
         my $path = $self->getSearchPath($host, {$result->{identifier_field} => $result->{identifier}});
         my $search = $self->sru->search($path);
         $search = shift @{$search};
         if ($search) {
-            my $exporter = $self->exporter->setExporterParams($host, "update", "pending", $result->{target_id});
-            my $data = $self->exporter->insert($schema, $exporter);
-            $self->fields->store($data->id, $search);
-            my $now = strftime "%Y-%m-%d %H:%M:%S", ( localtime(time) );
-            $self->active->update($schema, $result->{id}, {updated => $now});
+            $source_id = $self->response->componentparts->fetchComponentParts($result->{interface_name}, undef, $search);
+            my $exporter = {
+                interface => $result->{interface_name}, 
+                target_id => $result->{target_id},
+                source_id => $source_id,
+                marc => $search
+            };
+            my $res = $self->export($exporter);
+            # if ($res->{message} eq "Success") {
+            #     my $now = strftime "%Y-%m-%d %H:%M:%S", ( localtime(time) );
+            #     $self->active->update($schema, $result->{id}, {updated => $now});
+            # }
         }
     }
 }
@@ -180,9 +188,7 @@ sub searchTarget {
     my ($self, $remote_interface, $record) = @_;
 
     my $search;
-    my $schema = $self->schema->client($self->config);
-    my $interface = $self->interface->load({name => $remote_interface, type => "search"});
-    my %matchers = $self->matchers->find($schema, $interface->{id}, "identifier"); #("020" => "a", "024" => "a", "027" => "a", "028" => "a", "028" => "b");
+    my ($interface, %matchers) = $self->biblio->matchers->fetchMatchers($remote_interface, "search", "identifier");
     if ($interface->{interface} eq "SRU") {
         my $matcher = $self->search_fields($record, %matchers);
         my $path = $self->create_query($interface->{params}, $matcher);

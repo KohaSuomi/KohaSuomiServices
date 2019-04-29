@@ -11,6 +11,7 @@ use KohaSuomiServices::Model::Config;
 
 has schema => sub {KohaSuomiServices::Database::Client->new};
 has config => sub {KohaSuomiServices::Model::Config->new->service("biblio")->load};
+has interface => sub {KohaSuomiServices::Model::Biblio::Interface->new};
 
 sub find {
     my ($self, $client, $id, $type) = @_;
@@ -29,6 +30,14 @@ sub find {
 
 sub defaultSearchMatchers {
     return ("035" => "a", "020" => "a", "024" => "a", "027" => "a", "028" => ["a", "b"]);
+}
+
+sub fetchMatchers {
+    my ($self, $interface_name, $interface_type, $identifier_name) = @_;
+
+    my $schema = $self->schema->client($self->config);
+    my $interface = $self->interface->load({name => $interface_name, type => $interface_type});
+    return ($interface, $self->find($schema, $interface->{id}, $identifier_name));
 }
 
 sub removeMatchers {
