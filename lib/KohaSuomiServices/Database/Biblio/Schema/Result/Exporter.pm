@@ -10,6 +10,7 @@ __PACKAGE__->add_columns(
   id => { data_type => 'integer',  is_auto_increment => 1 },
   interface_id => { data_type => 'integer', is_foreign_key => 1 },
   authuser_id => { data_type => 'integer', is_foreign_key => 1 },
+  activerecord_id => { data_type => 'integer', is_foreign_key => 1, is_nullable => 1 },
   source_id => { data_type => 'varchar', size => 30, is_nullable => 1 },
   target_id => { data_type => 'varchar', size => 30, is_nullable => 1 },
   type => { data_type => 'varchar', is_enum => 1, extra => { list => [qw/add update delete/]} },

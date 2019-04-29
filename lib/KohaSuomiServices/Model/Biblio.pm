@@ -44,7 +44,7 @@ sub export {
     
     my $type = defined $params->{target_id} ? "update" :"add";
     my $authuser = $self->exportauth->checkAuthUser($schema, $params->{username}, $interface->{id});
-    my $exporter = $self->exporter->setExporterParams($interface, $type, "waiting", $params->{source_id}, $params->{target_id}, $authuser, $params->{parent_id}, $params->{force}, $params->{componentparts}, $params->{fetch_interface});
+    my $exporter = $self->exporter->setExporterParams($interface, $type, "waiting", $params->{source_id}, $params->{target_id}, $authuser, $params->{parent_id}, $params->{force}, $params->{componentparts}, $params->{fetch_interface}, $params->{activerecord_id});
     my $data = $self->exporter->insert($schema, $exporter);
     $params->{marc} = ref($params->{marc}) eq "HASH" ? $params->{marc} : $self->convert->formatjson($params->{marc});
     $self->fields->store($data->id, $params->{parent_id}, $params->{marc});
@@ -97,6 +97,7 @@ sub pushExport {
         if ($resCode eq "200" || $resCode eq "201") {
             $self->exporter->update($export->{id}, {status => "success", errorstatus => ""});
             $self->response->getAndUpdate($interface, $resBody, $resHeaders, $export->{source_id});
+            $self->active->updateActiveRecords($export->{activerecord_id}) if defined $export->{activerecord_id} && $export->{activerecord_id};
             $self->log->info("Export ".$export->{id}." finished successfully with");
             $self->log->debug($resBody);
         } else {
@@ -173,13 +174,10 @@ sub updateActive {
                 interface => $result->{interface_name}, 
                 target_id => $result->{target_id},
                 source_id => $source_id,
-                marc => $search
+                marc => $search,
+                activerecord_id => $result->{id}
             };
             my $res = $self->export($exporter);
-            # if ($res->{message} eq "Success") {
-            #     my $now = strftime "%Y-%m-%d %H:%M:%S", ( localtime(time) );
-            #     $self->active->update($schema, $result->{id}, {updated => $now});
-            # }
         }
     }
 }

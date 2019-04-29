@@ -4,6 +4,7 @@ use Mojo::Base -base;
 use Modern::Perl;
 use utf8;
 use Try::Tiny;
+use POSIX 'strftime';
 
 use KohaSuomiServices::Model::Config;
 use KohaSuomiServices::Database::Client;
@@ -25,6 +26,14 @@ sub insert {
 sub update {
     my ($self, $client, $id, $params) = @_;
     return $client->resultset('ActiveRecords')->find($id)->update($params);
+}
+
+sub updateActiveRecords {
+    my ($self, $id) = @_;
+
+    my $schema = $self->schema->client($self->config);
+    my $now = strftime "%Y-%m-%d %H:%M:%S", ( localtime(time) );
+    $self->update($schema, $id, {updated => $now});
 }
 
 
