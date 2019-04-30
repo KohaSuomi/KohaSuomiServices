@@ -30,6 +30,7 @@ sub find {
     my ($self, $remote_interface, $source_id) = @_;
     my $interface = $self->interface->load({name => $remote_interface, type => "getcomponentparts"});
     my $search;
+    $self->biblio->log->info($source_id);
     if ($interface->{interface} eq "SRU") {
         my $matcher = {source_id => $source_id};
         $search = $self->sruLoopAll($interface, $matcher);
