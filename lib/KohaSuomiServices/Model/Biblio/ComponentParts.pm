@@ -132,6 +132,9 @@ sub getSourceId {
     my ($self, $remote_interface, $search) = @_;
 
     my ($interface, %matchers) = $self->biblio->matchers->fetchMatchers($remote_interface, "getcomponentparts", "identifier");
+    if(!%matchers) {
+        $matchers{'999'} = 'c';
+    }
     return $self->biblio->getIdentifier($search, %matchers);
 }
 
