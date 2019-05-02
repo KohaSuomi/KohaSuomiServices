@@ -186,7 +186,7 @@ sub searchTarget {
     my ($self, $remote_interface, $record) = @_;
 
     my $search;
-    my ($interface, %matchers) = $self->biblio->matchers->fetchMatchers($remote_interface, "search", "identifier");
+    my ($interface, %matchers) = $self->matchers->fetchMatchers($remote_interface, "search", "identifier");
     if ($interface->{interface} eq "SRU") {
         my $matcher = $self->search_fields($record, %matchers);
         my $path = $self->create_query($interface->{params}, $matcher);
