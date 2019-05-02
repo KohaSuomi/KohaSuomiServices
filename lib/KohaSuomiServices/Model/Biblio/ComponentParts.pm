@@ -30,7 +30,6 @@ sub find {
     my ($self, $remote_interface, $source_id) = @_;
     my $interface = $self->interface->load({name => $remote_interface, type => "getcomponentparts"});
     my $search;
-    $self->biblio->log->info($source_id);
     if ($interface->{interface} eq "SRU") {
         my $matcher = {source_id => $source_id};
         $search = $self->sruLoopAll($interface, $matcher);
@@ -61,6 +60,7 @@ sub fetchComponentParts {
     my $interface = $self->interface->load({name => $remote_interface, type => "add"});
     if (defined $search and !$source_id) {
         $source_id = $self->getSourceId($host->{name}, $search);
+        $self->biblio->log->info("Source id: ".$source_id);
         $remote_interface = $host->{name};
     }
     my $results = $self->find($remote_interface, $source_id);
