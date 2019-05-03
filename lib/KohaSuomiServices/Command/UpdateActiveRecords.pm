@@ -22,7 +22,7 @@ sub run {
     'w|wait=i' => \my $wait,
   );
 
-  while ($loopcount < 5) {
+  while($loopcount < 5) {
     $app->biblio->updateActive();
     sleep $wait if $wait;
   }
