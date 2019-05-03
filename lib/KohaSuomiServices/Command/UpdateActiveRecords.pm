@@ -3,6 +3,8 @@ use Mojo::Base 'Mojolicious::Command';
 
 use utf8;
 
+use Mojo::Util 'getopt';
+
 has description => 'Updates active records from host interface';
 has usage => <<"USAGE";
 
