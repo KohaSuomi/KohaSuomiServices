@@ -178,9 +178,8 @@ sub updateActive {
                 activerecord_id => $result->{id}
             };
             my $res = $self->export($exporter);
-            unless (defined $res && $res) {
-                $self->active->updateActiveRecords($result->{id});
-            }
+        } else {
+            $self->active->updateActiveRecords($result->{id});
         }
     }
 }
