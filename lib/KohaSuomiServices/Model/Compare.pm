@@ -14,7 +14,7 @@ has interface => sub {KohaSuomiServices::Model::Biblio::Interface->new};
 sub getMandatory {
     my ($self, $source, $target) = @_;
 
-    my %targetmandatory = ("CAT" => 1);
+    my %targetmandatory = ("CAT" => 1, "LOW" => 1);
     my ($numberpatch, $charpatch) = $self->findMandatory($target, %targetmandatory);
     my $sorted;
     if ($numberpatch || $charpatch) {
