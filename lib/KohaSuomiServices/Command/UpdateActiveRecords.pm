@@ -5,16 +5,29 @@ use utf8;
 
 has description => 'Updates active records from host interface';
 has usage => <<"USAGE";
-Host interface has to be defined on configurations.
-Run this to update active records from host.
+
+$0 UpdateActiveRecords [OPTIONS]
+OPTIONS:
+  -w, --wait  Define wait time
 USAGE
 
 sub run {
-  my ($self) = @_;
+  my ($self, @args) = @_;
   my $app = $self->app;
 
-  $app->biblio->updateActive();
+  my $loopcount=0;
+
+  getopt(
+    \@args,
+    'w|wait=i' => \my $wait,
+  );
+
+  while ($loopcount < 5) {
+    $app->biblio->updateActive();
+    sleep $wait if $wait;
+  }
 
 }
+
 
 1;
