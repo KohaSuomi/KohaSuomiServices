@@ -59,8 +59,10 @@ sub broadcast {
     $self->log->debug(Data::Dumper::Dumper $params);
     my %matchers = $self->matchers->defaultSearchMatchers();
     my $schema = $self->schema->client($self->config);
-    for my $matcher (keys %matchers) {
-        my $identifier = $self->getIdentifier($params->{marc}, {$matcher => %matchers{$matcher}});
+    while (my ($key, $value) = each %matchers) {
+        my %matcher;
+        $matcher{$key} = $value;
+        my $identifier = $self->getIdentifier($params->{marc}, %matcher);
         $self->log->debug($identifier);
         my $results = $self->active->find($schema, {identifier => $identifier});
         next unless defined $results && $results;
@@ -234,7 +236,7 @@ sub getSearchPath {
 
 sub getIdentifier {
     my ($self, $record, %matchers) = @_;
-
+    $self->log->debug("Key: ".$key." value: ".$value);
     my ($key, $value) = %{$self->search_fields($record, %matchers)} if $self->search_fields($record, %matchers);
     $self->log->debug("Key: ".$key." value: ".$value);
     if ($key ne "035a") {
