@@ -265,7 +265,7 @@ sub search_fields {
             }
         } else {
             my ($key, $value) = %matchers;
-            if ($key eq $field->{tag}) {
+            if (($key eq $field->{tag} && $field->{tag} ne '024') || ($key eq $field->{tag} && $field->{tag} eq '024' && $field->{ind1} eq "3") ) {
                 $matcher->{$field->{tag}} = $field->{value};
             }
         }
