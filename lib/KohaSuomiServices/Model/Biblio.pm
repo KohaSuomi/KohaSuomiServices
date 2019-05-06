@@ -236,7 +236,6 @@ sub getSearchPath {
 
 sub getIdentifier {
     my ($self, $record, %matchers) = @_;
-    $self->log->debug("Key: ".$key." value: ".$value);
     my ($key, $value) = %{$self->search_fields($record, %matchers)} if $self->search_fields($record, %matchers);
     $self->log->debug("Key: ".$key." value: ".$value);
     if ($key ne "035a") {
