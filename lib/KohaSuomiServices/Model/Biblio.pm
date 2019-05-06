@@ -58,20 +58,23 @@ sub broadcast {
     
     $self->log->debug(Data::Dumper::Dumper $params);
     my %matchers = $self->matchers->defaultSearchMatchers();
-    my $identifier = $self->getIdentifier($params->{marc}, %matchers);
-    $self->log->debug($identifier);
     my $schema = $self->schema->client($self->config);
-    my $results = $self->active->find($schema, {identifier => $identifier});
-    foreach my $result (@{$results}) {
-        $self->log->debug($result->{updated});
-        if (($params->{updated} gt $result->{updated}) || !defined $result->{updated}) {
-            $self->export({
-                target_id => $result->{target_id},
-                source_id => $params->{source_id},
-                marc => $params->{marc},
-                interface => $result->{interface_name}
-            });
-            $self->active->update($schema, $result->{id}, {updated => $params->{updated}});
+    for my $matcher (keys %matchers) {
+        my $identifier = $self->getIdentifier($params->{marc}, {$matcher => %matchers{$matcher}});
+        $self->log->debug($identifier);
+        my $results = $self->active->find($schema, {identifier => $identifier});
+        next unless defined $results && $results;
+        foreach my $result (@{$results}) {
+            $self->log->debug($result->{updated});
+            if (($params->{updated} gt $result->{updated}) || !defined $result->{updated}) {
+                $self->export({
+                    target_id => $result->{target_id},
+                    source_id => $params->{source_id},
+                    marc => $params->{marc},
+                    interface => $result->{interface_name}
+                });
+                $self->active->update($schema, $result->{id}, {updated => $params->{updated}});
+            }
         }
     }
 
