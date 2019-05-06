@@ -250,7 +250,7 @@ sub search_fields {
 
     my $matcher;
     foreach my $field (@{$record->{fields}}) {
-        if ($matchers{$field->{tag}}) {
+        if (($matchers{$field->{tag}} && $matchers{$field->{tag}} ne '024') || ($matchers{$field->{tag}} eq '024' && $field->{ind1} eq "3")) {
             foreach my $subfield (@{$field->{subfields}}) {
                 if (ref($matchers{$field->{tag}}) eq "ARRAY") {
                     foreach my $code (@{$matchers{$field->{tag}}}) {
