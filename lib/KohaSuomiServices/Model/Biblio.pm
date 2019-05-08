@@ -150,7 +150,6 @@ sub addActive {
     my $record = $self->convert->formatjson($params->{marcxml});
     my $matcher = $self->search_fields($record, %matchers);
     $matcher = $self->matchers->targetMatchers($matcher);
-    $self->log->debug(Data::Dumper::Dumper $matcher);
     KohaSuomiServices::Model::Exception::NotFound->throw(error => "No valid identifier ") unless defined $matcher && $matcher && %{$matcher};
     delete $params->{marcxml};
     $params->{identifier} = join("|", map { "$_" } values %{$matcher});
