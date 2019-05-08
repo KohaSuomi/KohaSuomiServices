@@ -53,7 +53,7 @@ sub targetMatchers {
     
     my $weighted;
     foreach my $matcher (keys %{$matchers}) {
-        if($self->weightMatchers($matcher) && (%{$matchers}{$matcher} =~ /\d/ || length(%{$matchers}{$matcher}) >= 10 || $matcher eq '035a')) {
+        if($self->weightMatchers($matcher) && (%{$matchers}{$matcher} =~ /\d/ || $matcher eq '035a')) {
             $weighted->{$self->weightMatchers($matcher)} = %{$matchers}{$matcher};
         }
     }
@@ -86,6 +86,16 @@ sub targetMatchers {
             }
             last if $matchers->{"024a"};
         }
+    }
+
+    unless (length($matchers->{"028a"}) >= 10){
+        delete $matchers->{"028a"};
+        next;
+    }
+
+    unless (length($matchers->{"028b"}) >= 10){
+        delete $matchers->{"028b"};
+        next;
     }
 
     return $matchers;
