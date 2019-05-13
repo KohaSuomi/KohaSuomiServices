@@ -147,9 +147,13 @@ sub replaceComponentParts {
     foreach my $result (@{$results}) {
         my $marc = $result->{marcxml} ? $self->biblio->convert->formatjson($result->{marcxml}) : $result;
         my $targetid = shift @arr;
-        my $sourceid = $result->{biblionumber} ? $result->{biblionumber} : $self->biblio->getTargetId($host->{name}, $result);
-        my $res = $self->biblio->export({source_id => $sourceid, target_id => $targetid, marc => $marc, interface => $remote_interface});
-        $self->biblio->log->info("Component part ".$res->{export}." replaced");
+        if (defined $targetid && $targetid) {
+            my $sourceid = $result->{biblionumber} ? $result->{biblionumber} : $self->biblio->getTargetId($host->{name}, $result);
+            my $res = $self->biblio->export({source_id => $sourceid, target_id => $targetid, marc => $marc, interface => $remote_interface});
+            $self->biblio->log->info("Component part ".$res->{export}." replaced");
+        } else {
+            last;
+        }
 
     }
 
