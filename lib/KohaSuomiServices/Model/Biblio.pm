@@ -40,9 +40,9 @@ sub export {
     my ($self, $params) = @_;
 
     my $schema = $self->schema->client($self->config);
-    my $interface = defined $params->{target_id} ? $self->interface->load({name => $params->{interface}, type => "update"}) : $self->interface->load({name => $params->{interface}, type => "add"});
+    my $interface = defined $params->{target_id} && $params->{target_id} ? $self->interface->load({name => $params->{interface}, type => "update"}) : $self->interface->load({name => $params->{interface}, type => "add"});
     
-    my $type = defined $params->{target_id} ? "update" :"add";
+    my $type = defined $params->{target_id} && $params->{target_id} ? "update" :"add";
     my $authuser = $self->exportauth->checkAuthUser($schema, $params->{username}, $interface->{id});
     my $exporter = $self->exporter->setExporterParams($interface, $type, "waiting", $params->{source_id}, $params->{target_id}, $authuser, $params->{parent_id}, $params->{force}, $params->{componentparts}, $params->{fetch_interface}, $params->{activerecord_id});
     my $data = $self->exporter->insert($schema, $exporter);
@@ -75,6 +75,7 @@ sub broadcast {
                     marc => $params->{marc},
                     interface => $result->{interface_name}
                 });
+                $self->response->componentparts->replaceComponentParts($result->{interface_name}, $result->{target_id}, $params->{source_id});
                 $self->active->update($schema, $result->{id}, {updated => $params->{updated}});
             }
         }

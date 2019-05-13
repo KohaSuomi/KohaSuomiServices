@@ -136,4 +136,38 @@ sub getSourceId {
     return $self->biblio->getIdentifier($search, %matchers);
 }
 
+sub replaceComponentParts {
+    my ($self, $remote_interface, $target_id, $source_id) = @_;
+
+    my @arr = $self->getTargetsComponentParts($remote_interface, $target_id);
+    return unless @arr;
+    my $host = $self->interface->host("update");
+    my $results = $self->find($host->{name}, $source_id);
+    $self->biblio->log->info("Component parts not found from ".$remote_interface. " for ".$source_id) unless defined $results && $results;
+    foreach my $result (@{$results}) {
+        my $marc = $result->{marcxml} ? $self->biblio->convert->formatjson($result->{marcxml}) : $result;
+        my $targetid = shift @arr;
+        my $sourceid = $result->{biblionumber} ? $result->{biblionumber} : $self->biblio->getTargetId($host->{name}, $result);
+        my $res = $self->biblio->export({source_id => $sourceid, target_id => $targetid, marc => $marc, interface => $remote_interface});
+        $self->biblio->log->info("Component part ".$res->{export}." replaced");
+
+    }
+
+}
+
+sub getTargetsComponentParts {
+    my ($self, $remote_interface, $target_id) = @_;
+
+    my $results = $self->find($remote_interface, $target_id);
+    $self->biblio->log->info("Component parts not found from ".$remote_interface. " for ".$target_id) unless defined $results && $results;
+    my @arr;
+    foreach my $result (@{$results}) {
+        if (defined $result->{biblionumber} && $result->{biblionumber}) {
+            push @arr, $result->{biblionumber};
+        }
+    }
+
+    return @arr;
+}
+
 1;
