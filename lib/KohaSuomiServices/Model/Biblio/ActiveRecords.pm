@@ -32,7 +32,7 @@ sub updateActiveRecords {
     my ($self, $id) = @_;
 
     my $schema = $self->schema->client($self->config);
-    my $now = strftime "%Y-%m-%d %H:%M:%S", ( localtime(time) );
+    my $now = strftime "%Y-%m-%d %H:%M:%S", ( localtime(time + 5*60) );
     $self->update($schema, $id, {updated => $now});
 }
 
