@@ -22,6 +22,7 @@
             <th>Interface / Type</th>
             <th>Tag</th>
             <th>Code</th>
+            <th>Value</th>
             <th>Type</th>
             <th></th>
             </tr>
@@ -44,11 +45,13 @@
         </select>
         <input type="text" class="form-control" v-model="tag" placeholder="Tag">
         <input type="text" class="form-control" v-model="code" placeholder="Code">
+        <input type="text" class="form-control" v-model="value" placeholder="Value">
         <select class="form-control" v-model="type" placeholder="Type">
             <option value='' selected>Select type</option>
             <option value='identifier'>identifier</option>
             <option value='remove'>remove</option>
             <option value='mandatory'>mandatory</option>
+            <option value='add'>add</option>
         </select>
         <button class="btn btn-sm btn-success" type="submit">Add new</button>
         </div>

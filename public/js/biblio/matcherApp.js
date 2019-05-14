@@ -11,6 +11,7 @@ new Vue({
         interface_id: "",
         tag: "",
         code: "",
+        value: "",
         type: "",
         filter_id: ""
     },
@@ -56,7 +57,7 @@ new Vue({
             {
                 service: 'biblio',
                 table: 'matcher',
-                params: {interface_id: this.interface_id, tag: this.tag, code: this.code, type: this.type}
+                params: {interface_id: this.interface_id, tag: this.tag, code: this.code, value: this.value, type: this.type}
             },
             {headers: { Authorization: apitoken }}
         ).then(response => {
@@ -72,6 +73,7 @@ new Vue({
             this.interface_id = "";
             this.tag =  "";
             this.code = "";
+            this.value = "";
             this.type = "";
         },
         selectFilter(name, e) {
@@ -108,7 +110,7 @@ Vue.component('matcher-list', {
                 service: 'biblio',
                 table: 'matcher',
                 id: this.matcher.id,
-                params: {tag: this.matcher.tag, code: this.matcher.code, type: this.matcher.type}
+                params: {tag: this.matcher.tag, code: this.matcher.code, value: this.matcher.value, type: this.matcher.type}
             },
             {headers: { Authorization: apitoken }}
         ).then(response => {

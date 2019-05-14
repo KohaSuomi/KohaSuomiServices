@@ -11,7 +11,8 @@ __PACKAGE__->add_columns(
   interface_id => { data_type => 'integer', is_foreign_key => 1 },
   tag => { data_type => 'varchar', size => 255 },
   code => { data_type => 'varchar', size => 255 },
-  type => { data_type => 'varchar', is_enum => 1, extra => { list => [qw/identifier remove mandatory/]} },
+  value => { data_type => 'varchar', size => 255 },
+  type => { data_type => 'varchar', is_enum => 1, extra => { list => [qw/identifier remove mandatory add/]} },
 );
 __PACKAGE__->set_primary_key('id');
 ## ## ##   DONE WITH DBIx::Schema   ## ## ##

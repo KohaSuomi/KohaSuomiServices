@@ -11,10 +11,15 @@
         <div v-else>{{matcher.code}}</div>
     </td>
     <td>
+        <div v-if="showUpdate"><input type="text" class="form-control" v-model="matcher.value"></div></div>
+        <div v-else>{{matcher.value}}</div>
+    </td>
+    <td>
         <div class="d-inline-block" v-if="showUpdate"><select class="form-control" v-model="matcher.type" placeholder="Type">
             <option value='identifier'>identifier</option>
             <option value='remove'>remove</option>
             <option value='mandatory'>mandatory</option>
+            <option value='add'>add</option>
         </select>
         </div>
         <div v-else>{{matcher.type}}</div>

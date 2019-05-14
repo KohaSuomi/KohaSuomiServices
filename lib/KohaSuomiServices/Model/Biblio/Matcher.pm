@@ -5,6 +5,7 @@ use Modern::Perl;
 use utf8;
 
 use Try::Tiny;
+use List::MoreUtils qw(uniq);
 
 use KohaSuomiServices::Database::Client;
 use KohaSuomiServices::Model::Config;
@@ -15,17 +16,34 @@ has interface => sub {KohaSuomiServices::Model::Biblio::Interface->new};
 
 sub find {
     my ($self, $client, $id, $type) = @_;
-    my @data = $client->resultset('Matcher')->search({interface_id => $id, type => $type}, {columns => [qw/tag code/]});
+    my @data;
+    @data = $client->resultset('Matcher')->search({interface_id => $id, type => $type}, {columns => [qw/tag code/]}) if $type ne "add";
+    @data = $client->resultset('Matcher')->search({interface_id => $id, type => $type}, {columns => [qw/tag code value/]}) if $type eq "add";
     my %matchers;
+    my @fields;
+    my $matcher;
     foreach my $data (@data) {
-        if ($matchers{$data->tag}) {
-            my $temp = delete $matchers{$data->tag};
-            push @{$matchers{$data->tag}}, $temp , $data->code;
+        if ($data->value) {
+            if ($matcher->{tag} eq $data->tag) {
+                push @{$matcher->{subfields}}, {$data->code => $data->value};
+            } else {
+                $matcher = {ind1 => "", ind2 => ""};
+                $matcher->{tag} = $data->tag;
+                push @{$matcher->{subfields}}, {code => $data->code, value => $data->value};
+            }
+            push @fields, $matcher;
         } else {
-            $matchers{$data->tag} = $data->code;
+            if ($matchers{$data->tag}) {
+                my $temp = delete $matchers{$data->tag};
+                push @{$matchers{$data->tag}}, $temp , $data->code;
+            } else {
+                $matchers{$data->tag} = $data->code;
+            }
         }
     }
-    return %matchers;
+    return %matchers if %matchers;
+    @fields = uniq(@fields);
+    return \@fields;
 }
 
 sub defaultSearchMatchers {
@@ -113,6 +131,19 @@ sub weightMatchers {
     if ($matcher eq "024a") {
         return 1;
     }
+}
+
+sub addFields {
+    my ($self, $id, $data) = @_;
+    my $client = $self->schema->client($self->config);
+    my $fields = $self->find($client, $id, "add");
+    return $data unless defined $fields && $fields;
+
+    foreach my $field (@{$fields}) {
+        push @{$data->{fields}}, $field;
+    }
+
+    return $data;
 }
 
 1;
