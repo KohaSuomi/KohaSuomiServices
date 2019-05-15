@@ -38,7 +38,7 @@ new Vue({
         ).then(response => {
             this.fetchData();
         }).catch(error => {
-              console.log(error.response.data);
+            this.errors.push('Duplicate entry!');
         });
         },
         updateConfig(config) {

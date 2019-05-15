@@ -27,7 +27,7 @@ Vue.component('response-component', {
           this.type = data.type;
           this.id = data.id;
       }).catch(error => {
-          console.log(error.response.data);
+          //console.log(error);
       });
     },
     addResponse() {

@@ -9,6 +9,8 @@ use Try::Tiny;
 use KohaSuomiServices::Model::Config;
 use KohaSuomiServices::Database::Client;
 
+use KohaSuomiServices::Model::Exception;
+
 use Mojo::JSON qw(decode_json encode_json);
 
 sub get {
@@ -39,7 +41,7 @@ sub get {
         }
     } catch {
         my $e = $_;
-        $c->render(status => 500, openapi => {message => $e});
+        $c->render(KohaSuomiServices::Model::Exception::handleDefaults($e));
     }
 }
 
@@ -64,7 +66,7 @@ sub add {
         }
     } catch {
         my $e = $_;
-        $c->render(status => 500, openapi => {message => $e});
+        $c->render(KohaSuomiServices::Model::Exception::handleDefaults($e));
     }
 }
 
@@ -89,7 +91,7 @@ sub update {
         }
     } catch {
         my $e = $_;
-        $c->render(status => 500, openapi => {message => $e});
+        $c->render(KohaSuomiServices::Model::Exception::handleDefaults($e));
     }
 }
 
@@ -113,7 +115,7 @@ sub delete {
         }
     } catch {
         my $e = $_;
-        $c->render(status => 500, openapi => {message => $e});
+        $c->render(KohaSuomiServices::Model::Exception::handleDefaults($e));
     }
 }
 
