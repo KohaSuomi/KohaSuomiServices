@@ -47,7 +47,7 @@ sub find {
 }
 
 sub defaultSearchMatchers {
-    return ("035" => "a", "020" => "a", "024" => "a", "027" => "a");
+    return ("035" => "a", "020" => "a", "024" => "a", "027" => "a", "028" => ["a", "b"]);
 }
 
 sub fetchMatchers {
