@@ -105,15 +105,11 @@ sub targetMatchers {
             last if $matchers->{"024a"};
         }
     }
-
-    unless (length($matchers->{"028a"}) >= 10){
+    unless ($matchers->{"028a"} && $matchers->{"028b"}) {
         delete $matchers->{"028a"};
-    }
-
-    unless (length($matchers->{"028b"}) >= 10){
         delete $matchers->{"028b"};
     }
-
+    
     return $matchers;
 }
 

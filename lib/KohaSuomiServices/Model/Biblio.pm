@@ -145,7 +145,7 @@ sub callInterface {
 
 sub addActive {
     my ($self, $params) = @_;
-
+    
     
     my $schema = $self->schema->client($self->config);
     my %matchers = $self->matchers->defaultSearchMatchers();
@@ -272,6 +272,13 @@ sub search_fields {
             }
         }
     }
+
+    if ($matcher->{"028a"} && $matcher->{"028b"}) {
+        $matcher->{"028a|028b"} = $matcher->{"028a"}.'|'.$matcher->{"028b"};
+        delete $matcher->{"028a"};
+        delete $matcher->{"028b"};
+    }
+
     return $matcher;
     
 }
