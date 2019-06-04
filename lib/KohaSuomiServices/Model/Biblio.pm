@@ -275,7 +275,6 @@ sub search_fields {
 
     if ($matcher->{"028a"} && $matcher->{"028b"}) {
         $matcher->{"028a|028b"} = $matcher->{"028a"}.'|'.$matcher->{"028b"};
-        $self->log->debug($matcher);
         delete $matcher->{"028a"};
         delete $matcher->{"028b"};
     }
