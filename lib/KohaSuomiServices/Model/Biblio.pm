@@ -154,8 +154,13 @@ sub addActive {
     $matcher = $self->matchers->targetMatchers($matcher);
     KohaSuomiServices::Model::Exception::NotFound->throw(error => "No valid identifier ") unless defined $matcher && $matcher && %{$matcher};
     delete $params->{marcxml};
-    $params->{identifier} = join("|", map { "$_" } values %{$matcher});
-    $params->{identifier_field} = join("|", map { "$_" } keys %{$matcher});
+    if ($matcher->{"028a"} && $matcher->{"028b"}) {
+        $params->{identifier} = "028a|028b";
+        $params->{identifier_field} = $matcher->{"028a"}.'|'.$matcher->{"028b"};
+    } else {
+        $params->{identifier} = join("|", map { "$_" } values %{$matcher});
+        $params->{identifier_field} = join("|", map { "$_" } keys %{$matcher});
+    }
     my $exist = $self->active->find($schema, $params);
     $self->active->insert($schema, $params) unless @{$exist};
 
