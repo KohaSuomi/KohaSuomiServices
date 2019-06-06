@@ -313,6 +313,12 @@ sub create_query {
     my ($self, $params, $matcher) = @_;
 
     my $query;
+    if ($matcher->{"028a|028b"}) {
+        my @identifiers = split '|', $matcher->{"028a|028b"};
+        $matcher->{"028a"} = $identifiers[0];
+        $matcher->{"028b"} = $identifiers[1];
+        delete $matcher->{"028a|028b"};
+    }
     foreach my $param (@{$params}) {
         if($param->{type} eq "query") {
             my @valuematch = $param->{value} =~ /{(.*?)}/g;
