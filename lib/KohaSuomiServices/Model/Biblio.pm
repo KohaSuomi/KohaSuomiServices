@@ -337,7 +337,7 @@ sub create_query {
                     delete $param->{value};
                 }
             }
-            if (defined $valuematch[0] && $valuematch[0] eq "028a" && defined $valuematch[1] && $valuematch[0] eq "028b") {
+            if (defined $valuematch[0] && $valuematch[0] eq "028a" && defined $valuematch[1] && $valuematch[1] eq "028b") {
                 $param->{value} =~ s/{$valuematch[0]}/$matcher->{$valuematch[0]}/g;
                 $param->{value} =~ s/{$valuematch[1]}/$matcher->{$valuematch[1]}/g;
             }
