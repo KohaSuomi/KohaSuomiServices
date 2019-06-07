@@ -322,7 +322,6 @@ sub create_query {
     foreach my $param (@{$params}) {
         if($param->{type} eq "query") {
             my @valuematch = $param->{value} =~ /{(.*?)}/g;
-            $self->log->debug(Data::Dumper::Dumper @valuematch);
             if (defined $valuematch[0] && $valuematch[0] ne "028a") {
                 my ($key, $value) = %{$matcher} if $matcher;
                 if ($matcher->{$valuematch[0]}) {
@@ -346,7 +345,7 @@ sub create_query {
             }
         }
     }
-    $self->log->debug(Data::Dumper::Dumper $query);
+
     return $query;
 }
 
