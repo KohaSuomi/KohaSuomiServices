@@ -14,7 +14,11 @@ has interface => sub {KohaSuomiServices::Model::Biblio::Interface->new};
 sub getMandatory {
     my ($self, $source, $target) = @_;
 
-    my %targetmandatory = ("CAT" => 1, "LOW" => 1, "SID" => 1, "HLI" => 1, "FMT" => 1);
+    ############################### 
+    # Mandatory for Aleph 
+    # https://www.kiwi.fi/x/qYH9Ag
+    my %targetmandatory = ("CAT" => 1, "LOW" => 1, "SID" => 1, "HLI" => 1, "DEL" => 1, "LDR" => 1, "STA" => 1, "COR" => 1);
+    ###############################
     my ($numberpatch, $charpatch) = $self->findMandatory($target, %targetmandatory);
     my $sorted;
     if ($numberpatch || $charpatch) {
