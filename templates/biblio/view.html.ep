@@ -21,6 +21,7 @@
               <a class="nav-link" href="#" v-on:click="changeStatus('failed', $event)">Failed</a>
             </li>
           </ul>
+          %= include 'biblio/_pagination'
           <div class="table-responsive">
             <table class="table table-striped table-sm">
               <thead>
@@ -39,6 +40,7 @@
               </tbody>
             </table>
           </div>
+          %= include 'biblio/_pagination'
       </div>
     </main>
   </div>

@@ -29,8 +29,12 @@ sub list {
 
     try {
         my $req = $c->req->params->to_hash;
-        my @data = $c->biblio->list($req);
-        $c->render(status => 200, openapi => @data);
+        my $page = $req->{page} if $req->{page};
+        delete $req->{page} if $req->{page};
+        my $limit = $req->{limit} if $req->{limit};
+        delete $req->{limit} if $req->{limit};
+        my $data = $c->biblio->list($req, $page, $limit);
+        $c->render(status => 200, openapi => $data);
     } catch {
         my $e = $_;
         $c->render(KohaSuomiServices::Model::Exception::handleDefaults($e));

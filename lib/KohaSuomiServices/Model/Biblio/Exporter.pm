@@ -21,6 +21,11 @@ sub find {
     return $client->resultset('Exporter')->search($params, $conditions);
 }
 
+sub count {
+    my ($self, $client, $params) = @_;
+    return $client->resultset('Exporter')->search($params)->count;
+}
+
 sub insert {
     my ($self, $client, $params) = @_;
     return $client->resultset('Exporter')->new($params)->insert();

@@ -27,7 +27,7 @@ paths:
         200:
           description: Ok status
           schema:
-            type: array
+            type: object
         401:
           $ref: "#/responses/UnauthorizedError"
         404:

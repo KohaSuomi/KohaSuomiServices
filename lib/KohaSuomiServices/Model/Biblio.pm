@@ -120,10 +120,12 @@ sub pushExport {
 }
 
 sub list {
-    my ($self, $params) = @_;
+    my ($self, $params, $page, $rows) = @_;
     
     my $schema = $self->schema->client($self->config);
-    my @data = $self->exporter->find($schema, $params, { order_by => { -desc => [qw/timestamp/] }});
+    my $conditions = defined $page && defined $rows ? { order_by => { -desc => [qw/timestamp/]}, page => $page, rows => $rows } : { order_by => { -desc => [qw/timestamp/]}};
+    my @data = $self->exporter->find($schema, $params, $conditions);
+    my $count = $self->exporter->count($schema, $params);
     my @results;
     foreach my $data (@{$self->schema->get_columns(@data)}) {
         my $d = $data;
@@ -131,7 +133,8 @@ sub list {
         $d->{interface_name} = $interface;
         push @results, $d;
     }  
-    return \@results;
+
+    return {results => \@results, count => $count};
 }
 
 sub callInterface {
