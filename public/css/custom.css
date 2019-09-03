@@ -5,3 +5,9 @@
     font-size: 20px;
     color: gray;
 }
+.bg-muted {
+    background-color: rgb(226, 226, 226) !important;
+}
+.cursor-default {
+    cursor: default !important;
+}

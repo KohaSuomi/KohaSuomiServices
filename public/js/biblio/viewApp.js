@@ -19,11 +19,16 @@ new Vue({
         }).then(response => {
             this.results = response.data.results;
             this.pages = Math.ceil(response.data.count/this.limit);
+            if (this.pages == 0) {
+                this.pages = 1;
+            }
+            this.activate();
         }).catch(error => {
             console.log(error.response.data);
         });
         },
         changeStatus(status, event) {
+            event.preventDefault();
             $(".nav-link").removeClass("active");
             $(event.target).addClass("active");
             this.results = [];
@@ -33,8 +38,18 @@ new Vue({
         },
         changePage(e, page) {
             e.preventDefault();
+            if (page < 1) {
+                page = 1;
+            }
+            if (page > this.pages) {
+                page = this.pages;
+            }
             this.page = page;
             this.fetchExports();
+        },
+        activate() {
+            $(".page-link").removeClass("bg-primary text-white");
+            $("[data-current="+this.page+"]").addClass("bg-primary text-white");
         }
     }
 });
