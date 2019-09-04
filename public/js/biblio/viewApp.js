@@ -11,7 +11,7 @@ new Vue({
         limit: 50,
         pages: 1,
         startCount: 1,
-        endPage: 6,
+        endPage: 11,
         lastPage: 0
     },
     methods: {
@@ -51,13 +51,13 @@ new Vue({
             this.page = page;
             if (this.page == this.endPage) {
                 this.startCount = this.page;
-                this.endPage = this.endPage+5;
+                this.endPage = this.endPage+10;
                 this.lastPage = this.page;
             }
             if (this.page < this.lastPage) {
-                this.startCount = this.page-5;
+                this.startCount = this.page-10;
                 this.endPage = this.lastPage;
-                this.lastPage = this.lastPage-5;
+                this.lastPage = this.lastPage-10;
             }
             this.fetchExports();
         },
