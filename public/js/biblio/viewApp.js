@@ -9,7 +9,10 @@ new Vue({
         isActive: false,
         page: 1,
         limit: 50,
-        pages: 1
+        pages: 1,
+        startCount: 1,
+        endPage: 6,
+        lastPage: 0
     },
     methods: {
         fetchExports() {
@@ -22,6 +25,7 @@ new Vue({
             if (this.pages == 0) {
                 this.pages = 1;
             }
+            //this.pageShow();
             this.activate();
         }).catch(error => {
             console.log(error.response.data);
@@ -45,11 +49,33 @@ new Vue({
                 page = this.pages;
             }
             this.page = page;
+            if (this.page == this.endPage) {
+                this.startCount = this.page;
+                this.endPage = this.endPage+5;
+                this.lastPage = this.page;
+            }
+            if (this.page < this.lastPage) {
+                this.startCount = this.page-5;
+                this.endPage = this.lastPage;
+                this.lastPage = this.lastPage-5;
+            }
             this.fetchExports();
         },
         activate() {
             $(".page-link").removeClass("bg-primary text-white");
             $("[data-current="+this.page+"]").addClass("bg-primary text-white");
+        },
+        pageHide(page) {
+            if (this.pages > 5) {
+                if (this.endPage <= page && this.startCount < page) {
+                    return true;
+                }
+                if (this.endPage >= page && this.startCount > page) {
+                    return true;
+                }
+            }
+
+            
         }
     }
 });
