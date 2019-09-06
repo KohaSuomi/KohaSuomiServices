@@ -48,7 +48,7 @@ sub get {
     try {
         my $id = $c->validation->param('id');
         my $data;
-        push @{$data}, @{$c->biblio->list({source_id => $id})}, @{$c->biblio->list({target_id => $id})};
+        push @{$data}, @{$c->biblio->list({source_id => $id})->{results}}, @{$c->biblio->list({target_id => $id})->{results}};
         $c->render(status => 200, openapi => $data);
     } catch {
         my $e = $_;
