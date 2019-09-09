@@ -119,6 +119,15 @@ sub pushExport {
     return {message => "Success"};
 }
 
+sub forceExport {
+    my ($self, $id) = @_;
+
+    $self->exporter->update($id, {status => "pending", force_tag => 1});
+
+    return {message => "Success"};
+    
+}
+
 sub list {
     my ($self, $params, $page, $rows) = @_;
     

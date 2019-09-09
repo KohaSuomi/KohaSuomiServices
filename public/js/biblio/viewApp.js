@@ -81,5 +81,17 @@ new Vue({
 });
 Vue.component('result-list', {
   template: "#list-items",
+  methods: {
+    forceExport(e, id) {
+        e.preventDefault();
+        axios.put(baseendpoint+'biblio/'+id+'/force', {}, {headers: { Authorization: apitoken }}
+        ).then(response => {
+            this.$parent.fetchExports();
+            this.$parent.changeStatus("pending", e);
+        }).catch(error => {
+            console.log(error.response.data);
+        });
+    }
+  },
   props: ['result']
 });

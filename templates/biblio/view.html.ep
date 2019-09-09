@@ -30,6 +30,7 @@
                   <th>Timestamp</th>
                   <th>Type</th>
                   <th v-if="status == 'failed'">Error</th>
+                  <th v-if="status == 'failed'">Force</th>
                 </tr>
               </thead>
               <tbody>
@@ -58,6 +59,9 @@
     </td>
     <td v-if="result.status == 'failed'">
       {{result.errorstatus}}
+    </td>
+    <td v-if="result.status == 'failed'">
+      <button v-on:click="forceExport($event, result.id)" class="btn btn-sm btn-secondary" type="submit"><i class="fas fa-file-export"></i></button>
     </td>
   </tr>
 </template>
