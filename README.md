@@ -8,7 +8,7 @@ Clone this repo to your server and set up configuration file koha_suomi_services
 
 ### Prerequisites
 
-Install these CPAN packages to your environment. There is also a script in scripts/installdeps.sh for automating this. 
+Install these CPAN packages to your environment. There is also a script in scripts/Install.sh for automating this. 
 
 ```
 Try::Tiny@0.30
