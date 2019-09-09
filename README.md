@@ -47,3 +47,23 @@ GRANT ALL ON <databasename>.* TO 'kohaadmin'@'localhost' IDENTIFIED BY '{koha us
 FLUSH PRIVILEGES;
 QUIT
 ```
+
+### Running the service
+
+Start:
+
+```
+script/koha_suomi_services_daemon.sh start
+```
+
+Stop:
+
+```
+script/koha_suomi_services_daemon.sh stop
+```
+
+Restart: 
+
+```
+script/koha_suomi_services_daemon.sh restart
+```
