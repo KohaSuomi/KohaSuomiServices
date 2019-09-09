@@ -61,7 +61,7 @@
       {{result.errorstatus}}
     </td>
     <td v-if="result.status == 'failed'">
-      <button v-on:click="forceExport($event, result.id)" class="btn btn-sm btn-secondary" type="submit"><i class="fas fa-file-export"></i></button>
+      <button v-if="!result.parent_id" v-on:click="forceExport($event, result.id)" class="btn btn-sm btn-secondary" type="submit"><i class="fas fa-file-export"></i></button>
     </td>
   </tr>
 </template>
