@@ -20,35 +20,15 @@ JSON
 
 ### Config file
 
-Add config file to root directory. Decide which services you want to use and add configurations to them. There are two services available at the moment, biblio and billing.
+Add config file to root directory. Copy koha_suomi_services.conf.example to koha_suomi_services.conf and change values to match your system.
+
+### Apache proxy pass
+
+Add proxy pass to Apache to access the service. Change port to match your Mojolicious port.
 
 ```
-{
-  services => [
-    { 
-      route => 'biblio',
-      koha_basepath => 'http://example.com',
-      database => {
-        host => '0.0.0.0',
-        user => 'user',
-        password => 'pass',
-        port => '3306',
-        schema => 'biblioservice'
-      }
-    }, 
-    { 
-      route => 'billing',
-      database => {
-        host => '0.0.0.0',
-        user => 'user',
-        password => 'pass',
-        port => '3306',
-        schema => 'billingservice'
-      }
-  }]
-}
-
-
+ProxyPass /service http://localhost:3000 keepalive=On
+ProxyPassReverse /service http://localhost:3000
 ```
 
 ### Create databases

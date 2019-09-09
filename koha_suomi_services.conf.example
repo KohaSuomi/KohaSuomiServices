@@ -1,0 +1,38 @@
+{
+  environment => "development", # development or production
+  kohabasepath => 'http://127.0.0.1',
+  servicepath => 'http://127.0.0.1:8080/service',
+  secrets => ["my-secret"],
+  apikey => 'foobarfoobar', # Internal API key for REST request
+  logs    => '/home/<user>/KohaSuomiServices/kohasuomiservices.log',
+  log_level => 'debug',
+  auth => { # Koha and internal auth paths
+    baseendpoint => 'http://127.0.0.1:8080/service/api/',
+    loginpath => 'http://127.0.0.1/api/v1/auth/session',
+    internallogin => 'http://127.0.0.1/api/v1/auth/session',
+    permissions => [
+      "superlibrarian"
+    ]
+  },
+  services => {
+    biblio => {
+      inactivitytimeout => 30, # Waiting time of response from remote REST
+      route => 'biblio',
+      export => "manual", # automatic or manual
+      baseendpoint => 'http://127.0.0.1:8080/service/api/',
+      database => {
+        version => 1, # Database update version, increase this if schema changes
+        host => 'localhost',
+        user => 'username',
+        password => 'my-password',
+        port => '3306',
+        schema => 'biblioservice'
+      }
+    }
+  },
+  background => [ # Background scripts, background.pl
+    "ExportDaemon -w 5 -t add",
+    "ExportDaemon -w 5 -t add -c 1",
+    "ExportDaemon -w 5 -t update",
+  ]
+}
