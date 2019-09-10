@@ -111,7 +111,7 @@ sub pushExport {
             my $error = $resHeaders;
             $error = $resHeaders.' '.$resBody if ($type eq "add");
             $self->exporter->update($export->{id}, {status => "failed", errorstatus => $error});
-            $self->response->componentparts->failWithParent($export->{source_id});
+            $self->response->componentparts->failWithParent($export->{source_id}, $export->{id});
             $self->log->info("Export ".$export->{id}." failed with ".$error);
         }
     }
@@ -123,6 +123,14 @@ sub forceExport {
     my ($self, $id) = @_;
 
     $self->exporter->update($id, {status => "pending", force_tag => 1});
+    my $schema = $self->schema->client($self->config);
+    my @componentparts = $self->exporter->find($schema, {id => $id, errorstatus => "Parent failed"}, undef);
+    if(defined @componentparts && @componentparts) {
+        my @record = $self->exporter->find($schema, {id => $id}, undef);
+        foreach my $d (@{$self->schema->get_columns(@componentparts)}) {
+            $self->exporter->update($d->{id}, {status => "waiting", errorstatus => "", parent_id => $record[0]->source_id});
+        }
+    }
 
     return {message => "Success"};
     
