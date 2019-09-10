@@ -124,7 +124,8 @@ sub forceExport {
 
     $self->exporter->update($id, {status => "pending"});
     my $schema = $self->schema->client($self->config);
-    my @componentparts = $self->exporter->find($schema, {id => $id, errorstatus => "Parent failed"}, undef);
+    $self->log->debug(Data::Dumper::Dumper $id);
+    my @componentparts = $self->exporter->find($schema, {id => $id}, undef);
     $self->log->debug(Data::Dumper::Dumper @componentparts);
     if(@componentparts) {
         my @record = $self->exporter->find($schema, {id => $id}, undef);
