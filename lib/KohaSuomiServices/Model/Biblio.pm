@@ -124,13 +124,11 @@ sub forceExport {
 
     $self->exporter->update($id, {status => "pending"});
     my $schema = $self->schema->client($self->config);
-    $self->log->debug(Data::Dumper::Dumper $id);
     my @componentparts = $self->exporter->find($schema, {id => $id}, undef);
-    $self->log->debug(Data::Dumper::Dumper @componentparts);
     if(@componentparts) {
         my @record = $self->exporter->find($schema, {id => $id}, undef);
-        $self->log->debug(Data::Dumper::Dumper $record[0]->source_id);
         foreach my $d (@{$self->schema->get_columns(@componentparts)}) {
+            $self->log->debug(Data::Dumper::Dumper $d);
             $self->exporter->update($d->{id}, {status => "waiting", errorstatus => "", parent_id => $record[0]->source_id});
         }
     }
