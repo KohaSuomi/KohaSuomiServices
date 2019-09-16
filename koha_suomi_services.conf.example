@@ -33,5 +33,6 @@
     "ExportDaemon -w 5 -t add",
     "ExportDaemon -w 5 -t add -c 1",
     "ExportDaemon -w 5 -t update",
+    "UpdateActiveRecords -w 5",
   ]
 }
