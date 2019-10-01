@@ -9,7 +9,6 @@
         <div class="d-inline-block" v-if="showUpdate">
         <select class="form-control" v-model="parameter.type" placeholder="Type">
             <option value='query'>query</option>
-            <option value='path'>path</option>
             <option value='body'>body</option>
             <option value='cookie'>cookie</option>
             <option value='header'>header</option>
