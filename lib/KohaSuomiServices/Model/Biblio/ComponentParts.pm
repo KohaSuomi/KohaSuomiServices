@@ -61,7 +61,7 @@ sub fetchComponentParts {
         $self->biblio->log->info("Source id: ".$source_id);
         $remote_interface = $host->{name};
     }
-    my $results = defined $fetch_interface && $fetch_interface ? $self->find($remote_interface, $source_id) : $self->find($remote_interface, $source_id);
+    my $results = defined $fetch_interface && $fetch_interface ? $self->find($fetch_interface, $source_id) : $self->find($remote_interface, $source_id);
     $self->biblio->log->info("Component parts not found from ".$remote_interface. " for ".$source_id) unless defined $results && $results && !$fetch_interface;
     $self->biblio->log->info("Component parts not found from ".$fetch_interface. " for ".$source_id) unless defined $results && $results && $fetch_interface;
     foreach my $result (@{$results}) {
