@@ -1,0 +1,20 @@
+{
+    "interface": {
+        "host": "Host interface - Add for central cataloguing system. For Koha-Suomi this should be Täti",
+        "name": "Interface name - is used to get right endpoint." ,
+        "interface": "SRU or REST interface connection. SRU is implemented for search interfaces and REST to others.",
+        "type": "<b>Interface type</b> - search, get, add, update or component parts. Component parts is used to get host record's component parts based on the host id.",
+        "method": "Method based on the interface documentation.",
+        "format": "Format based on the interface documentation.",
+        "url": "<b>Endoint url</b> - path parameters {target_id} or {source_id} can be added here.",
+        "definitions": "<ul><li><b>Parameters</b><p><b>Name</b> - endpoint parameter name</br><b>Type</b> - endpoint parameter type like cookie, query, header or body.</br><b>Value</b> - parameter value, can be static or created from search result. With SRU there can be mapped marc fields to search terms, like bath.isbn={020a}. Also Marc21 record can be defined to be send as {marcxml} or {marcjson}</br><b>Force</b> - forces this parameter to every request</p></li><li><b>Endpoint authentications</b><p><b>Authetication url</b> - if there is separate url for authentication, like Koha has. Otherwise is using basic authentication to endpoints.</br><b>Login accounts</b> - define login accounts. With linked usernames you can link username in export REST request with login account. Is using first one if not finding accounts with username.</p></li><li><b>Response mapper:</b> Used to get specific value from add enpoint response. At the moment only 'update record' is implemented, it finds record from get endpoint and updates it back to host.</li></ul>"
+    },
+    "matchers": {
+        "interface": "Choose interface and type",
+        "tag": "Record field tag",
+        "code": "Record subfield code",
+        "value": "Optional, can be used to add additional fields with predefined values.",
+        "type": "<b>Identifier</b> - defines the identifier field of a record. With search interface these fields are used in parameters and with update interface these are used to find correct record from REST.</br><b>Remove</b> - this is used to remove a field when exporting the record.</br><b>Mandatory</b> - mandatory field is used to check if record needs to have some field before export, if fails then the field should be added or imported from other interface.</br><b>Add</b> - this can be used to add additional value to the exported record."
+
+    }
+}

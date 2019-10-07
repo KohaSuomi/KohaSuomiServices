@@ -19,11 +19,11 @@
         <table class="table table-striped table-sm">
         <thead>
             <tr>
-            <th>Interface / Type</th>
-            <th>Tag</th>
-            <th>Code</th>
-            <th>Value</th>
-            <th>Type</th>
+            <th>Interface / Type <a href="#" class="open-info" data-toggle="modal" data-target="#infoModal" data-section="matchers|interface"><i class="fa fa-info-circle text-muted"></i></th>
+            <th>Tag <a href="#" class="open-info" data-toggle="modal" data-target="#infoModal" data-section="matchers|tag"><i class="fa fa-info-circle text-muted"></i></th>
+            <th>Code <a href="#" class="open-info" data-toggle="modal" data-target="#infoModal" data-section="matchers|code"><i class="fa fa-info-circle text-muted"></i></th>
+            <th>Value <a href="#" class="open-info" data-toggle="modal" data-target="#infoModal" data-section="matchers|value"><i class="fa fa-info-circle text-muted"></i></th>
+            <th>Type <a href="#" class="open-info" data-toggle="modal" data-target="#infoModal" data-section="matchers|type"><i class="fa fa-info-circle text-muted"></i></th>
             <th></th>
             </tr>
         </thead>
