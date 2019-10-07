@@ -53,7 +53,7 @@ sub failWithParent {
 }
 
 sub fetchComponentParts {
-    my ($self, $remote_interface, $source_id, $search) = @_;
+    my ($self, $remote_interface, $fetch_interface, $source_id, $search) = @_;
     my $host = $self->interface->host("add");
     my $interface = $self->interface->load({name => $remote_interface, type => "add"});
     if (defined $search and !$source_id) {
@@ -61,8 +61,9 @@ sub fetchComponentParts {
         $self->biblio->log->info("Source id: ".$source_id);
         $remote_interface = $host->{name};
     }
-    my $results = $self->find($remote_interface, $source_id);
-    $self->biblio->log->info("Component parts not found from ".$remote_interface. " for ".$source_id) unless defined $results && $results;
+    my $results = defined $fetch_interface && $fetch_interface ? $self->find($remote_interface, $source_id) : $self->find($remote_interface, $source_id);
+    $self->biblio->log->info("Component parts not found from ".$remote_interface. " for ".$source_id) unless defined $results && $results && !$fetch_interface;
+    $self->biblio->log->info("Component parts not found from ".$fetch_interface. " for ".$source_id) unless defined $results && $results && $fetch_interface;
     foreach my $result (@{$results}) {
         my $marc = $result->{marcxml} ? $self->biblio->convert->formatjson($result->{marcxml}) : $result;
         my $sourceid = $result->{biblionumber} ? $result->{biblionumber} : $self->biblio->getTargetId($remote_interface, $result);
