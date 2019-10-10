@@ -145,10 +145,8 @@ sub addFields {
                 last;
             }
         }
-        
-        
     }
-    
+
     return $data;
 }
 
