@@ -13,6 +13,7 @@ use KohaSuomiServices::Model::Config;
 has schema => sub {KohaSuomiServices::Database::Client->new};
 has config => sub {KohaSuomiServices::Model::Config->new->service("biblio")->load};
 has interface => sub {KohaSuomiServices::Model::Biblio::Interface->new};
+has fields => sub {KohaSuomiServices::Model::Biblio::Fields->new};
 
 sub find {
     my ($self, $client, $id, $type) = @_;
@@ -130,31 +131,22 @@ sub weightMatchers {
 }
 
 sub addFields {
-    my ($self, $id, $data) = @_;
+    my ($self, $id, $exporter_id, $data) = @_;
     my $client = $self->schema->client($self->config);
     my $fields = $self->find($client, $id, "add");
     return $data unless defined $fields && $fields;
 
     foreach my $field (@{$fields}) {
-        my $add;
-        foreach my $datafields (@{$data->{fields}}) {
-            if ($datafields->{tag} eq $field->{tag}) {
-                foreach my $subfield (@{$field->{subfields}}) {
-                    foreach my $dsubfields (@{$datafields->{subfields}}) {
-                        if (defined $subfield->{code} && defined $dsubfields->{code} && defined $subfield->{value} && $dsubfields->{value}) {
-                            unless ($subfield->{code} eq $dsubfields->{code} && $subfield->{value} eq $dsubfields->{value}) {
-                                $add = 1;
-                            }
-                        }
-                    }
-                }
+        foreach my $subfield (@{$field->{subfields}}) {
+            my $value = $self->fields->findValue($exporter_id, $field->{tag}, $subfield->{code});
+            unless ($value) {
+                push @{$data->{fields}}, $field;
             } else {
-                $add = 1;
+                last;
             }
         }
-        if ($add) {
-            push @{$data->{fields}}, $field;
-        }
+        
+        
     }
     
     return $data;
