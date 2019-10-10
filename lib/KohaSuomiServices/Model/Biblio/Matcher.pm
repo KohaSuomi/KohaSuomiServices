@@ -25,7 +25,7 @@ sub find {
     foreach my $data (@data) {
         if ($data->value) {
             if ($matcher->{tag} eq $data->tag) {
-                push @{$matcher->{subfields}}, {$data->code => $data->value};
+                push @{$matcher->{subfields}}, {code => $data->code, value => $data->value};
             } else {
                 $matcher = {ind1 => "", ind2 => ""};
                 $matcher->{tag} = $data->tag;
@@ -136,9 +136,27 @@ sub addFields {
     return $data unless defined $fields && $fields;
 
     foreach my $field (@{$fields}) {
-        push @{$data->{fields}}, $field;
+        my $add;
+        foreach my $datafields (@{$data->{fields}}) {
+            if ($datafields->{tag} eq $field->{tag}) {
+                foreach my $subfield (@{$field->{subfields}}) {
+                    foreach my $dsubfields (@{$datafields->{subfields}}) {
+                        if (defined $subfield->{code} && defined $dsubfields->{code} && defined $subfield->{value} && $dsubfields->{value}) {
+                            unless ($subfield->{code} eq $dsubfields->{code} && $subfield->{value} eq $dsubfields->{value}) {
+                                $add = 1;
+                            }
+                        }
+                    }
+                }
+            } else {
+                $add = 1;
+            }
+        }
+        if ($add) {
+            push @{$data->{fields}}, $field;
+        }
     }
-
+    
     return $data;
 }
 
