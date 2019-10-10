@@ -30,4 +30,13 @@ sub load {
     
 }
 
+sub loadCompilerMapper {
+    my ($self, $mappername) = @_;
+
+    my $mapper = read_file($FindBin::Bin.'/../lib/KohaSuomiServices/Model/Compilers/Mappers/'.$mappername);
+    KohaSuomiServices::Model::Exception::NotFound(error => "No mapper file found") unless $mapper;
+
+    return eval $mapper;
+}
+
 1;

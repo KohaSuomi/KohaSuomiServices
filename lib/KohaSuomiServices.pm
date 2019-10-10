@@ -10,6 +10,7 @@ use KohaSuomiServices::Model::SRU;
 use KohaSuomiServices::Model::Biblio;
 use KohaSuomiServices::Model::Billing;
 use KohaSuomiServices::Model::Auth;
+use KohaSuomiServices::Model::Compiler;
 
 # This method will run once at server start
 sub startup {
@@ -48,6 +49,9 @@ sub startup {
     
   $self->helper(
     biblio => sub { state $biblio = KohaSuomiServices::Model::Biblio->new() });
+    
+  $self->helper(
+    compiler => sub { state $compiler = KohaSuomiServices::Model::Compiler->new() });
 
   $self->helper(
     billing => sub { state $billing = KohaSuomiServices::Model::Billing->new() });
@@ -57,7 +61,7 @@ sub startup {
   });
   
   $self->plugin(OpenAPI => {
-    route => $self->routes->under("/api")->to("auth#api"),
+    # route => $self->routes->under("/api")->to("auth#api"),
     spec => $self->static->file("/api/general.yaml")->path
   });
 
