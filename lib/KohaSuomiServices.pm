@@ -61,7 +61,7 @@ sub startup {
   });
   
   $self->plugin(OpenAPI => {
-    # route => $self->routes->under("/api")->to("auth#api"),
+    route => $self->routes->under("/api")->to("auth#api"),
     spec => $self->static->file("/api/general.yaml")->path
   });
 
