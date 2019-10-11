@@ -57,6 +57,27 @@ sub get {
     
 }
 
+sub report {
+    my $c = shift->openapi->valid_input or return;
+
+    try {
+        my $interface_name = $c->validation->param('interface_name');
+        my $req = $c->req->params->to_hash;
+        my $page;
+        my $limit;
+        if ($req) {
+            $page = $req->{page} if $req->{page};
+            $limit = $req->{limit} if $req->{limit};
+        }
+        my $data = $c->biblio->interfaceReport($interface_name, $page, $limit);
+        $c->render(status => 200, openapi => $data);
+    } catch {
+        my $e = $_;
+        $c->render(KohaSuomiServices::Model::Exception::handleDefaults($e));
+    }
+    
+}
+
 sub export {
     my $c = shift->openapi->valid_input or return;
 

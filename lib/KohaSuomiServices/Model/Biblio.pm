@@ -154,6 +154,35 @@ sub list {
     return {results => \@results, count => $count};
 }
 
+sub interfaceReport {
+    my ($self, $interface_name, $page, $rows) = @_;
+    
+    my $schema = $self->schema->client($self->config);
+    my $interfaces = $self->interface->find({name => $interface_name});
+    my $add_id;
+    my $update_id;
+    foreach my $interface (@{$interfaces}) {
+        if ($interface->{type} eq "add") {
+            $add_id = $interface->{id};
+        }
+        if ($interface->{type} eq "update") {
+            $update_id = $interface->{id};
+        }
+    }
+    my $params = [{interface_id => $add_id}, {interface_id => $update_id}];
+    warn Data::Dumper::Dumper $params;
+    my $conditions = defined $page && defined $rows ? { order_by => { -desc => [qw/timestamp/]}, page => $page, rows => $rows } : { order_by => { -desc => [qw/timestamp/]}};
+    my @data = $self->exporter->find($schema, $params, $conditions);
+    my $count = $self->exporter->count($schema, $params);
+    my @results;
+    foreach my $data (@{$self->schema->get_columns(@data)}) {
+        my $d = $data;
+        push @results, $d;
+    }  
+
+    return {results => \@results, count => $count};
+}
+
 sub callInterface {
     my ($self, $method, $format, $path, $body, $authentication) = @_;
     $self->log->debug(to_json($body));

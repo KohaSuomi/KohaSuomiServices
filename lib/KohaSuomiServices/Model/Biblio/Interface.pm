@@ -27,6 +27,14 @@ sub load {
     return $self->parse($localInterface, $interfaceParams);
 }
 
+sub find {
+    my ($self, $params) = @_;
+
+    my $client = $self->schema->client($self->config);
+    my @localInterface = $client->resultset("Interface")->search($params);
+    return $self->schema->get_columns(@localInterface);
+}
+
 sub parse {
     my ($self, $interface, $params) = @_;
 
