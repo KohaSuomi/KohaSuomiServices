@@ -78,6 +78,20 @@ sub report {
     
 }
 
+sub record {
+    my $c = shift->openapi->valid_input or return;
+
+    try {
+        my $id = $c->validation->param('id');
+        my $data = $c->biblio->getRecord($id);
+        $c->render(status => 200, openapi => $data);
+    } catch {
+        my $e = $_;
+        $c->render(KohaSuomiServices::Model::Exception::handleDefaults($e));
+    }
+    
+}
+
 sub export {
     my $c = shift->openapi->valid_input or return;
 

@@ -65,6 +65,33 @@ paths:
           description: Internal server error
           schema:
             type: object
+  /biblio/record/{id}:
+    get:
+      x-mojo-to: "biblio#record"
+      operationId: biblioRecord
+      consumes:
+        - application/json
+      parameters:
+      - in: path
+        name: id
+        required: true
+        type: integer
+        description: Get record
+      responses:
+        200:
+          description: Ok status
+          schema:
+            type: object
+        401:
+          $ref: "#/responses/UnauthorizedError"
+        404:
+          description: Not found
+          schema:
+            type: object
+        500:
+          description: Internal server error
+          schema:
+            type: object
   /biblio/report/{interface_name}:
     get:
       x-mojo-to: "biblio#report"

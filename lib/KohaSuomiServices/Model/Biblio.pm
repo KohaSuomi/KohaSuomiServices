@@ -182,6 +182,13 @@ sub interfaceReport {
     return {results => \@results, count => $count};
 }
 
+sub getRecord {
+    my ($self, $id) = @_;
+
+    return $self->fields->find($id);
+
+}
+
 sub callInterface {
     my ($self, $method, $format, $path, $body, $authentication) = @_;
     $self->log->debug(to_json($body));
