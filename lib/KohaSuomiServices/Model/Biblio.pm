@@ -170,7 +170,6 @@ sub interfaceReport {
         }
     }
     my $params = [{interface_id => $add_id}, {interface_id => $update_id}];
-    warn Data::Dumper::Dumper $params;
     my $conditions = defined $page && defined $rows ? { order_by => { -desc => [qw/timestamp/]}, page => $page, rows => $rows } : { order_by => { -desc => [qw/timestamp/]}};
     my @data = $self->exporter->find($schema, $params, $conditions);
     my $count = $self->exporter->count($schema, $params);
