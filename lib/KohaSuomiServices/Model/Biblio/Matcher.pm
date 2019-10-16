@@ -52,7 +52,6 @@ sub find {
     }
     return %matchers if %matchers;
     @fields = uniq(@fields);
-    warn Data::Dumper::Dumper \@fields;
     return \@fields;
 }
 
