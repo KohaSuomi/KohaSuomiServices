@@ -25,8 +25,16 @@ sub find {
     my $matcher;
     foreach my $data (@data) {
         if ($data->value) {
-            if ($matcher->{tag} eq $data->tag) {
-                push @{$matcher->{subfields}}, {code => $data->code, value => $data->value};
+            my @codes = split(/\|/, $data->code);
+            my @values = split(/\|/, $data->value);
+            if (scalar(@codes) > 1 && scalar(@values) > 1) {
+                $matcher = {ind1 => "", ind2 => ""};
+                $matcher->{tag} = $data->tag;
+                my $index = 0;
+                foreach my $code (@codes) {
+                    push @{$matcher->{subfields}}, {code => $code, value => $values[$index]};
+                    $index++;
+                }
             } else {
                 $matcher = {ind1 => "", ind2 => ""};
                 $matcher->{tag} = $data->tag;
@@ -44,6 +52,7 @@ sub find {
     }
     return %matchers if %matchers;
     @fields = uniq(@fields);
+    warn Data::Dumper::Dumper \@fields;
     return \@fields;
 }
 
