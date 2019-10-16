@@ -143,18 +143,23 @@ sub addFields {
     my $client = $self->schema->client($self->config);
     my $fields = $self->find($client, $id, "add");
     return $data unless defined $fields && $fields;
-
+    my $index = 0;
+    my @fieldindexes;
     foreach my $field (@{$fields}) {
         foreach my $subfield (@{$field->{subfields}}) {
             my $value = $self->fields->findValue($exporter_id, $field->{tag}, $subfield->{code});
             unless ($value) {
-                push @{$data->{fields}}, $field;
+                push @fieldindexes, $index;
             } else {
                 last;
             }
         }
+        $index++;
     }
-
+    @fieldindexes = uniq(@fieldindexes);
+    foreach my $i (@fieldindexes) {
+        push @{$data->{fields}}, @{$fields}[$i];
+    }
     return $data;
 }
 
