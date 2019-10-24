@@ -10,7 +10,7 @@ __PACKAGE__->add_columns(
   id => { data_type => 'integer',  is_auto_increment => 1 },
   field_id => { data_type => 'integer', is_foreign_key => 1 },
   code => { data_type => 'varchar'},
-  value => { data_type => 'varchar'}
+  value => { data_type => 'text'}
 );
 __PACKAGE__->set_primary_key('id');
 ## ## ##   DONE WITH DBIx::Schema   ## ## ##
