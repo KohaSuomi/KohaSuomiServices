@@ -32,6 +32,7 @@ has exporter => sub {KohaSuomiServices::Model::Biblio::Exporter->new};
 has exportauth => sub {KohaSuomiServices::Model::Biblio::ExportAuth->new};
 has response => sub {KohaSuomiServices::Model::Biblio::Response->new};
 has convert => sub {KohaSuomiServices::Model::Convert->new};
+has compare => sub {KohaSuomiServices::Model::Compare->new};
 has ua => sub {Mojo::UserAgent->new};
 has config => sub {KohaSuomiServices::Model::Config->new->service("biblio")->load};
 has log => sub {Mojo::Log->new(path => KohaSuomiServices::Model::Config->new->load->{"logs"}, level => KohaSuomiServices::Model::Config->new->load->{"log_level"})};
@@ -267,6 +268,23 @@ sub searchTarget {
     }
     return $search;
     
+}
+
+sub remoteValues {
+    my ($self, $interface, $biblio) = @_;
+
+    my $remote = $self->searchTarget($interface, $biblio);
+    my $data;
+    my $target_id;
+
+    if (defined $remote && ref($remote) eq 'ARRAY' && @{$remote}) {
+        $remote = shift @{$remote};
+        $target_id = $self->getTargetId($interface, $remote);
+        $self->compare->getMandatory($biblio, $remote);
+        $data = $remote;
+    }
+
+    return ($data, $target_id);
 }
 
 sub getTargetId {

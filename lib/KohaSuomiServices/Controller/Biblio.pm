@@ -119,16 +119,11 @@ sub check {
         my $biblio = $c->convert->formatjson($req->{marcxml});
         my $data;
         my ($mandatorynum, $mandatorychar) = $c->compare->mandatoryCheck($biblio, $req->{interface});
-        my $remote = $c->biblio->searchTarget($req->{interface}, $biblio);
 
         my $target_id;
         my $componentparts;
-        if (defined $remote && ref($remote) eq 'ARRAY' && @{$remote}) {
-            $remote = shift @{$remote};
-            $target_id = $c->biblio->getTargetId($req->{interface}, $remote);
-            $c->compare->getMandatory($biblio, $remote);
-            $data = $remote;
-        }
+
+        ($data, $target_id) = $c->biblio->remoteValues($req->{interface}, $biblio);
 
         $response = (!$mandatorynum && $data) ? {source_id => $target_id, targetrecord => $data, sourcerecord => $biblio, targetcomponentparts => $componentparts} : {target_id => $target_id, targetrecord => $data, sourcerecord => $biblio, targetcomponentparts => $componentparts};
         
