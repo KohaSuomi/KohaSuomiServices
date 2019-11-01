@@ -283,15 +283,16 @@ sub remoteValues {
     my $remote = $self->searchTarget($interface, $biblio);
     my $data;
     my $target_id;
-    my $field_value = $self->fields->findField($remote, $tag, $code) if $tag;
+    my $field_value;
 
     if (defined $remote && ref($remote) eq 'ARRAY' && @{$remote}) {
         $remote = shift @{$remote};
+        $field_value = $self->fields->findField($remote, $tag, $code) if $tag;
         $target_id = $self->getTargetId($interface, $remote);
         $self->compare->getMandatory($biblio, $remote);
         $data = $remote;
     }
-    if ($tag) {
+    if ($field_value) {
         return ($data, $target_id, $field_value);
     } else {
         return ($data, $target_id);
