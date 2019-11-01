@@ -115,6 +115,30 @@ sub replaceValue {
     }
 }
 
+sub findField {
+    my ($self, $biblio, $tag, $code) = @_;
+
+    my $value;
+
+    foreach my $field (@{$biblio->{fields}}) {
+        if ($field->{tag} eq $tag) {
+            if ($field->{subfields} && $code) {
+                foreach my $subfield (@{$field->{subfields}}) {
+                    if ($subfield->{code} eq $code) {
+                        $value = $subfield->{value};
+                        last;
+                    }
+                }
+            } else {
+                $value = $field->{value};
+                last;
+            }
+        }
+    }
+
+    return $value;
+}
+
 sub parse {
     my ($self, $id, $field) = @_;
     my $params;

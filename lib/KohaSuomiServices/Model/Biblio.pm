@@ -49,8 +49,10 @@ sub export {
     my $data = $self->exporter->insert($schema, $exporter);
     $params->{marc} = ref($params->{marc}) eq "HASH" ? $params->{marc} : $self->convert->formatjson($params->{marc});
     if ($params->{check}) {
-	my $target_id;
+        my $target_id;
         ($params->{marc}, $target_id) = $self->remoteValues($params->{interface}, $params->{marc});
+        my $value = $self->fields->findField($params->{marc}, "008", undef);
+        $self->log->debug($value);
     }
     $self->fields->store($data->id, $params->{parent_id}, $params->{marc});
 
