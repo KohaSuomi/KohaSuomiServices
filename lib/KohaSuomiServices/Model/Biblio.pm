@@ -50,9 +50,10 @@ sub export {
     $params->{marc} = ref($params->{marc}) eq "HASH" ? $params->{marc} : $self->convert->formatjson($params->{marc});
     if ($params->{check}) {
         my $target_id;
-        ($params->{marc}, $target_id) = $self->remoteValues($params->{interface}, $params->{marc});
-        my $value = $self->fields->findField($params->{marc}, "008", undef);
-        $self->log->debug($value);
+        my $remote_value;
+        ($params->{marc}, $target_id, $remote_value) = $self->remoteValues($params->{interface}, $params->{marc}, "005", undef);
+        my $export_value = $self->fields->findField($params->{marc}, "005", undef);
+        $self->log->debug($export_value." ".$remote_value);
     }
     $self->fields->store($data->id, $params->{parent_id}, $params->{marc});
 
@@ -277,11 +278,12 @@ sub searchTarget {
 }
 
 sub remoteValues {
-    my ($self, $interface, $biblio) = @_;
+    my ($self, $interface, $biblio, $tag, $code) = @_;
 
     my $remote = $self->searchTarget($interface, $biblio);
     my $data;
     my $target_id;
+    my $field_value = $self->fields->findField($remote, $tag, $code) if $tag;
 
     if (defined $remote && ref($remote) eq 'ARRAY' && @{$remote}) {
         $remote = shift @{$remote};
@@ -289,8 +291,11 @@ sub remoteValues {
         $self->compare->getMandatory($biblio, $remote);
         $data = $remote;
     }
-
-    return ($data, $target_id);
+    if ($tag) {
+        return ($data, $target_id, $field_value);
+    } else {
+        return ($data, $target_id);
+    }
 }
 
 sub getTargetId {
