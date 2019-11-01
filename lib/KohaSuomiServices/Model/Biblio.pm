@@ -51,9 +51,13 @@ sub export {
     if ($params->{check}) {
         my $target_id;
         my $remote_value;
-        ($params->{marc}, $target_id, $remote_value) = $self->remoteValues($params->{interface}, $params->{marc}, "005", undef);
+        my $modified_marc;
+        ($modified_marc, $target_id, $remote_value) = $self->remoteValues($params->{interface}, $params->{marc}, "005", undef);
         my $export_value = $self->fields->findField($params->{marc}, "005", undef);
-        $self->log->debug($export_value." ".$remote_value);
+        if (int($export_value) > int($remote_value)) {
+            $self->log->debug(Data::Dumper::Dumper $modified_marc);
+            $params->{marc} = $modified_marc;
+        }
     }
     $self->fields->store($data->id, $params->{parent_id}, $params->{marc});
 
