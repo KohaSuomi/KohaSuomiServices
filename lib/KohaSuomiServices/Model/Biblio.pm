@@ -48,6 +48,10 @@ sub export {
     my $exporter = $self->exporter->setExporterParams($interface, $type, "waiting", $params->{source_id}, $params->{target_id}, $authuser, $params->{parent_id}, $params->{force}, $params->{componentparts}, $params->{fetch_interface}, $params->{activerecord_id});
     my $data = $self->exporter->insert($schema, $exporter);
     $params->{marc} = ref($params->{marc}) eq "HASH" ? $params->{marc} : $self->convert->formatjson($params->{marc});
+    if ($params->{check}) {
+	my $target_id;
+        ($params->{marc}, $target_id) = $self->remoteValues($params->{interface}, $params->{marc});
+    }
     $self->fields->store($data->id, $params->{parent_id}, $params->{marc});
 
     return {export => $data->id, message => "Success"};

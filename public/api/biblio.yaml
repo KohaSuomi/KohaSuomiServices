@@ -184,6 +184,8 @@ paths:
               type: [integer, "null"]
             fetch_interface:
               type: [string, "null"]
+            check:
+              type: boolean
       responses:
         200:
           description: Ok status
