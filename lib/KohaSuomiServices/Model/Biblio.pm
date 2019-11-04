@@ -52,8 +52,9 @@ sub export {
     if ($params->{check}) {
         my ($modified_marc, $target_id, $remote_value) = $self->remoteValues($params->{interface}, $params->{marc}, "005", undef);
         my $export_value = $self->fields->findField($params->{marc}, "005", undef);
-        $self->log->debug("Local field: ".int($export_value));
-        $abort = $self->compare->dateCompare($export_value, $remote_value);
+        $self->log->debug("Local field: ".$export_value);
+        $abort = $self->compare->intCompare($export_value, $remote_value);
+        $self->log->debug($abort);
     }
     my $exporter;
     unless ($abort) {
