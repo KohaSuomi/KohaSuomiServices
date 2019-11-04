@@ -57,7 +57,7 @@ sub export {
     }
     my $exporter;
     unless ($abort) {
-        $exporter = $self->exporter->setExporterParams($interface, $type, "waiting", $params->{source_id}, $params->{target_id}, $authuser, $params->{parent_id}, $params->{force}, $params->{componentparts}, $params->{fetch_interface}, $params->{activerecord_id}, undef);
+        $exporter = $self->exporter->setExporterParams($interface, $type, "waiting", $params->{source_id}, $params->{target_id}, $authuser, $params->{parent_id}, $params->{force}, $params->{componentparts}, $params->{fetch_interface}, $params->{activerecord_id}, "");
     } else {
         $exporter = $self->exporter->setExporterParams($interface, $type, "failed", $params->{source_id}, $params->{target_id}, $authuser, $params->{parent_id}, $params->{force}, $params->{componentparts}, $params->{fetch_interface}, $params->{activerecord_id}, "Older record");
     }
