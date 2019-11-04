@@ -41,25 +41,28 @@ sub export {
     my ($self, $params) = @_;
 
     my $schema = $self->schema->client($self->config);
-    my $interface = defined $params->{target_id} && $params->{target_id} ? $self->interface->load({name => $params->{interface}, type => "update"}) : $self->interface->load({name => $params->{interface}, type => "add"});
-    
+    my $abort = 0;
+
+    $params->{marc} = ref($params->{marc}) eq "HASH" ? $params->{marc} : $self->convert->formatjson($params->{marc});
+
+    my $interface = defined $params->{target_id} && $params->{target_id} ? $self->interface->load({name => $params->{interface}, type => "update"}) : $self->interface->load({name => $params->{interface}, type => "add"}); 
     my $type = defined $params->{target_id} && $params->{target_id} ? "update" :"add";
     my $authuser = $self->exportauth->checkAuthUser($schema, $params->{username}, $interface->{id});
-    my $exporter = $self->exporter->setExporterParams($interface, $type, "waiting", $params->{source_id}, $params->{target_id}, $authuser, $params->{parent_id}, $params->{force}, $params->{componentparts}, $params->{fetch_interface}, $params->{activerecord_id});
-    my $data = $self->exporter->insert($schema, $exporter);
-    $params->{marc} = ref($params->{marc}) eq "HASH" ? $params->{marc} : $self->convert->formatjson($params->{marc});
+
     if ($params->{check}) {
-        my $target_id;
-        my $remote_value;
-        my $modified_marc;
-        ($modified_marc, $target_id, $remote_value) = $self->remoteValues($params->{interface}, $params->{marc}, "005", undef);
+        my ($modified_marc, $target_id, $remote_value) = $self->remoteValues($params->{interface}, $params->{marc}, "005", undef);
         my $export_value = $self->fields->findField($params->{marc}, "005", undef);
         $self->log->debug("Local field: ".$export_value);
-        if (int($export_value) > int($remote_value)) {
-            $self->log->debug(Data::Dumper::Dumper $modified_marc);
-            $params->{marc} = $modified_marc;
-        }
+        $abort = $self->compare->dateCompare($export_value, $remote_value);
     }
+
+    unless ($abort) {
+        my $exporter = $self->exporter->setExporterParams($interface, $type, "waiting", $params->{source_id}, $params->{target_id}, $authuser, $params->{parent_id}, $params->{force}, $params->{componentparts}, $params->{fetch_interface}, $params->{activerecord_id}, undef);
+    } else {
+        my $exporter = $self->exporter->setExporterParams($interface, $type, "failed", $params->{source_id}, $params->{target_id}, $authuser, $params->{parent_id}, $params->{force}, $params->{componentparts}, $params->{fetch_interface}, $params->{activerecord_id}, "Older record");
+    }
+    
+    my $data = $self->exporter->insert($schema, $exporter);
     $self->fields->store($data->id, $params->{parent_id}, $params->{marc});
 
     return {export => $data->id, message => "Success"};
