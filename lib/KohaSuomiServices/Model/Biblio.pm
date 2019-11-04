@@ -52,9 +52,7 @@ sub export {
     if ($params->{check}) {
         my ($modified_marc, $target_id, $remote_value) = $self->remoteValues($params->{interface}, $params->{marc}, "005", undef);
         my $export_value = $self->fields->findField($params->{marc}, "005", undef);
-        $self->log->debug("Local field: ".$export_value);
         $abort = $self->compare->intCompare($export_value, $remote_value);
-        $self->log->debug($abort);
     }
     my $exporter;
     unless ($abort) {
@@ -297,7 +295,6 @@ sub remoteValues {
     if (defined $remote && ref($remote) eq 'ARRAY' && @{$remote}) {
         $remote = shift @{$remote};
         $field_value = $self->fields->findField($remote, $tag, $code) if $tag;
-        $self->log->debug("Remote field: ".$field_value);
         $target_id = $self->getTargetId($interface, $remote);
         $self->compare->getMandatory($biblio, $remote);
         $data = $remote;

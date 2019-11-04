@@ -98,7 +98,7 @@ sub intCompare {
     my ($self, $export_value, $remote_value) = @_;
 
     my $abort = 0;
-    if (int($export_value) < int($remote_value)) {
+    if (int($export_value) > int($remote_value)) {
         $abort = 1;   
     }
 
