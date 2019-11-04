@@ -55,13 +55,13 @@ sub export {
         $self->log->debug("Local field: ".$export_value);
         $abort = $self->compare->dateCompare($export_value, $remote_value);
     }
-
+    my $exporter;
     unless ($abort) {
-        my $exporter = $self->exporter->setExporterParams($interface, $type, "waiting", $params->{source_id}, $params->{target_id}, $authuser, $params->{parent_id}, $params->{force}, $params->{componentparts}, $params->{fetch_interface}, $params->{activerecord_id}, undef);
+        $exporter = $self->exporter->setExporterParams($interface, $type, "waiting", $params->{source_id}, $params->{target_id}, $authuser, $params->{parent_id}, $params->{force}, $params->{componentparts}, $params->{fetch_interface}, $params->{activerecord_id}, undef);
     } else {
-        my $exporter = $self->exporter->setExporterParams($interface, $type, "failed", $params->{source_id}, $params->{target_id}, $authuser, $params->{parent_id}, $params->{force}, $params->{componentparts}, $params->{fetch_interface}, $params->{activerecord_id}, "Older record");
+        $exporter = $self->exporter->setExporterParams($interface, $type, "failed", $params->{source_id}, $params->{target_id}, $authuser, $params->{parent_id}, $params->{force}, $params->{componentparts}, $params->{fetch_interface}, $params->{activerecord_id}, "Older record");
     }
-    
+
     my $data = $self->exporter->insert($schema, $exporter);
     $self->fields->store($data->id, $params->{parent_id}, $params->{marc});
 
