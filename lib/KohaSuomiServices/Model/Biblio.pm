@@ -120,7 +120,11 @@ sub pushExport {
         my ($resCode, $resBody, $resHeaders) = $self->callInterface($interface->{method}, $interface->{format}, $path, $body, $authentication);
         if ($resCode eq "200" || $resCode eq "201") {
             $self->exporter->update($export->{id}, {status => "success", errorstatus => ""});
-            $self->response->getAndUpdate($interface, $resBody, $resHeaders, $export->{source_id});
+            if ($type eq "update" && $componentparts) {
+                $self->response->getAndUpdate($interface, $resBody, $resHeaders, $export->{parent_id}, 1);
+            } else {
+                $self->response->getAndUpdate($interface, $resBody, $resHeaders, $export->{source_id}, undef);
+            }
             $self->active->updateActiveRecords($export->{activerecord_id}) if defined $export->{activerecord_id} && $export->{activerecord_id};
             $self->log->info("Export ".$export->{id}." finished successfully with");
             $self->log->debug($resBody);
