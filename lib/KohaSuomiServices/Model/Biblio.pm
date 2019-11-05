@@ -121,9 +121,9 @@ sub pushExport {
         if ($resCode eq "200" || $resCode eq "201") {
             $self->exporter->update($export->{id}, {status => "success", errorstatus => ""});
             if ($type eq "update" && $componentparts) {
-                $self->response->componentparts->exportComponentParts($export->{parent_id}, undef);
+                $self->response->getAndUpdate($interface, $resBody, $resHeaders, $export->{source_id}, $componentparts);
             } else {
-                $self->response->getAndUpdate($interface, $resBody, $resHeaders, $export->{source_id});
+                $self->response->getAndUpdate($interface, $resBody, $resHeaders, $export->{source_id}, undef);
             }
             $self->active->updateActiveRecords($export->{activerecord_id}) if defined $export->{activerecord_id} && $export->{activerecord_id};
             $self->log->info("Export ".$export->{id}." finished successfully with");
