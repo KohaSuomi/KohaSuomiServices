@@ -18,29 +18,25 @@ has componentparts => sub {KohaSuomiServices::Model::Biblio::ComponentParts->new
 has config => sub {KohaSuomiServices::Model::Config->new->service("biblio")->load};
 
 sub getAndUpdate {
-    my ($self, $interface, $params, $headers, $source_id, $componentpartsupdate) = @_;
+    my ($self, $interface, $params, $headers, $source_id) = @_;
 
-    if ($componentpartsupdate) {
-        $self->componentparts->exportComponentParts($source_id, undef);
-    } else {
-        my $targetId = $self->parseResponse($interface, $params, $headers);
-        return unless $targetId;
-        my $schema = $self->schema->client($self->config);
-        my $getInterface = $self->interface->load({name => $interface->{name}, type => "get"});
-        my $path = $self->biblio->create_path($getInterface, $targetId);
-        my $user = $self->exportauth->checkAuthUser($schema, undef, $getInterface->{id});
-        my $authentication = $self->exportauth->interfaceAuthentication($getInterface, $user, $getInterface->{method});
-        my ($resCode, $resBody, $resHeaders) = $self->biblio->callInterface($getInterface->{method}, $getInterface->{format}, $path, undef, $authentication);
-        my $host = $self->interface->host("update");
-        my $req = $resBody->{biblio}->{marcxml} ? {marc => $resBody->{biblio}->{marcxml}, source_id => $targetId->{target_id}, target_id => $source_id, interface => $host->{name}} : {marc => $resBody, source_id => $targetId->{target_id}, target_id => $source_id, interface => $host->{name}};
-        $self->biblio->log->debug(Data::Dumper::Dumper $req);
-        my $res = $self->biblio->export($req);
-        if ($res->{message} eq "Success") {
-            my $link001 = $self->biblio->fields->findValue($res->{export}, "001", undef);
-            my $link003 = $self->biblio->fields->findValue($res->{export}, "003", undef);
-            my $linkvalue = '('.$link003.')'.$link001;
-            $self->componentparts->exportComponentParts($source_id, $linkvalue);
-        }
+    my $targetId = $self->parseResponse($interface, $params, $headers);
+    return unless $targetId;
+    my $schema = $self->schema->client($self->config);
+    my $getInterface = $self->interface->load({name => $interface->{name}, type => "get"});
+    my $path = $self->biblio->create_path($getInterface, $targetId);
+    my $user = $self->exportauth->checkAuthUser($schema, undef, $getInterface->{id});
+    my $authentication = $self->exportauth->interfaceAuthentication($getInterface, $user, $getInterface->{method});
+    my ($resCode, $resBody, $resHeaders) = $self->biblio->callInterface($getInterface->{method}, $getInterface->{format}, $path, undef, $authentication);
+    my $host = $self->interface->host("update");
+    my $req = $resBody->{biblio}->{marcxml} ? {marc => $resBody->{biblio}->{marcxml}, source_id => $targetId->{target_id}, target_id => $source_id, interface => $host->{name}} : {marc => $resBody, source_id => $targetId->{target_id}, target_id => $source_id, interface => $host->{name}};
+    $self->biblio->log->debug(Data::Dumper::Dumper $req);
+    my $res = $self->biblio->export($req);
+    if ($res->{message} eq "Success") {
+        my $link001 = $self->biblio->fields->findValue($res->{export}, "001", undef);
+        my $link003 = $self->biblio->fields->findValue($res->{export}, "003", undef);
+        my $linkvalue = '('.$link003.')'.$link001;
+        $self->componentparts->exportComponentParts($source_id, $linkvalue);
     }
     
 }
