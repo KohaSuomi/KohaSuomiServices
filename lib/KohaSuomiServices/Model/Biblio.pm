@@ -45,15 +45,17 @@ sub export {
 
     $params->{marc} = ref($params->{marc}) eq "HASH" ? $params->{marc} : $self->convert->formatjson($params->{marc});
 
-    my $interface = defined $params->{target_id} && $params->{target_id} ? $self->interface->load({name => $params->{interface}, type => "update"}) : $self->interface->load({name => $params->{interface}, type => "add"}); 
-    my $type = defined $params->{target_id} && $params->{target_id} ? "update" :"add";
-    my $authuser = $self->exportauth->checkAuthUser($schema, $params->{username}, $interface->{id});
-
-    if ($params->{check}) {
+    if ($params->{check} || ($params->{check} && $params->{parent_id})) {
         my ($modified_marc, $target_id, $remote_value) = $self->remoteValues($params->{interface}, $params->{marc}, "005", undef);
+        $params->{target_id} = $target_id if $params->{check} && $params->{parent_id} && $target_id;
         my $export_value = $self->fields->findField($params->{marc}, "005", undef);
         $abort = $self->compare->intCompare($export_value, $remote_value);
     }
+
+    my $interface = defined $params->{target_id} && $params->{target_id} ? $self->interface->load({name => $params->{interface}, type => "update"}) : $self->interface->load({name => $params->{interface}, type => "add"}); 
+    my $type = defined $params->{target_id} && $params->{target_id} ? "update" : "add";
+    my $authuser = $self->exportauth->checkAuthUser($schema, $params->{username}, $interface->{id});
+
     my $exporter;
     unless ($abort) {
         $exporter = $self->exporter->setExporterParams($interface, $type, "waiting", $params->{source_id}, $params->{target_id}, $authuser, $params->{parent_id}, $params->{force}, $params->{componentparts}, $params->{fetch_interface}, $params->{activerecord_id}, "");
