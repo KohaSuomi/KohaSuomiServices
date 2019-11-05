@@ -18,10 +18,10 @@ has componentparts => sub {KohaSuomiServices::Model::Biblio::ComponentParts->new
 has config => sub {KohaSuomiServices::Model::Config->new->service("biblio")->load};
 
 sub getAndUpdate {
-    my ($self, $interface, $params, $headers, $source_id, $componentpartsupdate) = @_;
+    my ($self, $interface, $params, $headers, $source_id, $type) = @_;
 
     my $targetId = $self->parseResponse($interface, $params, $headers);
-    $self->componentparts->exportComponentParts($source_id, undef) if $componentpartsupdate;
+    $self->componentparts->exportComponentParts($source_id, undef) if $type eq "update" && !$targetId;
     return unless $targetId;
     my $schema = $self->schema->client($self->config);
     my $getInterface = $self->interface->load({name => $interface->{name}, type => "get"});
