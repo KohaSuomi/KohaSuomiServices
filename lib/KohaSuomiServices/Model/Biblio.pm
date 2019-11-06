@@ -253,7 +253,7 @@ sub updateActive {
         my $search = $self->sru->search($path);
         $search = shift @{$search};
         if ($search) {
-            my $remote = $self->searchTarget($interface, $result->{target_id});
+            my $remote = $self->searchTarget($result->{interface_name}, $result->{target_id});
             my $abort = $self->compare->intCompare($self->fields->findField($search, "005", undef), $self->fields->findField($remote, "005", undef));
             if ($abort) {
                 $self->active->updateActiveRecords($result->{id});
@@ -278,8 +278,9 @@ sub searchTarget {
     my ($self, $remote_interface, $record, $source_id) = @_;
 
     my $search;
-    my ($interface, %matchers) = $self->matchers->fetchMatchers($remote_interface, "search", "identifier") if !$source_id;
-    my $interface = $self->interface->load({name => $remote_interface, type => "get"}); if $source_id;
+    my ($interface, %matchers);
+    ($interface, %matchers) = $self->matchers->fetchMatchers($remote_interface, "search", "identifier") if !$source_id;
+    $interface = $self->interface->load({name => $remote_interface, type => "get"}) if $source_id;
     if ($interface->{interface} eq "SRU" && !$source_id) {
         my $matcher = $self->search_fields($record, %matchers);
         my $path = $self->create_query($interface->{params}, $matcher);
