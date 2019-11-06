@@ -253,15 +253,21 @@ sub updateActive {
         my $search = $self->sru->search($path);
         $search = shift @{$search};
         if ($search) {
-            $source_id = $self->response->componentparts->fetchComponentParts($result->{interface_name}, undef, undef, $search);
-            my $exporter = {
-                interface => $result->{interface_name}, 
-                target_id => $result->{target_id},
-                source_id => $source_id,
-                marc => $search,
-                activerecord_id => $result->{id}
-            };
-            my $res = $self->export($exporter);
+            my $remote = $self->searchTarget($interface, $result->{target_id});
+            my $abort = $self->compare->intCompare($self->fields->findField($search, "005", undef), $self->fields->findField($remote, "005", undef));
+            if ($abort) {
+                $self->active->updateActiveRecords($result->{id});
+            } else {
+                $source_id = $self->response->componentparts->fetchComponentParts($result->{interface_name}, undef, undef, $search);
+                my $exporter = {
+                    interface => $result->{interface_name}, 
+                    target_id => $result->{target_id},
+                    source_id => $source_id,
+                    marc => $search,
+                    activerecord_id => $result->{id}
+                };
+                my $res = $self->export($exporter);
+            }
         } else {
             $self->active->updateActiveRecords($result->{id});
         }
@@ -269,19 +275,29 @@ sub updateActive {
 }
 
 sub searchTarget {
-    my ($self, $remote_interface, $record) = @_;
+    my ($self, $remote_interface, $record, $source_id) = @_;
 
     my $search;
-    my ($interface, %matchers) = $self->matchers->fetchMatchers($remote_interface, "search", "identifier");
-    if ($interface->{interface} eq "SRU") {
+    my ($interface, %matchers) = $self->matchers->fetchMatchers($remote_interface, "search", "identifier") if !$source_id;
+    my $interface = $self->interface->load({name => $remote_interface, type => "get"}); if $source_id;
+    if ($interface->{interface} eq "SRU" && !$source_id) {
         my $matcher = $self->search_fields($record, %matchers);
         my $path = $self->create_query($interface->{params}, $matcher);
         $path->{url} = $interface->{endpoint_url};
         $search = $self->sru->search($path);
-    } else {
-        my $params = {};
-        my $results = $self->find(undef, $interface, $params);
     }
+
+    if ($interface->{interface} eq "REST" && $source_id) {
+        my $authentication; #= $self->biblio->exportauth->interfaceAuthentication($interface, $export->{authuser_id}, $interface->{method});
+        my $matcher = {source_id => $source_id};
+        my $path = $self->biblio->create_path($remote_interface, $matcher);
+        my $tx = $self->interface->buildTX($interface->{method}, $interface->{format}, $path, $authentication);
+        my $body = from_json($tx->res->body);
+        $body = $body->{marcxml} if $body->{marcxml};
+        $body = ref($body) eq "HASH" ? $body : $self->convert->formatjson($body);
+        $search = $body;
+    }
+
     return $search;
     
 }
