@@ -289,9 +289,9 @@ sub searchTarget {
     }
 
     if ($interface->{interface} eq "REST" && $source_id) {
-        my $authentication; #= $self->biblio->exportauth->interfaceAuthentication($interface, $export->{authuser_id}, $interface->{method});
+        my $authentication; #= $self->exportauth->interfaceAuthentication($interface, $export->{authuser_id}, $interface->{method});
         my $matcher = {source_id => $source_id};
-        my $path = $self->biblio->create_path($remote_interface, $matcher);
+        my $path = $self->create_path($remote_interface, $matcher);
         my $tx = $self->interface->buildTX($interface->{method}, $interface->{format}, $path, $authentication);
         my $body = from_json($tx->res->body);
         $body = $body->{marcxml} if $body->{marcxml};
