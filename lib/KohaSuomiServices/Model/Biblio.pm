@@ -253,7 +253,7 @@ sub updateActive {
         my $search = $self->sru->search($path);
         $search = shift @{$search};
         if ($search) {
-            my $remote = $self->searchTarget($result->{interface_name}, $result->{target_id});
+            my $remote = $self->searchTarget($result->{interface_name}, $search, $result->{target_id});
             my $abort = $self->compare->intCompare($self->fields->findField($search, "005", undef), $self->fields->findField($remote, "005", undef));
             if ($abort) {
                 $self->active->updateActiveRecords($result->{id});
