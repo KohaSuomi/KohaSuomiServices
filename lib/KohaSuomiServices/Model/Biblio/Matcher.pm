@@ -8,12 +8,9 @@ use Try::Tiny;
 use List::MoreUtils qw(uniq);
 
 use KohaSuomiServices::Database::Client;
-use KohaSuomiServices::Model::Config;
+use KohaSuomiServices::Model::Packages::Biblio;
 
-has schema => sub {KohaSuomiServices::Database::Client->new};
-has config => sub {KohaSuomiServices::Model::Config->new->service("biblio")->load};
-has interface => sub {KohaSuomiServices::Model::Biblio::Interface->new};
-has fields => sub {KohaSuomiServices::Model::Biblio::Fields->new};
+has packages => sub {KohaSuomiServices::Model::Packages::Biblio->new};
 
 sub find {
     my ($self, $client, $id, $type) = @_;
@@ -50,6 +47,7 @@ sub find {
             }
         }
     }
+    $self->packages->log->debug(Data::Dumper::Dumper %matchers);
     return %matchers if %matchers;
     @fields = uniq(@fields);
     return \@fields;
@@ -62,14 +60,14 @@ sub defaultSearchMatchers {
 sub fetchMatchers {
     my ($self, $interface_name, $interface_type, $identifier_name) = @_;
 
-    my $schema = $self->schema->client($self->config);
-    my $interface = $self->interface->load({name => $interface_name, type => $interface_type});
+    my $schema = $self->packages->schema->client($self->packages->config);
+    my $interface = $self->packages->interface->load({name => $interface_name, type => $interface_type});
     return ($interface, $self->find($schema, $interface->{id}, $identifier_name));
 }
 
 sub removeMatchers {
     my ($self, $id) = @_;
-    my $client = $self->schema->client($self->config);
+    my $client = $self->packages->schema->client($self->packages->config);
     return $self->find($client, $id, "remove");
 }
 
@@ -140,14 +138,14 @@ sub weightMatchers {
 
 sub addFields {
     my ($self, $id, $exporter_id, $data) = @_;
-    my $client = $self->schema->client($self->config);
+    my $client = $self->packages->schema->client($self->config);
     my $fields = $self->find($client, $id, "add");
     return $data unless defined $fields && $fields;
     my $index = 0;
     my @fieldindexes;
     foreach my $field (@{$fields}) {
         foreach my $subfield (@{$field->{subfields}}) {
-            my $value = $self->fields->findValue($exporter_id, $field->{tag}, $subfield->{code});
+            my $value = $self->packages->fields->findValue($exporter_id, $field->{tag}, $subfield->{code});
             unless ($value) {
                 push @fieldindexes, $index;
             } else {
