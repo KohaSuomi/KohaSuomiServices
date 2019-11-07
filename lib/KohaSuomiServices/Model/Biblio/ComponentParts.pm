@@ -9,26 +9,23 @@ use Mojo::JSON qw(decode_json encode_json from_json);
 
 use KohaSuomiServices::Model::Exception::NotFound;
 
-has schema => sub {KohaSuomiServices::Database::Client->new};
-has sru => sub {KohaSuomiServices::Model::SRU->new};
-has biblio => sub {KohaSuomiServices::Model::Biblio->new};
-has interface => sub {KohaSuomiServices::Model::Biblio::Interface->new};
-has exporter => sub {KohaSuomiServices::Model::Biblio::Exporter->new};
-has config => sub {KohaSuomiServices::Model::Config->new->service("biblio")->load};
+use KohaSuomiServices::Model::Packages::Biblio;
+
+has packages => sub {KohaSuomiServices::Model::Packages::Biblio->new};
 
 sub exportComponentParts {
     my ($self, $parent_id, $linkvalue) = @_;
-    my $schema = $self->schema->client($self->config);
-    my @componentparts = $self->biblio->exporter->find($schema, {status => "waiting", parent_id => $parent_id}, undef);
+    my $schema = $self->packages->schema->client($self->config);
+    my @componentparts = $self->packages->exporter->find($schema, {status => "waiting", parent_id => $parent_id}, undef);
     foreach my $d (@{$self->schema->get_columns(@componentparts)}) {
-        $self->biblio->fields->replaceValue($d->{id}, "773", "w", $linkvalue) if $linkvalue;
-        $self->exporter->update($d->{id}, {status => "pending"});
+        $self->packages->fields->replaceValue($d->{id}, "773", "w", $linkvalue) if $linkvalue;
+        $self->packages->exporter->update($d->{id}, {status => "pending"});
     }
 }
 
 sub find {
     my ($self, $remote_interface, $source_id) = @_;
-    my $interface = $self->interface->load({name => $remote_interface, type => "getcomponentparts"});
+    my $interface = $self->packages->interface->load({name => $remote_interface, type => "getcomponentparts"});
     my $search;
     my $matcher = {source_id => $source_id};
     if ($interface->{interface} eq "SRU") {
@@ -45,30 +42,30 @@ sub find {
 sub failWithParent {
     my ($self, $parent_id, $pexport_id) = @_;
 
-    my $schema = $self->schema->client($self->config);
-    my @componentparts = $self->biblio->exporter->find($schema, {status => "waiting", parent_id => $parent_id}, undef);
+    my $schema = $self->packages->schema->client($self->config);
+    my @componentparts = $self->packages->exporter->find($schema, {status => "waiting", parent_id => $parent_id}, undef);
     foreach my $d (@{$self->schema->get_columns(@componentparts)}) {
-        $self->exporter->update($d->{id}, {status => "failed", errorstatus => "Parent failed", parent_id => $pexport_id});
+        $self->packages->exporter->update($d->{id}, {status => "failed", errorstatus => "Parent failed", parent_id => $pexport_id});
     }
 }
 
 sub fetchComponentParts {
     my ($self, $remote_interface, $fetch_interface, $source_id, $search) = @_;
-    my $host = $self->interface->host("add");
-    my $interface = $self->interface->load({name => $remote_interface, type => "add"});
+    my $host = $self->packages->interface->host("add");
+    my $interface = $self->packages->interface->load({name => $remote_interface, type => "add"});
     if (defined $search && !$source_id) {
         $source_id = $self->getSourceId($host->{name}, $search);
-        $self->biblio->log->info("Source id: ".$source_id);
+        $self->packages->log->info("Source id: ".$source_id);
         $remote_interface = $host->{name};
     }
     my $results = defined $fetch_interface && $fetch_interface ? $self->find($fetch_interface, $source_id) : $self->find($remote_interface, $source_id);
-    $self->biblio->log->info("Component parts not found from ".$remote_interface. " for ".$source_id) unless defined $results && $results && !$fetch_interface;
-    $self->biblio->log->info("Component parts not found from ".$fetch_interface. " for ".$source_id) unless defined $results && $results && $fetch_interface;
+    $self->packages->log->info("Component parts not found from ".$remote_interface. " for ".$source_id) unless defined $results && $results && !$fetch_interface;
+    $self->packages->log->info("Component parts not found from ".$fetch_interface. " for ".$source_id) unless defined $results && $results && $fetch_interface;
     foreach my $result (@{$results}) {
         my $marc = $result->{marcxml} ? $self->biblio->convert->formatjson($result->{marcxml}) : $result;
-        my $sourceid = $result->{biblionumber} ? $result->{biblionumber} : $self->biblio->search->getTargetId($remote_interface, $result);
-        my $res = $self->biblio->export({source_id => $sourceid, marc => $marc, interface => $interface->{name}});
-        $self->biblio->log->info("Component part ".$res->{export}." fetched");
+        my $sourceid = $result->{biblionumber} ? $result->{biblionumber} : $self->packages->search->getTargetId($remote_interface, $result);
+        my $res = $self->packages->biblio->export({source_id => $sourceid, marc => $marc, interface => $interface->{name}});
+        $self->packages->log->info("Component part ".$res->{export}." fetched");
     }
     return $source_id;
 }
@@ -94,9 +91,9 @@ sub sruLoopAll {
         }
 
         $interface->{params} = \@params;
-        my $path = $self->biblio->search->create_query($interface->{params}, $matcher);
+        my $path = $self->packages->search->create_query($interface->{params}, $matcher);
         $path->{url} = $interface->{endpoint_url};
-        my $results = $self->sru->search($path);
+        my $results = $self->packages->sru->search($path);
         my $resultsize = scalar @{$results};
         if (@{$results}) {
             push @{$search}, @{$results};
@@ -117,9 +114,9 @@ sub restGetAll {
     my ($self, $interface, $matcher) = @_;
 
     my $authentication; #= $self->biblio->exportauth->interfaceAuthentication($interface, $export->{authuser_id}, $interface->{method});
-    my $path = $self->biblio->search->create_path($interface, $matcher);
-    my $tx = $self->interface->buildTX($interface->{method}, $interface->{format}, $path, $authentication);
-    $self->biblio->log->error($interface->{name}." REST error: ". $tx->res->message) if $tx->res->error;
+    my $path = $self->packages->search->create_path($interface, $matcher);
+    my $tx = $self->packages->interface->buildTX($interface->{method}, $interface->{format}, $path, $authentication);
+    $self->packages->log->error($interface->{name}." REST error: ". $tx->res->message) if $tx->res->error;
     return if $tx->res->error;
     my $body = from_json($tx->res->body);
     if ($body->{componentparts}) {
@@ -131,8 +128,8 @@ sub getSourceId {
     my ($self, $remote_interface, $search) = @_;
 
     my ($interface, %matchers) = $self->biblio->matchers->fetchMatchers($remote_interface, "getcomponentparts", "identifier");
-    KohaSuomiServices::Model::Exception::NotFound->throw(error => "No identifier defined for getcomponentparts ".$remote_interface) unless %matchers;
-    return $self->biblio->search->getIdentifier($search, %matchers);
+    $self->packages->log->info("No identifier defined for getcomponentparts ".$remote_interface) unless %matchers;
+    return $self->packages->search->getIdentifier($search, %matchers);
 }
 
 sub replaceComponentParts {
@@ -140,16 +137,16 @@ sub replaceComponentParts {
 
     my @arr = $self->getTargetsComponentParts($remote_interface, $target_id);
     return unless @arr;
-    my $host = $self->interface->host("update");
+    my $host = $self->packages->interface->host("update");
     my $results = $self->find($host->{name}, $source_id);
-    $self->biblio->log->info("Component parts not found from ".$remote_interface. " for ".$source_id) unless defined $results && $results;
+    $self->packages->log->info("Component parts not found from ".$remote_interface. " for ".$source_id) unless defined $results && $results;
     foreach my $result (@{$results}) {
-        my $marc = $result->{marcxml} ? $self->biblio->convert->formatjson($result->{marcxml}) : $result;
+        my $marc = $result->{marcxml} ? $self->packages->convert->formatjson($result->{marcxml}) : $result;
         my $targetid = shift @arr;
         if (defined $targetid && $targetid) {
             my $sourceid = $result->{biblionumber} ? $result->{biblionumber} : $self->biblio->search->getTargetId($host->{name}, $result);
-            my $res = $self->biblio->export({source_id => $sourceid, target_id => $targetid, marc => $marc, interface => $remote_interface});
-            $self->biblio->log->info("Component part ".$res->{export}." replaced");
+            my $res = $self->packages->biblio->export({source_id => $sourceid, target_id => $targetid, marc => $marc, interface => $remote_interface});
+            $self->packages->log->info("Component part ".$res->{export}." replaced");
         } else {
             last;
         }
@@ -162,7 +159,7 @@ sub getTargetsComponentParts {
     my ($self, $remote_interface, $target_id) = @_;
 
     my $results = $self->find($remote_interface, $target_id);
-    $self->biblio->log->info("Component parts not found from ".$remote_interface. " for ".$target_id) unless defined $results && $results;
+    $self->packages->log->info("Component parts not found from ".$remote_interface. " for ".$target_id) unless defined $results && $results;
     my @arr;
     foreach my $result (@{$results}) {
         if (defined $result->{biblionumber} && $result->{biblionumber}) {
