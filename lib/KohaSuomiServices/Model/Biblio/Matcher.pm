@@ -47,8 +47,7 @@ sub find {
             }
         }
     }
-    $self->packages->log->debug(Data::Dumper::Dumper %matchers);
-    return %matchers if %matchers;
+    return %matchers if $type ne "add";
     @fields = uniq(@fields);
     return \@fields;
 }
