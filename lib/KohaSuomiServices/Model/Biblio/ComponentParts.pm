@@ -66,7 +66,7 @@ sub fetchComponentParts {
     $self->biblio->log->info("Component parts not found from ".$fetch_interface. " for ".$source_id) unless defined $results && $results && $fetch_interface;
     foreach my $result (@{$results}) {
         my $marc = $result->{marcxml} ? $self->biblio->convert->formatjson($result->{marcxml}) : $result;
-        my $sourceid = $result->{biblionumber} ? $result->{biblionumber} : $self->biblio->getTargetId($remote_interface, $result);
+        my $sourceid = $result->{biblionumber} ? $result->{biblionumber} : $self->biblio->search->getTargetId($remote_interface, $result);
         my $res = $self->biblio->export({source_id => $sourceid, marc => $marc, interface => $interface->{name}});
         $self->biblio->log->info("Component part ".$res->{export}." fetched");
     }
@@ -94,7 +94,7 @@ sub sruLoopAll {
         }
 
         $interface->{params} = \@params;
-        my $path = $self->biblio->create_query($interface->{params}, $matcher);
+        my $path = $self->biblio->search->create_query($interface->{params}, $matcher);
         $path->{url} = $interface->{endpoint_url};
         my $results = $self->sru->search($path);
         my $resultsize = scalar @{$results};
@@ -117,7 +117,7 @@ sub restGetAll {
     my ($self, $interface, $matcher) = @_;
 
     my $authentication; #= $self->biblio->exportauth->interfaceAuthentication($interface, $export->{authuser_id}, $interface->{method});
-    my $path = $self->biblio->create_path($interface, $matcher);
+    my $path = $self->biblio->search->create_path($interface, $matcher);
     my $tx = $self->interface->buildTX($interface->{method}, $interface->{format}, $path, $authentication);
     $self->biblio->log->error($interface->{name}." REST error: ". $tx->res->message) if $tx->res->error;
     return if $tx->res->error;
@@ -134,7 +134,7 @@ sub getSourceId {
     if(!%matchers) {
         $matchers{'999'} = 'c';
     }
-    return $self->biblio->getIdentifier($search, %matchers);
+    return $self->biblio->search->getIdentifier($search, %matchers);
 }
 
 sub replaceComponentParts {
@@ -149,7 +149,7 @@ sub replaceComponentParts {
         my $marc = $result->{marcxml} ? $self->biblio->convert->formatjson($result->{marcxml}) : $result;
         my $targetid = shift @arr;
         if (defined $targetid && $targetid) {
-            my $sourceid = $result->{biblionumber} ? $result->{biblionumber} : $self->biblio->getTargetId($host->{name}, $result);
+            my $sourceid = $result->{biblionumber} ? $result->{biblionumber} : $self->biblio->search->getTargetId($host->{name}, $result);
             my $res = $self->biblio->export({source_id => $sourceid, target_id => $targetid, marc => $marc, interface => $remote_interface});
             $self->biblio->log->info("Component part ".$res->{export}." replaced");
         } else {
