@@ -17,7 +17,7 @@ sub exportComponentParts {
     my ($self, $parent_id, $linkvalue) = @_;
     my $schema = $self->packages->schema->client($self->config);
     my @componentparts = $self->packages->exporter->find($schema, {status => "waiting", parent_id => $parent_id}, undef);
-    foreach my $d (@{$self->schema->get_columns(@componentparts)}) {
+    foreach my $d (@{$self->packages->schema->get_columns(@componentparts)}) {
         $self->packages->fields->replaceValue($d->{id}, "773", "w", $linkvalue) if $linkvalue;
         $self->packages->exporter->update($d->{id}, {status => "pending"});
     }
@@ -44,7 +44,7 @@ sub failWithParent {
 
     my $schema = $self->packages->schema->client($self->config);
     my @componentparts = $self->packages->exporter->find($schema, {status => "waiting", parent_id => $parent_id}, undef);
-    foreach my $d (@{$self->schema->get_columns(@componentparts)}) {
+    foreach my $d (@{$self->packages->schema->get_columns(@componentparts)}) {
         $self->packages->exporter->update($d->{id}, {status => "failed", errorstatus => "Parent failed", parent_id => $pexport_id});
     }
 }
@@ -113,7 +113,7 @@ sub sruLoopAll {
 sub restGetAll {
     my ($self, $interface, $matcher) = @_;
 
-    my $authentication; #= $self->biblio->exportauth->interfaceAuthentication($interface, $export->{authuser_id}, $interface->{method});
+    my $authentication; #= $self->packages->exportauth->interfaceAuthentication($interface, $export->{authuser_id}, $interface->{method});
     my $path = $self->packages->search->create_path($interface, $matcher);
     my $tx = $self->packages->interface->buildTX($interface->{method}, $interface->{format}, $path, $authentication);
     $self->packages->log->error($interface->{name}." REST error: ". $tx->res->message) if $tx->res->error;
@@ -127,7 +127,7 @@ sub restGetAll {
 sub getSourceId {
     my ($self, $remote_interface, $search) = @_;
 
-    my ($interface, %matchers) = $self->biblio->matchers->fetchMatchers($remote_interface, "getcomponentparts", "identifier");
+    my ($interface, %matchers) = $self->packages->matchers->fetchMatchers($remote_interface, "getcomponentparts", "identifier");
     $self->packages->log->info("No identifier defined for getcomponentparts ".$remote_interface) unless %matchers;
     return $self->packages->search->getIdentifier($search, %matchers);
 }
