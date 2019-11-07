@@ -56,7 +56,7 @@ sub fetchComponentParts {
     my ($self, $remote_interface, $fetch_interface, $source_id, $search) = @_;
     my $host = $self->interface->host("add");
     my $interface = $self->interface->load({name => $remote_interface, type => "add"});
-    if (defined $search and !$source_id) {
+    if (defined $search && !$source_id) {
         $source_id = $self->getSourceId($host->{name}, $search);
         $self->biblio->log->info("Source id: ".$source_id);
         $remote_interface = $host->{name};
