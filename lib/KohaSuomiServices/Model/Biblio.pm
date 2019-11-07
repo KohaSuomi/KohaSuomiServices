@@ -247,6 +247,7 @@ sub updateActive {
     my $params = {updated => undef, created => {">=" => $dt}};
     my $results = $self->active->find($schema, $params);
     foreach my $result (@{$results}) {
+        $self->active->updateActiveRecords($result->{id});
         my $source_id;
         my $host = $self->interface->load({host => 1, type => "search"});
         my $path = $self->getSearchPath($host, {$result->{identifier_field} => $result->{identifier}});
@@ -255,9 +256,7 @@ sub updateActive {
         if ($search) {
             my $remote = $self->searchTarget($result->{interface_name}, $search, $result->{target_id});
             my $abort = $self->compare->intCompare($self->fields->findField($search, "005", undef), $self->fields->findField($remote, "005", undef));
-            if ($abort) {
-                $self->active->updateActiveRecords($result->{id});
-            } else {
+            unless ($abort) {
                 $source_id = $self->response->componentparts->fetchComponentParts($result->{interface_name}, undef, undef, $search);
                 my $exporter = {
                     interface => $result->{interface_name}, 
@@ -268,8 +267,6 @@ sub updateActive {
                 };
                 my $res = $self->export($exporter);
             }
-        } else {
-            $self->active->updateActiveRecords($result->{id});
         }
     }
 }
