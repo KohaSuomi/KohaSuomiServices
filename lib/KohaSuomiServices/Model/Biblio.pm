@@ -21,6 +21,7 @@ use KohaSuomiServices::Model::Config;
 use KohaSuomiServices::Model::Biblio::Exporter;
 use KohaSuomiServices::Model::Biblio::ExportAuth;
 use KohaSuomiServices::Model::Biblio::Response;
+use KohaSuomiServices::Model::Biblio::Search;
 
 has schema => sub {KohaSuomiServices::Database::Client->new};
 has sru => sub {KohaSuomiServices::Model::SRU->new};
