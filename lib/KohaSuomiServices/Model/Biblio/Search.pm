@@ -45,7 +45,7 @@ sub searchTarget {
         my $tx = $self->packages->interface->buildTX($interface->{method}, $interface->{format}, $path, $authentication);
         my $body = from_json($tx->res->body);
         $body = $body->{marcxml} if $body->{marcxml};
-        $body = ref($body) eq "HASH" ? $body : $self->convert->formatjson($body);
+        $body = ref($body) eq "HASH" ? $body : $self->packages->convert->formatjson($body);
         $search = $body;
     }
 
