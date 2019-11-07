@@ -245,3 +245,5 @@ sub create_body {
     }
     return $body;
 }
+
+1;
