@@ -180,7 +180,7 @@ sub create_query {
     foreach my $param (@{$params}) {
         if($param->{type} eq "query") {
             my @valuematch = $param->{value} =~ /{(.*?)}/g;
-            if (defined $valuematch[0] && $valuematch[0] ne "028a") {
+            if (defined $valuematch[0] && ($valuematch[0] ne "028a" && $valuematch[1] ne "028b")) {
                 my ($key, $value) = %{$matcher} if $matcher;
                 if ($matcher->{$valuematch[0]}) {
                     if ($param->{value} =~ /id=/) {
