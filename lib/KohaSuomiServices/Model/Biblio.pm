@@ -47,7 +47,7 @@ sub export {
     $params->{marc} = ref($params->{marc}) eq "HASH" ? $params->{marc} : $self->convert->formatjson($params->{marc});
 
     if ($params->{check} || ($params->{check} && $params->{parent_id})) {
-        my ($modified_marc, $target_id, $remote_value) = $self->remoteValues($params->{interface}, $params->{marc}, "005", undef);
+        my ($modified_marc, $target_id, $remote_value) = $self->search->remoteValues($params->{interface}, $params->{marc}, "005", undef);
         $params->{target_id} = $target_id if $params->{check} && $params->{parent_id} && $target_id;
         my $export_value = $self->fields->findField($params->{marc}, "005", undef);
         $abort = $self->compare->intCompare($export_value, $remote_value);
