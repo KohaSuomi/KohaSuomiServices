@@ -38,3 +38,5 @@ has convert => sub {KohaSuomiServices::Model::Convert->new};
 has compare => sub {KohaSuomiServices::Model::Compare->new};
 has config => sub {KohaSuomiServices::Model::Config->new->service("biblio")->load};
 has log => sub {Mojo::Log->new(path => KohaSuomiServices::Model::Config->new->load->{"logs"}, level => KohaSuomiServices::Model::Config->new->load->{"log_level"})};
+
+1;
