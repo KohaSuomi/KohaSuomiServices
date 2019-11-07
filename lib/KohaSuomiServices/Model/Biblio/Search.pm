@@ -6,21 +6,13 @@ use utf8;
 
 use Try::Tiny;
 use POSIX 'strftime';
-use Mojo::UserAgent;
 use Mojo::Log;
 use Mojo::URL;
-use KohaSuomiServices::Model::Convert;
 use Mojo::JSON qw(decode_json encode_json from_json to_json);
 use KohaSuomiServices::Model::Exception::NotFound;
 use KohaSuomiServices::Model::Exception::BadParameter;
-use KohaSuomiServices::Model::Biblio::Interface;
-use KohaSuomiServices::Model::Biblio::Fields;
-use KohaSuomiServices::Model::Biblio::Matcher;
-use KohaSuomiServices::Model::Biblio::ActiveRecords;
-use KohaSuomiServices::Model::Config;
-use KohaSuomiServices::Model::Biblio::Exporter;
-use KohaSuomiServices::Model::Biblio::ExportAuth;
-use KohaSuomiServices::Model::Biblio::Response;
+
+use KohaSuomiServices::Model::Packages::Biblio;
 
 has packages => sub {KohaSuomiServices::Model::Packages::Biblio->new};
 
