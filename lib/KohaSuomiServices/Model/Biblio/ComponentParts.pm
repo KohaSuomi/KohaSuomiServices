@@ -131,9 +131,7 @@ sub getSourceId {
     my ($self, $remote_interface, $search) = @_;
 
     my ($interface, %matchers) = $self->biblio->matchers->fetchMatchers($remote_interface, "getcomponentparts", "identifier");
-    if(!%matchers) {
-        $matchers{'999'} = 'c';
-    }
+    KohaSuomiServices::Model::Exception::NotFound->throw(error => "No identifier defined for getcomponentparts ".$remote_interface) unless %matchers;
     return $self->biblio->search->getIdentifier($search, %matchers);
 }
 
