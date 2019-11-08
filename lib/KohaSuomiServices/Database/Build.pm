@@ -21,7 +21,7 @@ sub migrate {
     my $config = KohaSuomiServices::Model::Config->new->service($service)->load;
     my $version = $config->{database}->{version};
     my $schema = $self->schema->client($config);
-    my $path = "share/".$service."-schema/";
+    my $path = $config->{database}->{sharebase}."share/".$service."-schema/";
 
     my $migration = DBIx::Class::Migration->new(schema => $schema, target_dir => $path);
     if ($migration->dbic_dh->version_storage_is_installed()) {
