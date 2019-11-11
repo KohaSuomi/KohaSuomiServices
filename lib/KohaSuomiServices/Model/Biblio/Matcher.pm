@@ -137,7 +137,7 @@ sub weightMatchers {
 
 sub addFields {
     my ($self, $id, $exporter_id, $data) = @_;
-    my $client = $self->packages->schema->client($self->config);
+    my $client = $self->packages->schema->client($self->packages->config);
     my $fields = $self->find($client, $id, "add");
     return $data unless defined $fields && $fields;
     my $index = 0;
