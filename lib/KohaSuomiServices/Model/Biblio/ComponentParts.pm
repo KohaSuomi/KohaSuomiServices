@@ -15,7 +15,7 @@ has packages => sub {KohaSuomiServices::Model::Packages::Biblio->new};
 
 sub exportComponentParts {
     my ($self, $parent_id, $linkvalue) = @_;
-    my $schema = $self->packages->schema->client($self->config);
+    my $schema = $self->packages->schema->client($self->packages->config);
     my @componentparts = $self->packages->exporter->find($schema, {status => "waiting", parent_id => $parent_id}, undef);
     foreach my $d (@{$self->packages->schema->get_columns(@componentparts)}) {
         $self->packages->fields->replaceValue($d->{id}, "773", "w", $linkvalue) if $linkvalue;
@@ -42,7 +42,7 @@ sub find {
 sub failWithParent {
     my ($self, $parent_id, $pexport_id) = @_;
 
-    my $schema = $self->packages->schema->client($self->config);
+    my $schema = $self->packages->schema->client($self->packages->config);
     my @componentparts = $self->packages->exporter->find($schema, {status => "waiting", parent_id => $parent_id}, undef);
     foreach my $d (@{$self->packages->schema->get_columns(@componentparts)}) {
         $self->packages->exporter->update($d->{id}, {status => "failed", errorstatus => "Parent failed", parent_id => $pexport_id});
