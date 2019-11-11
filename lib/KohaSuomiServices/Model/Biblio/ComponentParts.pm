@@ -50,13 +50,14 @@ sub failWithParent {
 }
 
 sub fetchComponentParts {
-    my ($self, $remote_interface, $fetch_interface, $source_id, $search) = @_;
+    my ($self, $remote_interface, $fetch_interface, $source_id, $search, $hascomponentparts) = @_;
     my $host = $self->packages->interface->host("add");
     my $interface = $self->packages->interface->load({name => $remote_interface, type => "add"});
     if (defined $search && !$source_id) {
         $source_id = $self->getSourceId($host->{name}, $search);
         $self->packages->log->info("Source id: ".$source_id);
         $remote_interface = $host->{name};
+        return $source_id unless $hascomponentparts;
     }
     my $results = defined $fetch_interface && $fetch_interface ? $self->find($fetch_interface, $source_id) : $self->find($remote_interface, $source_id);
     $self->packages->log->info("Component parts not found from ".$remote_interface. " for ".$source_id) unless defined $results && $results && !$fetch_interface;
@@ -168,6 +169,23 @@ sub getTargetsComponentParts {
     }
 
     return @arr;
+}
+
+sub deleteTargetsComponentParts {
+    my ($self, $remote_interface, $target_id) = @_;
+
+    my $results = $self->find($remote_interface, $target_id);
+    $self->packages->log->info("Component parts not found from ".$remote_interface. " for ".$target_id) unless defined $results && $results;
+    return 0 unless defined $results && $results;
+    my $interface = $self->packages->interface->load({name => $remote_interface, type => "delete"});
+    my $authentication = $self->packages->exportauth->authorize($interface);
+    foreach my $result (@{$results}) {
+        if (defined $result->{biblionumber} && $result->{biblionumber}) {
+            my $path = $self->packages->search->create_path($interface, {target_id => $result->{biblionumber}});
+            my ($resCode, $resBody, $resHeaders) = $self->packages->search->callInterface($interface->{method}, $interface->{format}, $path, undef, $authentication);
+        }
+    }
+    return 1;
 }
 
 1;

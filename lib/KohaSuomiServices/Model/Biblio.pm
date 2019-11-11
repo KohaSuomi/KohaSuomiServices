@@ -109,7 +109,7 @@ sub pushExport {
     foreach my $export (@{$exports}){
         my $interface = $self->interface->load({id=> $export->{interface_id}}, $export->{force_tag});
         if ($export->{componentparts} && $export->{fetch_interface}) {
-            $self->response->componentparts->fetchComponentParts($interface->{name}, $export->{fetch_interface}, $export->{source_id}, undef);
+            $self->response->componentparts->fetchComponentParts($interface->{name}, $export->{fetch_interface}, $export->{source_id}, undef, undef);
         }
         my $query = $self->search->create_query($interface->{params});
         my $path = $self->search->create_path($interface, $export, $query);
@@ -249,7 +249,8 @@ sub updateActive {
             my $remote = $self->search->searchTarget($result->{interface_name}, $search, $result->{target_id});
             my $abort = $self->compare->intCompare($self->fields->findField($search, "005", undef), $self->fields->findField($remote, "005", undef));
             unless ($abort) {
-                $source_id = $self->response->componentparts->fetchComponentParts($result->{interface_name}, undef, undef, $search);
+                my $hascomponentparts = $self->response->componentparts->deleteTargetsComponentParts($result->{interface_name}, $result->{target_id});
+                $source_id = $self->response->componentparts->fetchComponentParts($result->{interface_name}, undef, undef, $search, $hascomponentparts);
                 my $exporter = {
                     interface => $result->{interface_name}, 
                     target_id => $result->{target_id},

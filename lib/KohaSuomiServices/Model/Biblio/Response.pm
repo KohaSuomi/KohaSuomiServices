@@ -26,8 +26,7 @@ sub getAndUpdate {
     my $schema = $self->schema->client($self->config);
     my $getInterface = $self->interface->load({name => $interface->{name}, type => "get"});
     my $path = $self->biblio->search->create_path($getInterface, $targetId);
-    my $user = $self->exportauth->checkAuthUser($schema, undef, $getInterface->{id});
-    my $authentication = $self->exportauth->interfaceAuthentication($getInterface, $user, $getInterface->{method});
+    my $authentication = $self->exportauth->authorize($getInterface);
     my ($resCode, $resBody, $resHeaders) = $self->biblio->search->callInterface($getInterface->{method}, $getInterface->{format}, $path, undef, $authentication);
     my $host = $self->interface->host("update");
     my $req = $resBody->{biblio}->{marcxml} ? {marc => $resBody->{biblio}->{marcxml}, source_id => $targetId->{target_id}, target_id => $source_id, interface => $host->{name}} : {marc => $resBody, source_id => $targetId->{target_id}, target_id => $source_id, interface => $host->{name}};

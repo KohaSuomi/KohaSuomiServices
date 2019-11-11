@@ -22,6 +22,16 @@ sub find {
     return $client->resultset('AuthUsers')->find($params);
 }
 
+sub authorize {
+    my ($self, $interface) = @_;
+
+    my $schema = $self->schema->client($self->config);
+    my $user = $self->checkAuthUser($schema, undef, $interface->{id});
+    my $authentication = $self->interfaceAuthentication($interface, $user, $interface->{method});
+
+    return $authentication;
+}
+
 sub findUserFromLink {
     my ($self, $client, $username, $interface_id) = @_;
     my $link = $client->resultset('UserLinks')->search({interface_id => $interface_id, username => $username})->next();
