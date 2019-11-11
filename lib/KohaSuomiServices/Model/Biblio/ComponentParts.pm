@@ -62,7 +62,7 @@ sub fetchComponentParts {
     $self->packages->log->info("Component parts not found from ".$remote_interface. " for ".$source_id) unless defined $results && $results && !$fetch_interface;
     $self->packages->log->info("Component parts not found from ".$fetch_interface. " for ".$source_id) unless defined $results && $results && $fetch_interface;
     foreach my $result (@{$results}) {
-        my $marc = $result->{marcxml} ? $self->biblio->convert->formatjson($result->{marcxml}) : $result;
+        my $marc = $result->{marcxml} ? $self->packages->convert->formatjson($result->{marcxml}) : $result;
         my $sourceid = $result->{biblionumber} ? $result->{biblionumber} : $self->packages->search->getTargetId($remote_interface, $result);
         my $res = $self->packages->biblio->export({source_id => $sourceid, marc => $marc, interface => $interface->{name}});
         $self->packages->log->info("Component part ".$res->{export}." fetched");
