@@ -39,17 +39,19 @@ new Vue({
             });
         },
         getMatchers() {
-        axios.get(baseendpoint+'config', {
-            headers: { Authorization: apitoken },
-            params: {
-            service: 'biblio',
-            table: 'matcher',
-            interface_id: this.filter_id
-            }
-        }).then(response => {
-            this.matchers = response.data;
-            this.interface_id = this.filter_id;
-            });
+            this.matchers = [];
+            this.interface_id = "";
+            axios.get(baseendpoint+'config', {
+                headers: { Authorization: apitoken },
+                params: {
+                service: 'biblio',
+                table: 'matcher',
+                interface_id: this.filter_id
+                }
+            }).then(response => {
+                this.matchers = response.data;
+                this.interface_id = this.filter_id;
+                });
         },
         addMatcher(e) {
         e.preventDefault();
