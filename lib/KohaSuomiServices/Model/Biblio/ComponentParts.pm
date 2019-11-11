@@ -180,10 +180,8 @@ sub deleteTargetsComponentParts {
     my $authentication = $self->packages->exportauth->authorize($interface);
     foreach my $result (@{$results}) {
         if (defined $result->{biblionumber} && $result->{biblionumber}) {
-            $self->packages->log->debug(Data::Dumper::Dumper $result);
             my $path = $self->packages->search->create_path($interface, {target_id => $result->{biblionumber}});
             my ($resCode, $resBody, $resHeaders) = $self->packages->search->callInterface($interface->{method}, $interface->{format}, $path, undef, $authentication);
-            $self->packages->log->debug(Data::Dumper::Dumper $resCode);
         }
     }
     return 1;
