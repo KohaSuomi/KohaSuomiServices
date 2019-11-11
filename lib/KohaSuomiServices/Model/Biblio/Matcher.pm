@@ -15,8 +15,8 @@ has packages => sub {KohaSuomiServices::Model::Packages::Biblio->new};
 sub find {
     my ($self, $client, $id, $type) = @_;
     my @data;
-    @data = $client->resultset('Matcher')->search({interface_id => $id, type => $type}, {columns => [qw/tag code/]}) if $type ne "add";
-    @data = $client->resultset('Matcher')->search({interface_id => $id, type => $type}, {columns => [qw/tag code value/]}) if $type eq "add";
+    @data = $client->resultset('Matcher')->search({interface_id => $id, type => $type}, {columns => [qw/tag code/]}) if $type ne "add" && $type ne "copy";
+    @data = $client->resultset('Matcher')->search({interface_id => $id, type => $type}, {columns => [qw/tag code value/]}) if $type eq "add" || $type eq "copy";
     my %matchers;
     my @fields;
     my $matcher;
@@ -47,7 +47,7 @@ sub find {
             }
         }
     }
-    return %matchers if $type ne "add";
+    return %matchers if $type ne "add" && $type ne "copy";
     @fields = uniq(@fields);
     return \@fields;
 }
