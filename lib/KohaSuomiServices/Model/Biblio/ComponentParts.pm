@@ -50,7 +50,7 @@ sub failWithParent {
 }
 
 sub fetchComponentParts {
-    my ($self, $remote_interface, $fetch_interface, $source_id, $search, $hascomponentparts) = @_;
+    my ($self, $remote_interface, $fetch_interface, $source_id, $search) = @_;
     my $host = $self->packages->interface->host("add");
     my $interface = $self->packages->interface->load({name => $remote_interface, type => "add"});
     if (defined $search && !$source_id) {
