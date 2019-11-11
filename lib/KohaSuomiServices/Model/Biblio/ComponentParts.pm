@@ -176,10 +176,10 @@ sub deleteTargetsComponentParts {
     my $results = $self->find($remote_interface, $target_id);
     $self->packages->log->info("Component parts not found from ".$remote_interface. " for ".$target_id) unless defined $results && $results;
     return 0 unless defined $results && $results;
-    my $interface = $self->packages->interface->load({name => $remote_interface, type => "delete"});
-    my $authentication = $self->packages->exportauth->authorize($interface);
     foreach my $result (@{$results}) {
         if (defined $result->{biblionumber} && $result->{biblionumber}) {
+            my $interface = $self->packages->interface->load({name => $remote_interface, type => "delete"});
+            my $authentication = $self->packages->exportauth->authorize($interface);
             my $path = $self->packages->search->create_path($interface, {target_id => $result->{biblionumber}});
             my ($resCode, $resBody, $resHeaders) = $self->packages->search->callInterface($interface->{method}, $interface->{format}, $path, undef, $authentication);
         }
