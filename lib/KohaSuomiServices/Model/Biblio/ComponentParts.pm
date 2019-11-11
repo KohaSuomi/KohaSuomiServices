@@ -183,7 +183,7 @@ sub deleteTargetsComponentParts {
             $self->packages->log->debug(Data::Dumper::Dumper $result->{biblionumber});
             my $path = $self->packages->search->create_path($interface, {target_id => $result->{biblionumber}});
             my ($resCode, $resBody, $resHeaders) = $self->packages->search->callInterface($interface->{method}, $interface->{format}, $path, undef, $authentication);
-            $self->packages->log->debug(Data::Dumper::Dumper $resBody);
+            $self->packages->log->debug(Data::Dumper::Dumper $resCode);
         }
     }
     return 1;
