@@ -113,7 +113,7 @@ sub sruLoopAll {
 sub restGetAll {
     my ($self, $interface, $matcher) = @_;
 
-    my $authentication; #= $self->packages->exportauth->interfaceAuthentication($interface, $export->{authuser_id}, $interface->{method});
+    my $authentication = $self->packages->exportauth->authorize($interface);
     my $path = $self->packages->search->create_path($interface, $matcher);
     my $tx = $self->packages->interface->buildTX($interface->{method}, $interface->{format}, $path, $authentication);
     $self->packages->log->error($interface->{name}." REST error: ". $tx->res->message) if $tx->res->error;
