@@ -43,6 +43,7 @@
                 <option value='get'>get</option>
                 <option value='add'>add</option>
                 <option value='update'>update</option>
+                <option value='delete'>delete</option>
                 <option value='getcomponentparts'>component parts</option>
             </select>
             <select class="form-control" v-model="method" placeholder="Method">
