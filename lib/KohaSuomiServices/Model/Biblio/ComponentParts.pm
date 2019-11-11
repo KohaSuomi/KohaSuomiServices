@@ -57,7 +57,6 @@ sub fetchComponentParts {
         $source_id = $self->getSourceId($host->{name}, $search);
         $self->packages->log->info("Source id: ".$source_id);
         $remote_interface = $host->{name};
-        return $source_id unless $hascomponentparts;
     }
     my $results = defined $fetch_interface && $fetch_interface ? $self->find($fetch_interface, $source_id) : $self->find($remote_interface, $source_id);
     $self->packages->log->info("Component parts not found from ".$remote_interface. " for ".$source_id) unless defined $results && $results && !$fetch_interface;
