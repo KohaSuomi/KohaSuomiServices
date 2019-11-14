@@ -65,11 +65,13 @@ sub report {
         my $req = $c->req->params->to_hash;
         my $page;
         my $limit;
+        my $status;
         if ($req) {
             $page = $req->{page} if $req->{page};
             $limit = $req->{limit} if $req->{limit};
+            $status = $req->{status} if $req->{status};
         }
-        my $data = $c->biblio->interfaceReport($interface_name, $page, $limit);
+        my $data = $c->biblio->interfaceReport($interface_name, $status, $page, $limit);
         $c->render(status => 200, openapi => $data);
     } catch {
         my $e = $_;
