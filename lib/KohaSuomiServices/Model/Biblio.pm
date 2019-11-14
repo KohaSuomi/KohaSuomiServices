@@ -115,7 +115,7 @@ sub pushExport {
         my $path = $self->search->create_path($interface, $export, $query);
         my %removeMatchers = $self->matchers->removeMatchers($interface->{id});
         my $data = $self->fields->find($export->{id}, %removeMatchers);
-        $data = $self->matchers->addFields($export->{interface_id}, $export->{id}, $data);
+        $data = $self->matchers->modifyFields($export->{interface_id}, $export->{id}, $data);
         my $body = $self->search->create_body($interface->{params}, $data);
         my $authentication = $self->exportauth->interfaceAuthentication($interface, $export->{authuser_id}, $interface->{method});
         my ($resCode, $resBody, $resHeaders) = $self->search->callInterface($interface->{method}, $interface->{format}, $path, $body, $authentication);

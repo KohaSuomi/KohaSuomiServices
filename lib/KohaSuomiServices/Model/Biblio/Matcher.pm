@@ -6,6 +6,7 @@ use utf8;
 
 use Try::Tiny;
 use List::MoreUtils qw(uniq);
+use Scalar::Util qw(looks_like_number);
 
 use KohaSuomiServices::Database::Client;
 use KohaSuomiServices::Model::Packages::Biblio;
@@ -135,10 +136,22 @@ sub weightMatchers {
     }
 }
 
-sub addFields {
+sub modifyFields {
     my ($self, $id, $exporter_id, $data) = @_;
+
+    $data = $self->addFields($id, $exporter_id, $data, "copy");
+    $data = $self->addFields($id, $exporter_id, $data, "add");
+
+    my $fields = $self->packages->compare->sortFields($data->{fields});
+    $data->{fields} = $fields;
+
+    return $data;
+}
+
+sub addFields {
+    my ($self, $id, $exporter_id, $data, $type) = @_;
     my $client = $self->packages->schema->client($self->packages->config);
-    my $fields = $self->find($client, $id, "add");
+    my $fields = $self->find($client, $id, $type);
     return $data unless defined $fields && $fields;
     my $index = 0;
     my @fieldindexes;
@@ -146,6 +159,16 @@ sub addFields {
         foreach my $subfield (@{$field->{subfields}}) {
             my $value = $self->packages->fields->findValue($exporter_id, $field->{tag}, $subfield->{code});
             unless ($value) {
+                if ($type eq "copy") {
+                    my @copyfields = split(/\|/, $subfield->{value});
+                    foreach my $copyfield (@copyfields) {
+                        my @fieldcode = $copyfield =~ /{(.*?)}/g;
+                        my ($tag, $code) = $self->splitField($fieldcode[0]);
+                        my $f = $self->packages->fields->findValue($exporter_id, $tag, $code);
+                        $subfield->{value} =~ s/{$fieldcode[0]}/$f/g;
+                    }
+                    $subfield->{value} =~ tr/|//d;
+                }
                 push @fieldindexes, $index;
             } else {
                 last;
@@ -158,6 +181,18 @@ sub addFields {
         push @{$data->{fields}}, @{$fields}[$i];
     }
     return $data;
+}
+
+sub splitField {
+    my ($self, $field) = @_;
+
+    $field =~ /(\d+)/g;
+    my $tag = $1;
+    $field =~ /(\w+)/g;
+    my $code = $1 unless looks_like_number($1);
+
+    return ($tag, $code);
+
 }
 
 1;
