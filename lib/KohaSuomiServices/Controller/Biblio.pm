@@ -123,7 +123,7 @@ sub check {
         my $target_id;
         my $componentparts;
 
-        ($data, $target_id) = $c->biblio->remoteValues($req->{interface}, $biblio, undef, undef);
+        ($data, $target_id) = $c->biblio->search->remoteValues($req->{interface}, $biblio, undef, undef);
 
         $response = (!$mandatorynum && $data) ? {source_id => $target_id, targetrecord => $data, sourcerecord => $biblio, targetcomponentparts => $componentparts} : {target_id => $target_id, targetrecord => $data, sourcerecord => $biblio, targetcomponentparts => $componentparts};
         
