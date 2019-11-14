@@ -5,6 +5,7 @@ use Modern::Perl;
 use utf8;
 
 use Try::Tiny;
+use Scalar::Util qw(looks_like_number);
 
 has schema => sub {KohaSuomiServices::Database::Client->new};
 has config => sub {KohaSuomiServices::Model::Config->new->service("biblio")->load};
@@ -78,10 +79,15 @@ sub sortFields {
     my ($self, $fields) = @_;
 
     my $hash;
+    my $charhash;
     my $count = 1;
 
     foreach my $field (@{$fields}) {
-        $hash->{$count} = $field;
+        if (looks_like_number($field->{tag})) {
+            $hash->{$count} = $field;
+        } else {
+            $charhash->{$count} = $field;
+        }
         $count++;
     }
 
@@ -89,6 +95,10 @@ sub sortFields {
 
     foreach my $key (sort {$hash->{$a}->{'tag'} <=> $hash->{$b}->{'tag'}} keys %$hash) {
         push @{$sorted}, $hash->{$key};
+    }
+
+    foreach my $key (sort {$charhash->{$a} <=> $charhash->{$b}} keys %$charhash) {
+        push @{$sorted}, $charhash->{$key};
     }
 
     return $sorted;
