@@ -140,7 +140,7 @@ sub pushExport {
 sub forceExport {
     my ($self, $id) = @_;
 
-    $self->exporter->update($id, {status => "pending", force_tag => 1});
+    $self->exporter->update($id, {status => "pending", force_tag => 1, timestamp => \'NOW()'});
     my $schema = $self->schema->client($self->config);
     my @componentparts = $self->exporter->find($schema, {parent_id => $id, errorstatus => 'Parent failed'}, undef);
     if(@componentparts) {
