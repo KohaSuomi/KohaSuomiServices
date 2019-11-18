@@ -77,7 +77,7 @@ sub getTargetId {
 
     return unless $record;
 
-    my $schema = $self->packages->schema->client($self->config);
+    my $schema = $self->packages->schema->client($self->packages->config);
     my $interface = $self->packages->interface->load({name => $remote_interface, type => "update"});
     my %matchers = $self->packages->matchers->find($schema, $interface->{id}, "identifier");
 
