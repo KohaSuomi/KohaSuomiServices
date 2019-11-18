@@ -104,10 +104,18 @@ paths:
         required: true
         type: string
         description: Get export report from interface
-      - in: body
-        name: body
-        schema:
-          type: object
+      - in: query
+        name: page
+        type: integer
+        description: Result page
+      - in: query
+        name: limit
+        type: integer
+        description: Result limit
+      - in: query
+        name: status
+        type: string
+        description: Result status
       responses:
         200:
           description: Ok status
