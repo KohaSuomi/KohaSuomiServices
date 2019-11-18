@@ -1,7 +1,7 @@
 swagger: '2.0'
 info:
-  version: '0.1'
-  title: Test
+  version: '1.0'
+  title: General
 schemes: [ http ]
 basePath: "/api"
 securityDefinitions:
