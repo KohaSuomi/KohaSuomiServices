@@ -94,6 +94,7 @@ sub sortFields {
     my $sorted; 
 
     foreach my $key (sort {$hash->{$a}->{'tag'} <=> $hash->{$b}->{'tag'}} keys %$hash) {
+        $hash->{$key}->{tag} = "".$hash->{$key}->{tag};
         push @{$sorted}, $hash->{$key};
     }
 
