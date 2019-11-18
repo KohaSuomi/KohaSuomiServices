@@ -133,7 +133,7 @@ paths:
             type: object
     options:
       x-mojo-to: "biblio#report"
-      operationId: biblioInterfaceOptions
+      operationId: biblioInterface
       consumes:
         - application/json
       parameters:
