@@ -124,6 +124,13 @@ sub search_fields {
                         }
                     }
                 }
+                if (ref($matchers{$field->{tag}}) eq "HASH") {
+                    my @keys = keys % { $matchers{$field->{tag}} };
+                    if ($subfield->{code} eq $keys[0] && $subfield->{value} =~ /$matchers{$field->{tag}}->{$keys[0]}/) {
+                        $matcher->{$field->{tag}.$keys[0]} = $subfield->{value} unless $matcher->{$field->{tag}.$keys[0]};
+                    }
+                    
+                }
                 if ($subfield->{code} eq $matchers{$field->{tag}}) {
                     $matcher->{$field->{tag}.$matchers{$field->{tag}}} = $subfield->{value} unless $matcher->{$field->{tag}.$matchers{$field->{tag}}};
                 }
@@ -141,7 +148,7 @@ sub search_fields {
         delete $matcher->{"028a"};
         delete $matcher->{"028b"};
     }
-
+    
     return $matcher;
     
 }

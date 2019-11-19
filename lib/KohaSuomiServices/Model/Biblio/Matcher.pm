@@ -16,13 +16,13 @@ has packages => sub {KohaSuomiServices::Model::Packages::Biblio->new};
 sub find {
     my ($self, $client, $id, $type) = @_;
     my @data;
-    @data = $client->resultset('Matcher')->search({interface_id => $id, type => $type}, {columns => [qw/tag code/]}) if $type ne "add" && $type ne "copy";
-    @data = $client->resultset('Matcher')->search({interface_id => $id, type => $type}, {columns => [qw/tag code value/]}) if $type eq "add" || $type eq "copy";
+    @data = $client->resultset('Matcher')->search({interface_id => $id, type => $type}, {columns => [qw/tag code/]}) if $type ne "add" && $type ne "copy" && $type ne "identifier";
+    @data = $client->resultset('Matcher')->search({interface_id => $id, type => $type}, {columns => [qw/tag code value/]}) if $type eq "add" || $type eq "copy" || $type eq "identifier";
     my %matchers;
     my @fields;
     my $matcher;
     foreach my $data (@data) {
-        if ($data->value) {
+        if ($data->value && $type ne "identifier") {
             my @codes = split(/\|/, $data->code);
             my @values = split(/\|/, $data->value);
             if (scalar(@codes) > 1 && scalar(@values) > 1) {
@@ -42,9 +42,11 @@ sub find {
         } else {
             if ($matchers{$data->tag}) {
                 my $temp = delete $matchers{$data->tag};
-                push @{$matchers{$data->tag}}, $temp , $data->code;
+                push (@{$matchers{$data->tag}->{$data->code}}, $temp , $data->value) if $data->value;
+                push (@{$matchers{$data->tag}}, $temp , $data->code) if !$data->value;
             } else {
-                $matchers{$data->tag} = $data->code;
+                $matchers{$data->tag}->{$data->code} = $data->value if $data->value;
+                $matchers{$data->tag} = $data->code if !$data->value;
             }
         }
     }
