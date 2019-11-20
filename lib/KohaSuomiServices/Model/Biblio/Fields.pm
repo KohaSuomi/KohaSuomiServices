@@ -81,17 +81,20 @@ sub findValue {
     my ($self, $id, $tag, $code) = @_;
     my $client = $self->schema->client($self->config);
     my @data = $client->resultset('Fields')->search({exporter_id => $id, tag => $tag});
+    my $return;
     foreach my $field (@{$self->schema->get_columns(@data)}) {
         if (defined $code && $code) {
             my $subfields = $self->subfields->findAll($client, $field->{id});
             foreach my $subfield (@{$subfields}) {
                 if (defined $subfield && $subfield->{code} eq $code) {
-                    return $subfield->{value};
+                    $return = $subfield->{value};
                 }
             }
         }
-        return $field->{value};
+        $return = $field->{value};
     }
+    
+    return $return;
 }
 
 sub replaceValue {
