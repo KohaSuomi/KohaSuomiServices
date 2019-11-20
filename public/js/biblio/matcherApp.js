@@ -28,6 +28,7 @@ new Vue({
             });
         },
         fetchMatchers() {
+        this.matchers = [];
         axios.get(baseendpoint+'config', {
             headers: { Authorization: apitoken },
             params: {
