@@ -57,6 +57,10 @@ sub isLoggedIn {
 sub api {
     my $c = shift->openapi->valid_input or return;
 
+    if ($c->req->method eq 'OPTIONS') {
+        return 1;
+    }
+
     try {
         return 1 if ($c->auth->valid($c->req->headers->authorization));
     } catch {
