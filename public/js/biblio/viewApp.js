@@ -91,7 +91,70 @@ Vue.component('result-list', {
         }).catch(error => {
             console.log(error.response.data);
         });
+    },
+    getRecord(e, id) {
+        e.preventDefault();
+        this.errors = [];
+        axios.get(baseendpoint+'biblio/record/'+id, {headers: { Authorization: apitoken }}
+        ).then(response => {
+            $("#modalWrapper").find("#recordModal").remove();
+            var html = $('<div id="recordModal" class="modal fade" role="dialog">\
+                        <div class="modal-dialog modal-lg">\
+                            <div class="modal-content">\
+                                <div class="modal-header">\
+                                    <h5 class="modal-title">Tietue</h5>\
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">\
+                                        <span aria-hidden="true">&times;</span>\
+                                    </button>\
+                                </div>\
+                                <div id="recordWrapper" class="modal-body">\
+                                </div>\
+                                <div class="modal-footer">\
+                                    <button type="button" class="btn btn-default" data-dismiss="modal">Sulje</button>\
+                                </div>\
+                            </div>\
+                        </div>\
+                    </div>');
+            $('#modalWrapper').append(html);
+            var source = parseRecord(response.data);
+            $('#recordModal').find('#recordWrapper').append($('<div class="container">'+source+'</div>'));
+            $('#recordModal').modal('toggle');
+        }).catch(error => {
+            this.errors.push(error.response.data.error);
+        });
     }
   },
+  filters: {
+        moment: function (date) {
+            return moment(date).locale("fi").format('D.M.Y H:mm:ss');
+        }
+    },
   props: ['result']
 });
+
+parseRecord = function (record) {
+    var html = '<div>';
+    html += '<li class="row"> <div class="col-xs-3 mr-2>';
+    html += '<b>000</b></div><div class="col-xs-9">'+record.leader+'</li>';
+    record.fields.forEach(function(v,i,a){
+        if ($.isNumeric(v.tag)) {
+            html += '<li class="row"><div class="col-xs-3 mr-2">';
+        } else {
+            html += '<li class="row hidden"><div class="col-xs-3  mr-2">';
+        }
+        html += '<b>'+v.tag;
+        if (v.ind1) {html += ' '+v.ind1}
+        if (v.ind2) {html += ' '+v.ind2}
+        html += '</b></div><div class="col-xs-9">';
+        if (v.subfields) {
+            v.subfields.forEach(function(v,i,a){
+                html += '<b>_'+v.code+'</b>'+v.value+'<br/>';
+            });
+        } else {
+            html += v.value;
+        }
+        html += '</div></li>';
+    });
+    html += '</div>';
+    return html;
+}
