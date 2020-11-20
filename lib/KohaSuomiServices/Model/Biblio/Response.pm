@@ -20,6 +20,8 @@ has config => sub {KohaSuomiServices::Model::Config->new->service("biblio")->loa
 sub getAndUpdate {
     my ($self, $interface, $params, $headers, $source_id, $type) = @_;
 
+#$self->biblio->log->info("ollaan getanupdatessa");
+
     my $targetId = $self->parseResponse($interface, $params, $headers);
     $self->componentparts->exportComponentParts($source_id, undef) if $type eq "update" && !$targetId;
     return unless $targetId;

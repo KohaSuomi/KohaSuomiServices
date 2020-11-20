@@ -22,6 +22,7 @@ use KohaSuomiServices::Model::Biblio::Exporter;
 use KohaSuomiServices::Model::Biblio::ExportAuth;
 use KohaSuomiServices::Model::Biblio::Response;
 use KohaSuomiServices::Model::Biblio::Search;
+use Data::Dumper;
 
 has schema => sub {KohaSuomiServices::Database::Client->new};
 has sru => sub {KohaSuomiServices::Model::SRU->new};
@@ -57,6 +58,8 @@ sub export {
     my $type = defined $params->{target_id} && $params->{target_id} ? "update" : "add";
     my $authuser = $self->exportauth->checkAuthUser($schema, $params->{username}, $interface->{id});
 
+#$self->log->info("\nexport target_id ".$params->{target_id}." source_id ".$params->{source_id}." interface ".$interface->{endpoint_url}."\n");
+
     my $exporter;
     unless ($abort) {
         $exporter = $self->exporter->setExporterParams($interface, $type, "waiting", $params->{source_id}, $params->{target_id}, $authuser, $params->{parent_id}, $params->{force}, $params->{componentparts}, $params->{fetch_interface}, $params->{activerecord_id}, "");
@@ -66,6 +69,8 @@ sub export {
 
     my $data = $self->exporter->insert($schema, $exporter);
     $self->fields->store($data->id, $params->{parent_id}, $params->{marc});
+
+$self->log->info("sitte pushexo");
 
     return {export => $data->id, message => "Success"};
     
@@ -105,8 +110,14 @@ sub broadcast {
 sub pushExport {
     my ($self, $type, $componentparts) = @_;
 
+#$self->log->info("type ".$type);
+
     my $exports = $self->exporter->getExports($type, $componentparts);
+
+#$self->log->info(Dumper($exports));
+
     foreach my $export (@{$exports}){
+$self->log->info("type ".$type);
         my $interface = $self->interface->load({id=> $export->{interface_id}}, $export->{force_tag});
         if ($export->{componentparts} && $export->{fetch_interface}) {
             $self->response->componentparts->fetchComponentParts($interface->{name}, $export->{fetch_interface}, $export->{source_id}, undef);
@@ -117,17 +128,33 @@ sub pushExport {
         my $data = $self->fields->find($export->{id}, %removeMatchers);
         $data = $self->matchers->modifyFields($export->{interface_id}, $export->{id}, $data);
         my $body = $self->search->create_body($interface->{params}, $data);
+
+#if($export->{interface_id}==6) {
+#  $export->{authuser_id} = 14;
+#} 
+my $json = to_json($body);
+$json = remove_empty($json);
+$body = from_json($json);
+
         my $authentication = $self->exportauth->interfaceAuthentication($interface, $export->{authuser_id}, $interface->{method});
         my ($resCode, $resBody, $resHeaders) = $self->search->callInterface($interface->{method}, $interface->{format}, $path, $body, $authentication);
+
+$self->log->info("rescode ".$resCode);
+$self->log->info("body ".to_json($body));
+
         if ($resCode eq "200" || $resCode eq "201") {
             $self->exporter->update($export->{id}, {status => "success", errorstatus => ""});
+
+$self->log->info("menosssa getandupdateen");
+
             $self->response->getAndUpdate($interface, $resBody, $resHeaders, $export->{source_id}, $type);
             $self->active->updateActiveRecords($export->{activerecord_id}) if defined $export->{activerecord_id} && $export->{activerecord_id};
             $self->log->info("Export ".$export->{id}." finished successfully with");
             $self->log->debug($resBody);
         } else {
             my $error = $resHeaders;
-            $error = $resHeaders.' '.$resBody if ($type eq "add");
+            #$error = $resHeaders.' '.$resBody if ($type eq "add");
+            $error = "error ".$resHeaders.' '.$resCode;
             $self->exporter->update($export->{id}, {status => "failed", errorstatus => $error});
             $self->response->componentparts->failWithParent($export->{source_id}, $export->{id});
             $self->log->info("Export ".$export->{id}." failed with ".$error);
@@ -262,6 +289,45 @@ sub updateActive {
             }
         }
     }
+}
+
+################################################
+sub remove_empty {
+    my ($json) = @_;
+    my $error;
+    my $retval = $json;
+
+    try {
+        my $hash = from_json($json);
+        my $fieldcount = scalar @{$hash->{fields}};
+        my $ii = 0;
+   
+        for($ii = 0; $ii < $fieldcount; $ii++) {
+            my $tag = $hash->{fields}->[$ii]->{tag};
+            if($tag eq "CAT") {
+               my $subcount = scalar @{$hash->{fields}->[$ii]->{subfields}};
+               my $iii = 0;
+           
+               for($iii=0; $iii < $subcount; $iii++) {
+                  my $code = $hash->{fields}->[$ii]->{subfields}->[$iii]->{code};
+                  my $value = $hash->{fields}->[$ii]->{subfields}->[$iii]->{value};
+                  if(($code eq "b") && ($value eq "")) {
+                      delete $hash->{fields}->[$ii]->{subfields}->[$iii]->{value};
+                  }
+               }
+            }         
+        }
+        $retval = to_json($hash);
+    }
+    catch {
+        $error = $_;
+    };
+
+    if($error) {
+        $retval = $json;
+    }
+    
+    return($retval);
 }
 
 1;

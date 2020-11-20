@@ -11,13 +11,14 @@ use Mojo::JSON qw(decode_json encode_json);
 use KohaSuomiServices::Model::Biblio::Subfields;
 use KohaSuomiServices::Model::Config;
 use KohaSuomiServices::Database::Client;
-
+use Data::Dumper;
 has schema => sub {KohaSuomiServices::Database::Client->new};
 has config => sub {KohaSuomiServices::Model::Config->new->service("biblio")->load};
-
+has log => sub {Mojo::Log->new(path => KohaSuomiServices::Model::Config->new->load->{"logs"}, level => KohaSuomiServices::Model::Config->new->load->{"log_level"})};
 
 sub find {
     my ($self, $client, $params, $conditions) = @_;
+#$self->log->info(Dumper($params));
     return $client->resultset('Exporter')->search($params, $conditions);
 }
 
@@ -41,7 +42,7 @@ sub getExports {
     my ($self, $type, $components) = @_;
 
     my $params = {type => $type, status => "pending", parent_id => undef};
-    $params = {type => $type, status => "pending", parent_id => {'!=', undef}} if defined $components && $components;
+#    $params = {type => $type, status => "pending", parent_id => {'!=', undef}} if defined $components && $components;
     my $order = defined $components && $components ? {order_by => { -asc => [qw/parent_id source_id/] }} : undef;
     my $schema = $self->schema->client($self->config);
     my @data = $self->find($schema, $params, $order);

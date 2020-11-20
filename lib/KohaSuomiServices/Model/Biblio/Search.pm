@@ -13,31 +13,65 @@ use KohaSuomiServices::Model::Exception::NotFound;
 use KohaSuomiServices::Model::Exception::BadParameter;
 
 use KohaSuomiServices::Model::Packages::Biblio;
-
+use Data::Dumper;
 has packages => sub {KohaSuomiServices::Model::Packages::Biblio->new};
 
 sub callInterface {
     my ($self, $method, $format, $path, $body, $authentication) = @_;
     $self->packages->log->debug(to_json($body)) if defined $body && $body;
     my $tx = $self->packages->interface->buildTX($method, $format, $path, $body, $authentication);
+
+    #######################
+    #added
+    my $json;
+    $json=$tx->res->body;
+    if($json eq "Created") {
+      $json ="[\"Created\"]";
+    }
+    ######################
+
     return ($tx->res->code, $tx->res->body, $tx->res->error->{message}) if $tx->res->error;
-    return ($tx->res->code, from_json($tx->res->body), $tx->res->headers);
+    # former: return ($tx->res->code, from_json($tx->res->body), $tx->res->headers);
+    return ($tx->res->code, from_json($json), $tx->res->headers);
 }
 
 sub searchTarget {
     my ($self, $remote_interface, $record, $source_id) = @_;
-
     my $search;
     my ($interface, %matchers);
     ($interface, %matchers) = $self->packages->matchers->fetchMatchers($remote_interface, "search", "identifier") if !$source_id;
     $interface = $self->packages->interface->load({name => $remote_interface, type => "get"}) if $source_id;
     if ($interface->{interface} eq "SRU" && !$source_id) {
         my $matcher = $self->search_fields($record, %matchers);
-        my $path = $self->create_query($interface->{params}, $matcher);
-        $path->{url} = $interface->{endpoint_url};
-        $search = $self->packages->sru->search($path);
-    }
+        my $path;       
+        if(to_json($matcher) ne "{}") {
 
+            $path = $self->create_query($interface->{params}, $matcher);
+            $path->{url} = $interface->{endpoint_url};
+            $search = $self->packages->sru->search($path);
+        }
+        else {
+            my $tag = "024";
+            my @matcher_array = $self->search_024_fields($record, $tag ,%matchers);
+            my $value_count =  scalar @matcher_array;
+            my $ii = 0;
+            $tag=$tag."a";            
+            while($ii < $value_count && !$search->[0]) {
+                my %matcher24;
+                ($interface, %matchers) = $self->packages->matchers->fetchMatchers($remote_interface, "search", "identifier") if !$source_id;
+                $matcher24{$tag} = $matcher_array[$ii];
+                $path = $self->create_query($interface->{params}, \%matcher24);
+                $path->{url} = $interface->{endpoint_url};
+                try {
+                        $search = $self->packages->sru->search($path);
+                }
+                catch {
+                        $search = undef;
+                };
+                $ii++;
+            }
+        }
+    }
     if ($interface->{interface} eq "REST" && $source_id) {
         my $path = $self->create_path($interface, {source_id => $source_id});
         my ($resCode, $resBody, $resHeaders) = $self->callInterface($interface->{method}, $interface->{format}, $path, undef, undef);
@@ -115,7 +149,7 @@ sub search_fields {
 
     my $matcher;
     foreach my $field (@{$record->{fields}}) {
-        if (($matchers{$field->{tag}} && $field->{tag} ne '024') || ($matchers{$field->{tag}} && $field->{tag} eq '024' && $field->{ind1} eq "3")) {
+        if (($matchers{$field->{tag}} && $field->{tag} ne '024')) {
             foreach my $subfield (@{$field->{subfields}}) {
                 if (ref($matchers{$field->{tag}}) eq "ARRAY") {
                     foreach my $code (@{$matchers{$field->{tag}}}) {
@@ -137,7 +171,7 @@ sub search_fields {
             }
         } else {
             my ($key, $value) = %matchers;
-            if (($key eq $field->{tag} && $field->{tag} ne '024') || ($key eq $field->{tag} && $field->{tag} eq '024' && $field->{ind1} eq "3") ) {
+            if ($key eq $field->{tag} && $field->{tag} ne '024') {
                 $matcher->{$field->{tag}} = $field->{value};
             }
         }
@@ -150,6 +184,33 @@ sub search_fields {
     }
     
     return $matcher;
+    
+}
+
+#######################################
+#collect all 024a values to an array
+sub search_024_fields {
+    my ($self,$record, $tag, %matchers) = @_;
+
+    my @matcher_array;
+    my $value_counter=0;
+    my $record_tag;
+   
+    foreach my $field (@{$record->{fields}}) {
+        $record_tag = $field->{tag};
+        $record_tag =~ s/^\s+|\s+$//g;
+
+        if ($record_tag eq $tag) {
+            foreach my $subfield (@{$field->{subfields}}) {
+                if ($subfield->{code} eq "a") {
+                    $matcher_array[$value_counter] = $subfield->{value};
+                    $value_counter++;
+                }
+            }
+        }     
+    }
+   
+    return @matcher_array;
     
 }
 
@@ -184,6 +245,10 @@ sub create_query {
         $matcher->{"028b"} = $identifiers[1];
         delete $matcher->{"028a|028b"};
     }
+
+#$self->packages->log->info("matcher ".Dumper($matcher));
+#$self->packages->log->info("params ".Dumper($params));
+
     foreach my $param (@{$params}) {
         if($param->{type} eq "query") {
             my @valuematch = $param->{value} =~ /{(.*?)}/g;
