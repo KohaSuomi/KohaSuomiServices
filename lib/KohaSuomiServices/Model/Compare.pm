@@ -33,9 +33,9 @@ sub getMandatory {
             }
             push @{$source->{fields}}, $valid if ($valid);
         }
-
-        my $fields = $self->sortFields($source->{fields});
-        $source->{fields} = $fields;
+        
+        #my $fields = $self->sortFields($source->{fields});
+        #$source->{fields} = $fields;
 
         foreach my $cfield (@{$charpatch}) {
             push @{$source->{fields}}, $cfield;
