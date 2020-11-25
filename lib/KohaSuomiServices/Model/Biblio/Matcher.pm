@@ -144,8 +144,8 @@ sub modifyFields {
     $data = $self->addFields($id, $exporter_id, $data, "copy");
     $data = $self->addFields($id, $exporter_id, $data, "add");
 
-    my $fields = $self->packages->compare->sortFields($data->{fields});
-    $data->{fields} = $fields;
+    #my $fields = $self->packages->compare->sortFields($data->{fields});
+    #$data->{fields} = $fields;
 
     return $data;
 }
