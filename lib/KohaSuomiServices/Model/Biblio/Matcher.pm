@@ -7,6 +7,7 @@ use utf8;
 use Try::Tiny;
 use List::MoreUtils qw(uniq);
 use Scalar::Util qw(looks_like_number);
+use Data::Dumper;
 
 use KohaSuomiServices::Database::Client;
 use KohaSuomiServices::Model::Packages::Biblio;
@@ -179,7 +180,14 @@ sub addFields {
     }
     @fieldindexes = uniq(@fieldindexes);
     foreach my $i (@fieldindexes) {
-        push @{$data->{fields}}, @{$fields}[$i];
+        my $newfield = @{$fields}[$i];
+        foreach my $field (@{$data->{fields}}) {
+            if ($newfield->{tag} eq $field->{tag}) {
+                unless (Dumper(@{$newfield->{subfields}}) eq Dumper(@{$field->{subfields}})) {
+                    push @{$data->{fields}}, $newfield;
+                }
+            }
+        }
     }
     return $data;
 }
