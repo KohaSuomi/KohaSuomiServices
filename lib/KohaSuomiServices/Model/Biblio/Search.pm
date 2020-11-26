@@ -21,7 +21,7 @@ sub callInterface {
     $self->packages->log->debug(to_json($body)) if defined $body && $body;
     my $tx = $self->packages->interface->buildTX($method, $format, $path, $body, $authentication);
     return ($tx->res->code, $tx->res->body, $tx->res->error->{message}) if $tx->res->error;
-    return ($tx->res->code, from_json($tx->res->body), $tx->res->headers);
+    return ($tx->res->code, "Success", $tx->res->headers);
 }
 
 sub searchTarget {
