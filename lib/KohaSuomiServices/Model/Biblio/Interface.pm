@@ -60,7 +60,9 @@ sub buildTX {
     my ($self, $method, $format, $path, $body, $authentication, $headers) = @_;
 
     ($path, $authentication) = $self->exportauth->basicAuthPath($path, $authentication);
-    $headers = {%$headers, %$authentication};
+    unless($authentication eq '{}') {
+        $headers = {%$headers, %$authentication};
+    }
     
     if (defined $format && ($format eq "json" || $format eq "form")) {
         return $self->ua->inactivity_timeout($self->config->{inactivitytimeout})->$method($path => $headers => $format => $body) if defined $body && $body;
