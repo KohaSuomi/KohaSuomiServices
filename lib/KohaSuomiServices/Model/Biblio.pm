@@ -117,8 +117,9 @@ sub pushExport {
         my $data = $self->fields->find($export->{id}, %removeMatchers);
         $data = $self->matchers->modifyFields($export->{interface_id}, $export->{id}, $data);
         my $body = $self->search->create_body($interface->{params}, $data);
+        my $headers = $self->search->create_headers($interface->{params});
         my $authentication = $self->exportauth->interfaceAuthentication($interface, $export->{authuser_id}, $interface->{method});
-        my ($resCode, $resBody, $resHeaders) = $self->search->callInterface($interface->{method}, $interface->{format}, $path, $body, $authentication);
+        my ($resCode, $resBody, $resHeaders) = $self->search->callInterface($interface->{method}, $interface->{format}, $path, $body, $authentication, $headers);
         if ($resCode eq "200" || $resCode eq "201") {
             $self->exporter->update($export->{id}, {status => "success", errorstatus => ""});
             $self->response->getAndUpdate($interface, $resBody, $resHeaders, $export->{source_id}, $type);

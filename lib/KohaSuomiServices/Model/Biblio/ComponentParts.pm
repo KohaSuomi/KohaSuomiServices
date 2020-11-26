@@ -181,7 +181,7 @@ sub deleteTargetsComponentParts {
             my $interface = $self->packages->interface->load({name => $remote_interface, type => "delete"});
             my $authentication = $self->packages->exportauth->authorize($interface);
             my $path = $self->packages->search->create_path($interface, {target_id => $result->{biblionumber}});
-            my ($resCode, $resBody, $resHeaders) = $self->packages->search->callInterface($interface->{method}, $interface->{format}, $path, undef, $authentication);
+            my ($resCode, $resBody, $resHeaders) = $self->packages->search->callInterface($interface->{method}, $interface->{format}, $path, undef, $authentication, undef);
         }
     }
     return 1;

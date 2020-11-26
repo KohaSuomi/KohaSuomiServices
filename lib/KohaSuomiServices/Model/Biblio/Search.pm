@@ -17,9 +17,9 @@ use KohaSuomiServices::Model::Packages::Biblio;
 has packages => sub {KohaSuomiServices::Model::Packages::Biblio->new};
 
 sub callInterface {
-    my ($self, $method, $format, $path, $body, $authentication) = @_;
+    my ($self, $method, $format, $path, $body, $authentication, $headers) = @_;
     $self->packages->log->debug(to_json($body)) if defined $body && $body;
-    my $tx = $self->packages->interface->buildTX($method, $format, $path, $body, $authentication);
+    my $tx = $self->packages->interface->buildTX($method, $format, $path, $body, $authentication, $headers);
     
     return ($tx->res->code, $tx->res->body, $tx->res->error->{message}) if $tx->res->error;
     if ($tx->res->body ne '') {
@@ -296,6 +296,18 @@ sub create_body {
         }
     }
     return $body;
+}
+
+sub create_headers {
+    my ($self, $params) = @_;
+
+    my $headers;
+    foreach my $param (@{$params}) {
+        if($param->{type} eq 'header' && $param->{name} ne 'Authorization') {
+            $headers->{$param->{name}} = $param->{value};
+        }
+    }
+    return $headers;
 }
 
 1;
