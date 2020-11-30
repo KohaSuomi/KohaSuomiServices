@@ -126,7 +126,6 @@ sub basicAuthPath {
 
     unless (ref($authentication) eq "HASH") {
         $path = Mojo::URL->new($path)->userinfo($authentication);
-        $authentication = {};
     }
 
     return ($path, $authentication);

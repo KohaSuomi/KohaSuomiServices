@@ -60,8 +60,10 @@ sub buildTX {
     my ($self, $method, $format, $path, $body, $authentication, $headers) = @_;
 
     ($path, $authentication) = $self->exportauth->basicAuthPath($path, $authentication);
-    unless ($headers eq '{}' && $authentication eq '{}') {
+    if ($headers && ref($headers) eq 'HASH') {
         $headers = {%$headers, %$authentication};
+    } else {
+        $headers = {};
     }
     
     if (defined $format && ($format eq "json" || $format eq "form")) {
