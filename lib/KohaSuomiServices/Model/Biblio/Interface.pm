@@ -60,7 +60,7 @@ sub buildTX {
     my ($self, $method, $format, $path, $body, $authentication, $headers) = @_;
 
     ($path, $authentication) = $self->exportauth->basicAuthPath($path, $authentication);
-    unless($authentication eq '{}') {
+    unless ($headers eq '{}' && $authentication eq '{}') {
         $headers = {%$headers, %$authentication};
     }
     
