@@ -180,13 +180,17 @@ sub addFields {
     }
     @fieldindexes = uniq(@fieldindexes);
     foreach my $i (@fieldindexes) {
+        my $add = 1;
         my $newfield = @{$fields}[$i];
         foreach my $field (@{$data->{fields}}) {
             if ($newfield->{tag} eq $field->{tag}) {
-                unless (Dumper(@{$newfield->{subfields}}) eq Dumper(@{$field->{subfields}})) {
-                    push @{$data->{fields}}, $newfield;
+                if (Dumper(@{$newfield->{subfields}}) eq Dumper(@{$field->{subfields}})) {
+                    $add = 0;
                 }
             }
+        }
+        if ($add) {
+            push @{$data->{fields}}, $newfield;
         }
     }
     return $data;
