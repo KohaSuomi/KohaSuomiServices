@@ -250,7 +250,7 @@ sub create_query {
                     $param->{value} =~ s/{$valuematch[0]}/$matcher->{$valuematch[0]}/g;
                     $param->{value} =~ s/{$valuematch[1]}/$matcher->{$valuematch[1]}/g;
                 } elsif ($matcher->{$valuematch[0]}) {
-                    if ($param->{value} =~ /id=/) {
+                    if ($param->{value} =~ /id=/ || $valuematch[0] eq "020a") {
                         $matcher->{$valuematch[0]} =~ s/\D//g;
                     }
                     $param->{value} =~ s/{$valuematch[0]}/$matcher->{$valuematch[0]}/g;
