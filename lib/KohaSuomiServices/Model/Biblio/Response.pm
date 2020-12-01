@@ -29,6 +29,7 @@ sub getAndUpdate {
     my $authentication = $self->exportauth->authorize($getInterface);
     my $reqHeaders = $self->biblio->search->create_headers($getInterface->{params});
     my ($resCode, $resBody, $resHeaders) = $self->biblio->search->callInterface($getInterface->{method}, $getInterface->{format}, $path, undef, $authentication, $reqHeaders);
+    $self->biblio->log->debug(Data::Dumper::Dumper $resCode.' '.$resHeaders);
     my $host = $self->interface->host("update");
     my $req = $resBody->{biblio}->{marcxml} ? {marc => $resBody->{biblio}->{marcxml}, source_id => $targetId->{target_id}, target_id => $source_id, interface => $host->{name}} : {marc => $resBody, source_id => $targetId->{target_id}, target_id => $source_id, interface => $host->{name}};
     $self->biblio->log->debug(Data::Dumper::Dumper $req);
