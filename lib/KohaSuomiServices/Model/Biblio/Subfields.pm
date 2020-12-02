@@ -14,6 +14,9 @@ has schema => sub {KohaSuomiServices::Database::Client->new};
 sub find {
     my ($self, $client, $id) = @_;
     my @data = $client->resultset('Subfields')->search({field_id => $id}, {columns => [qw/code value/]});
+    foreach my column ($self->schema->get_columns(@data)) {
+        print Data::Dumper::Dumper $column;
+    }
     return $self->schema->get_columns(@data);
 }
 
