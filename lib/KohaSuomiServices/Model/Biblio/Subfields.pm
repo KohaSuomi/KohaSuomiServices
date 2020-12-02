@@ -14,10 +14,19 @@ has schema => sub {KohaSuomiServices::Database::Client->new};
 sub find {
     my ($self, $client, $id) = @_;
     my @data = $client->resultset('Subfields')->search({field_id => $id}, {columns => [qw/code value/]});
-    foreach my column ($self->schema->get_columns(@data)) {
-        print Data::Dumper::Dumper $column;
+    my @return;
+    foreach my $columns ($self->schema->get_columns(@data)) {
+        my @modified;
+        foreach my $column (@{$columns}) {
+            if ($column->{value} eq ''){
+                delete $column->{value}
+            }
+            push @modified, $column;
+        }
+        push @return, @modified;
     }
-    return $self->schema->get_columns(@data);
+
+    return \@return;
 }
 
 sub findAll {
