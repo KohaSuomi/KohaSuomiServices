@@ -7,7 +7,6 @@ use utf8;
 use Try::Tiny;
 use List::MoreUtils qw(uniq);
 use Scalar::Util qw(looks_like_number);
-use Data::Dumper;
 
 use KohaSuomiServices::Database::Client;
 use KohaSuomiServices::Model::Packages::Biblio;
@@ -184,9 +183,7 @@ sub addFields {
         my $newfield = @{$fields}[$i];
         foreach my $field (@{$data->{fields}}) {
             if ($newfield->{tag} eq $field->{tag}) {
-                if (Dumper(@{$newfield->{subfields}}) eq Dumper(@{$field->{subfields}})) {
-                    $add = 0;
-                }
+                $add = $self->compareArrays($newfield->{subfields}, $field->{subfields});
             }
         }
         if ($add) {
@@ -206,6 +203,30 @@ sub splitField {
 
     return ($tag, $code);
 
+}
+
+sub compareArrays {
+    my ($self, $array1, $array2) = @_;
+
+    my $notequal = 1;
+    my $arr1string = '';
+    my $arr2string = '';
+
+    foreach my $arr1 (@{$array1}) {
+        $arr1string .= $arr1->{code};
+        $arr1string .= $arr1->{value};
+    }
+
+    foreach my $arr2 (@{$array2}) {
+        $arr2string .= $arr2->{code};
+        $arr2string .= $arr2->{value};
+    }
+
+    if ($arr1string eq $arr2string) {
+        $notequal = 0;
+    }
+
+    return $notequal;
 }
 
 1;
