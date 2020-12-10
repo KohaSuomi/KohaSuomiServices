@@ -20,7 +20,7 @@ sub getMandatory {
     # https://www.kiwi.fi/x/qYH9Ag
     my %targetmandatory = ("CAT" => 1, "LOW" => 1, "SID" => 1, "HLI" => 1, "DEL" => 1, "LDR" => 1, "STA" => 1, "COR" => 1);
     ###############################
-    my ($numberpatch, $charpatch) = $self->findMandatory($target, %targetmandatory);
+    my ($numberpatch, $charpatch) = $self->findMatchingField($target, %targetmandatory, "mandatory");
     my $sorted;
     if ($numberpatch || $charpatch) {
 
@@ -43,34 +43,55 @@ sub getMandatory {
     }
 }
 
-sub findMandatory {
-    my ($self, $target, %mandatory) = @_;
+sub findMatchingField {
+    my ($self, $target, %matching_field) = @_;
 
     my ($numberpatch, $charpatch);
 
     foreach my $field (@{$target->{fields}}) {
         my $tag = $field->{tag};
-        if ($mandatory{$field->{tag}} && $field->{tag} =~ s/^[0-9]//g) {
+        if ($matching_field{$field->{tag}} && $field->{tag} =~ s/^[0-9]//g) {
             $field->{tag} = $tag;
-            push @{$numberpatch}, $field;
+            my $match = $self->findMatchingSubfield($field, $matching_field{$field->{tag}});
+            if($match) {
+                push @{$numberpatch}, $field;
+            }
         }
 
-        if ($mandatory{$field->{tag}} && $field->{tag} =~ s/^[A-Za-z]//g) {
+        if ($matching_field{$field->{tag}} && $field->{tag} =~ s/^[A-Za-z]//g) {
             $field->{tag} = $tag;
-            push @{$charpatch}, $field;
+            my $match = $self->findMatchingSubfield($field, $matching_field{$field->{tag}});
+            if($match) {
+                push @{$charpatch}, $field;
+            }
         }
     }
 
     return ($numberpatch, $charpatch);
 }
 
-sub mandatoryCheck {
-    my ($self, $source, $interface_name) = @_;
+sub findMatchingSubfield {
+    my ($self, $field, $matching_subfield) = @_;
+    my $match = 1;
+    if (ref($matching_subfield) eq "HASH") {
+        foreach my $subfield (@{$field->{subfields}}) {
+            if ($matching_subfield->{$subfield->{code}} eq $subfield->{value}) {
+                last;
+            } else {
+                $match = 0;
+            }
+        }
+    }
+    return $match;
+}
+
+sub matchingFieldCheck {
+    my ($self, $source, $interface_name, $type) = @_;
     my $schema = $self->schema->client($self->config);
     my $interface = $self->interface->load({name => $interface_name, type => "search"});
-    my %matchers = $self->matchers->find($schema, $interface->{id}, "mandatory");
+    my %matchers = $self->matchers->find($schema, $interface->{id}, $type);
     return 1 unless %matchers;
-    my ($numberpatch, $charpatch) = $self->findMandatory($source, %matchers);
+    my ($numberpatch, $charpatch) = $self->findMatchingField($source, %matchers);
     return ($numberpatch, $charpatch);
     
 }

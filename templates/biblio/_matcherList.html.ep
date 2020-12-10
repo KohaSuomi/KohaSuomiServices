@@ -19,6 +19,7 @@
             <option value='identifier'>identifier</option>
             <option value='remove'>remove</option>
             <option value='mandatory'>mandatory</option>
+            <option value='duplicate'>duplicate</option>
             <option value='add'>add</option>
             <option value='copy'>copy</option>
         </select>

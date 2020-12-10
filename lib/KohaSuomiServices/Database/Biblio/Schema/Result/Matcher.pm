@@ -12,7 +12,7 @@ __PACKAGE__->add_columns(
   tag => { data_type => 'varchar', size => 255 },
   code => { data_type => 'varchar', size => 255 },
   value => { data_type => 'varchar', size => 255 },
-  type => { data_type => 'varchar', is_enum => 1, extra => { list => [qw/identifier remove mandatory add copy/]} },
+  type => { data_type => 'varchar', is_enum => 1, extra => { list => [qw/identifier remove mandatory add copy duplicate/]} },
 );
 __PACKAGE__->set_primary_key('id');
 ## ## ##   DONE WITH DBIx::Schema   ## ## ##

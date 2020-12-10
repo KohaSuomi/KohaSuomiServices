@@ -120,14 +120,14 @@ sub check {
         my $response;
         my $biblio = $c->convert->formatjson($req->{marcxml});
         my $data;
-        my ($mandatorynum, $mandatorychar) = $c->compare->mandatoryCheck($biblio, $req->{interface});
-
+        my ($mandatorynum, $mandatorychar) = $c->compare->matchingFieldCheck($biblio, $req->{interface}, "mandatory");
         my $target_id;
         my $componentparts;
 
         ($data, $target_id) = $c->biblio->search->remoteValues($req->{interface}, $biblio, undef, undef);
+        my ($duplicatenum, $duplicatechar) = $c->compare->matchingFieldCheck($data, $req->{interface}, "duplicate");
 
-        $response = (!$mandatorynum && $data) ? {source_id => $target_id, targetrecord => $data, sourcerecord => $biblio, targetcomponentparts => $componentparts} : {target_id => $target_id, targetrecord => $data, sourcerecord => $biblio, targetcomponentparts => $componentparts};
+        $response = ((!$mandatorynum && $data) || ($duplicatenum || $duplicatechar)) ? {source_id => $target_id, targetrecord => $data, sourcerecord => $biblio, targetcomponentparts => $componentparts} : {target_id => $target_id, targetrecord => $data, sourcerecord => $biblio, targetcomponentparts => $componentparts};
         
         if ($req) {
             $c->render(status => 200, openapi => $response);
