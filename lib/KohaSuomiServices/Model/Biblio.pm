@@ -309,6 +309,14 @@ sub copyInterface {
         $response->{interface_id} = $newinterface->id;
         $schema->resultset("Response")->new($response)->insert();
     }
+
+    my @matcherslist = $schema->resultset('Matcher')->search({interface_id => $old_interface_id});
+    my $matchers = $self->schema->get_columns(@matcherslist);
+    foreach my $matcher (@{$matchers}) {
+        delete $matcher->{id};
+        $matcher->{interface_id} = $newinterface->id;
+        $schema->resultset("Matcher")->new($matcher)->insert();
+    }
     
     print "Created $copy $type interface successfully\n";
 }
