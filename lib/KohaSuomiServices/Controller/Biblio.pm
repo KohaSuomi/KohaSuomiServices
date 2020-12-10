@@ -126,8 +126,8 @@ sub check {
 
         ($data, $target_id) = $c->biblio->search->remoteValues($req->{interface}, $biblio, undef, undef);
         my ($duplicatenum, $duplicatechar) = $c->compare->matchingFieldCheck($data, $req->{interface}, "duplicate");
-
-        $response = ((!$mandatorynum && $data) || ($duplicatenum || $duplicatechar)) ? {source_id => $target_id, targetrecord => $data, sourcerecord => $biblio, targetcomponentparts => $componentparts} : {target_id => $target_id, targetrecord => $data, sourcerecord => $biblio, targetcomponentparts => $componentparts};
+        print Data::Dumper::Dumper $mandatorynum, $duplicatenum, $duplicatechar;
+        $response = ((!$mandatorynum && $data) || (ref($duplicatenum) eq "ARRAY" || ref($duplicatechar) eq "ARRAY")) ? {source_id => $target_id, targetrecord => $data, sourcerecord => $biblio, targetcomponentparts => $componentparts} : {target_id => $target_id, targetrecord => $data, sourcerecord => $biblio, targetcomponentparts => $componentparts};
         
         if ($req) {
             $c->render(status => 200, openapi => $response);
