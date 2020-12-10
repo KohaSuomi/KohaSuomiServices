@@ -286,7 +286,7 @@ sub copyInterface {
         $schema->resultset("Parameter")->new($parameter)->insert();
     }
 
-    my @exportauthlist = $self->interface->exportauth->find($schema, {interface_id => $old_interface_id});
+    my @exportauthlist = $schema->resultset('AuthUsers')->search({interface_id => $old_interface_id});
     my $exportauths = $self->schema->get_columns(@exportauthlist);
     foreach my $exportauth (@{$exportauths}) {
         my @userlinkslist = $schema->resultset('UserLinks')->search({interface_id => $old_interface_id, authuser_id => $exportauth->{id}});
