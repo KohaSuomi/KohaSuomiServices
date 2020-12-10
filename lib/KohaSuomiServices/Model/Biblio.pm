@@ -265,4 +265,52 @@ sub updateActive {
     }
 }
 
+sub copyInterface {
+    my ($self, $interfacename, $copy, $type) = @_;
+
+    my $schema = $self->schema->client($self->config);
+    my $interface = $self->interface->find({name => $interfacename, type => $type});
+    $interface = pop @{$interface};
+
+    my $old_interface_id = $interface->{id};
+    delete $interface->{id};
+    $interface->{name} = $copy;
+    $interface->{host} = 0;
+
+    my $newinterface = $schema->resultset("Interface")->new($interface)->insert();
+
+    my $parameters = $self->interface->parameter->find({interface_id => $old_interface_id});
+    foreach my $parameter (@{$parameters}) {
+        delete $parameter->{id};
+        $parameter->{interface_id} = $newinterface->id;
+        $schema->resultset("Parameter")->new($parameter)->insert();
+    }
+
+    my @exportauthlist = $self->interface->exportauth->find($schema, {interface_id => $old_interface_id});
+    my $exportauths = $self->schema->get_columns(@exportauthlist);
+    foreach my $exportauth (@{$exportauths}) {
+        my @userlinkslist = $schema->resultset('UserLinks')->search({interface_id => $old_interface_id, authuser_id => $exportauth->{id}});
+        my $userlinks = $self->schema->get_columns(@userlinkslist);
+        delete $exportauth->{id};
+        $exportauth->{interface_id} = $newinterface->id;
+        my $newauth = $schema->resultset("AuthUsers")->new($exportauth)->insert();
+        foreach my $userlink (@{$userlinks}) {
+            delete $userlink->{id};
+            $userlink->{authuser_id} = $newauth->id;
+            $userlink->{interface_id} = $newinterface->id;
+            $schema->resultset("UserLinks")->new($userlink)->insert();
+        }
+    }
+
+    my @responseslist = $schema->resultset('Response')->search({interface_id => $old_interface_id});
+    my $responses = $self->schema->get_columns(@responseslist);
+    foreach my $response (@{$responses}) {
+        delete $response->{id};
+        $response->{interface_id} = $newinterface->id;
+        $schema->resultset("Response")->new($response)->insert();
+    }
+    
+    print "Created $copy $type interface successfully\n";
+}
+
 1;
