@@ -18,6 +18,7 @@ sub exportComponentParts {
     my $schema = $self->packages->schema->client($self->packages->config);
     my @componentparts = $self->packages->exporter->find($schema, {status => "waiting", parent_id => $parent_id}, undef);
     foreach my $d (@{$self->packages->schema->get_columns(@componentparts)}) {
+        $self->packages->log->info("Processing componentpart ".$d->{id});
         $self->packages->fields->replaceValue($d->{id}, "773", "w", $linkvalue) if $linkvalue;
         $self->packages->exporter->update($d->{id}, {status => "pending"});
     }

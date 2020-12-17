@@ -194,6 +194,8 @@ paths:
               type: [string, "null"]
             check:
               type: boolean
+            componentparts_count: 
+              type: [integer, "null"]
       responses:
         200:
           description: Ok status
