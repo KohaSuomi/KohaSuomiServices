@@ -107,6 +107,10 @@ sub pushExport {
 
     my $exports = $self->exporter->getExports($type, $componentparts);
     foreach my $export (@{$exports}){
+        if ($export->{componentparts_count}) {
+            my $equal = $self->response->componentparts->componentpartsCount($export->{source_id}, $export->{componentparts_count});
+            next unless $equal;
+        }
         my $interface = $self->interface->load({id=> $export->{interface_id}}, $export->{force_tag});
         if ($export->{componentparts} && $export->{fetch_interface}) {
             $self->response->componentparts->fetchComponentParts($interface->{name}, $export->{fetch_interface}, $export->{source_id}, undef);

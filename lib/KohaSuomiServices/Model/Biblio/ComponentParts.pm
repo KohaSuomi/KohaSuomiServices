@@ -50,6 +50,19 @@ sub failWithParent {
     }
 }
 
+sub componentpartsCount {
+    my ($self, $parent_id, $count_value) = @_;
+    my $equal = 1;
+    my $schema = $self->packages->schema->client($self->packages->config);
+    my @componentparts = $self->packages->exporter->find($schema, {status => "waiting", parent_id => $parent_id}, undef);
+    my $length = @{$self->packages->schema->get_columns(@componentparts)};
+    unless ($length == $count_value) {
+        $self->packages->log->info("Missing component parts, will not process parent ". $parent_id);
+        $equal = 0;
+    }
+    return $equal;
+}
+
 sub fetchComponentParts {
     my ($self, $remote_interface, $fetch_interface, $source_id, $search) = @_;
     my $host = $self->packages->interface->host("add");
