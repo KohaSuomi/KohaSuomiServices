@@ -119,14 +119,14 @@ sub check {
         my $req  = $c->req->json;
         my $response;
         my $biblio = $c->convert->formatjson($req->{marcxml});
-        my $data;
         my ($mandatorynum, $mandatorychar) = $c->compare->matchingFieldCheck($biblio, $req->{interface}, "mandatory");
-        my $target_id;
         my $componentparts;
 
-        ($data, $target_id) = $c->biblio->search->remoteValues($req->{interface}, $biblio, undef, undef);
+        my ($data, $target_id) = $c->biblio->search->remoteValues($req->{interface}, $biblio, undef, undef);
         my ($duplicatenum, $duplicatechar) = $c->compare->matchingFieldCheck($data, $req->{interface}, "duplicate");
-        $response = ((!$mandatorynum && $data) || (ref($duplicatenum) eq "ARRAY" || ref($duplicatechar) eq "ARRAY")) ? {source_id => $target_id, targetrecord => $data, sourcerecord => $biblio, targetcomponentparts => $componentparts} : {target_id => $target_id, targetrecord => $data, sourcerecord => $biblio, targetcomponentparts => $componentparts};
+        my $encoding_level = $c->compare->encodingLevelCompare($biblio->{leader}, $data->{leader});
+        $mandatorynum = 1 if $encoding_level eq 'greater';
+        $response = ((!$mandatorynum && $data) || ($encoding_level eq 'lower' && $data) || (ref($duplicatenum) eq "ARRAY" || ref($duplicatechar) eq "ARRAY")) ? {source_id => $target_id, targetrecord => $data, sourcerecord => $biblio, targetcomponentparts => $componentparts} : {target_id => $target_id, targetrecord => $data, sourcerecord => $biblio, targetcomponentparts => $componentparts};
         
         if ($req) {
             $c->render(status => 200, openapi => $response);

@@ -43,14 +43,22 @@ sub export {
 
     my $schema = $self->schema->client($self->config);
     my $abort = 0;
+    my $errormessage;
 
     $params->{marc} = ref($params->{marc}) eq "HASH" ? $params->{marc} : $self->convert->formatjson($params->{marc});
 
     if ($params->{check} || ($params->{check} && $params->{parent_id})) {
         my ($modified_marc, $target_id, $remote_value) = $self->search->remoteValues($params->{interface}, $params->{marc}, "005", undef);
-        $params->{target_id} = $target_id if $params->{check} && $params->{parent_id} && $target_id;
-        my $export_value = $self->fields->findField($params->{marc}, "005", undef);
-        $abort = $self->compare->intCompare($export_value, $remote_value);
+        my $encoding_level = $self->compare->encodingLevelCompare($params->{marc}->{leader}, $modified_marc->{leader});
+        if ($encoding_level eq 'lower') {
+            $abort = 1;
+            $errormessage = 'Lower encoding level';
+        } else {
+            $params->{target_id} = $target_id if $params->{check} && $params->{parent_id} && $target_id;
+            my $export_value = $self->fields->findField($params->{marc}, "005", undef);
+            $abort = 1 if $self->compare->intCompare($export_value, $remote_value) && $encoding_level ne 'greater';
+            $errormessage = 'Older record';
+        }
     }
 
     my $interface = defined $params->{target_id} && $params->{target_id} ? $self->interface->load({name => $params->{interface}, type => "update"}) : $self->interface->load({name => $params->{interface}, type => "add"}); 
@@ -61,7 +69,7 @@ sub export {
     unless ($abort) {
         $exporter = $self->exporter->setExporterParams($interface, $type, "waiting", $params->{source_id}, $params->{target_id}, $authuser, $params->{parent_id}, $params->{force}, $params->{componentparts}, $params->{fetch_interface}, $params->{activerecord_id}, "", $params->{componentparts_count});
     } else {
-        $exporter = $self->exporter->setExporterParams($interface, $type, "failed", $params->{source_id}, $params->{target_id}, $authuser, $params->{parent_id}, $params->{force}, $params->{componentparts}, $params->{fetch_interface}, $params->{activerecord_id}, "Older record", $params->{componentparts_count});
+        $exporter = $self->exporter->setExporterParams($interface, $type, "failed", $params->{source_id}, $params->{target_id}, $authuser, $params->{parent_id}, $params->{force}, $params->{componentparts}, $params->{fetch_interface}, $params->{activerecord_id}, $errormessage, $params->{componentparts_count});
     }
 
     my $data = $self->exporter->insert($schema, $exporter);

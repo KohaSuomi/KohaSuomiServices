@@ -138,4 +138,23 @@ sub intCompare {
 
 }
 
+sub encodingLevelCompare {
+    my ($self, $export_value, $remote_value) = @_;
+
+    my $export_level = substr( $export_value, 17 , 1 );
+    my $remote_level = substr( $remote_value, 17 , 1 );
+    my $encoding_level;
+
+    if ((int($export_level) > int($remote_level)) || $export_level eq 'u' || $export_level eq 'z') {
+        $encoding_level = 'lower';   
+    } elsif (int($export_level) == int($remote_level)) {
+        $encoding_level = 'equal';
+    } else {
+        $encoding_level = 'greater'; 
+    }
+
+    return $encoding_level;
+
+}
+
 1;
