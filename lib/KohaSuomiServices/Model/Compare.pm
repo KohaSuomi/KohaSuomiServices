@@ -147,12 +147,13 @@ sub findFieldIndex {
     my $fieldindex;
 
     foreach my $field (@{$fields}) {
-        if ($tag eq $field->{tag}) {
-            $fieldindex = $count;
+        if(int($tag) < int($field->{tag})) {
+            $fieldindex = $count-1;
+            last;
         }
         $count++;
     }
-
+    
     return $fieldindex;
 }
 
