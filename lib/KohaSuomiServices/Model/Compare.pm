@@ -113,15 +113,24 @@ sub emptyMatcherTags {
     my $interface = $self->interface->load({name => $interface_name, type => "search"});
     my %matchers = $self->matchers->find($schema, $interface->{id}, $type);
     my ($numberpatch, $charpatch);
-    my $emptytagmatchers = $matchers{""};
+    my @emptytagmatchers; 
+    
+    if (ref($matchers{""}) eq "") {
+        push @emptytagmatchers, $matchers{""}; 
+    } else {
+        @emptytagmatchers = @{$matchers{""}};
+    }
+
     foreach my $field (@{$source->{fields}}) {
         if ($field->{subfields}) {
             foreach my $subfield (@{$field->{subfields}}) {
-                if($subfield->{code} eq $emptytagmatchers) {
-                    if (looks_like_number($field->{tag})) {
-                        push @{$numberpatch}, $field;
-                    } else {
-                        push @{$charpatch}, $field;
+                foreach my $emptytagmatcher (@emptytagmatchers) {
+                    if ($subfield->{code} eq $emptytagmatcher) {
+                        if (looks_like_number($field->{tag})) {
+                            push @{$numberpatch}, $field;
+                        } else {
+                            push @{$charpatch}, $field;
+                        }
                     }
                 }
             }
