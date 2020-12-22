@@ -87,12 +87,11 @@ sub remoteValues {
     my $data;
     my $target_id;
     my $field_value;
-
     if (defined $remote && ref($remote) eq 'ARRAY' && @{$remote}) {
         $remote = shift @{$remote};
         $field_value = $self->packages->fields->findField($remote, $tag, $code) if $tag;
         $target_id = $self->getTargetId($interface, $remote);
-        $self->packages->compare->getMandatory($biblio, $remote);
+        $self->packages->compare->getMandatory($biblio, $remote, $interface);
         $data = $remote;
     }
     if ($field_value) {
