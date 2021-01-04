@@ -21,15 +21,18 @@ sub getMandatory {
     my %targetmandatory = ("CAT" => 1, "LOW" => 1, "SID" => 1, "HLI" => 1, "DEL" => 1, "LDR" => 1, "STA" => 1, "COR" => 1);
     ###############################
     my ($alephnumberpatch, $alephcharpatch) = $self->findMatchingField($target, %targetmandatory);
+    my ($fieldnumberpatch, $fieldcharpatch) = $self->matchingFieldCheck($target, $interface_name, "mandatory");
     my ($emptynumberpatch, $emptycharpatch) = $self->emptyMatcherTags($target, $interface_name, "mandatory");
 
     $alephnumberpatch = [] if $alephnumberpatch eq undef; 
     $alephcharpatch = [] if  $alephcharpatch eq undef; 
+    $fieldnumberpatch = [] if $fieldnumberpatch eq undef; 
+    $fieldcharpatch = [] if  $fieldcharpatch eq undef; 
     $emptynumberpatch = [] if $emptynumberpatch eq undef; 
     $emptycharpatch = [] if $emptycharpatch eq undef;
 
-    my @numberpatch = (@{$alephnumberpatch}, @{$emptynumberpatch});
-    my @charpatch = (@{$alephcharpatch}, @{$emptycharpatch});
+    my @numberpatch = (@{$alephnumberpatch}, @{$fieldnumberpatch}, @{$emptynumberpatch});
+    my @charpatch = (@{$alephcharpatch}, @{$fieldcharpatch}, @{$emptycharpatch});
     my $sorted;
     if (@numberpatch || @charpatch) {
         foreach my $nfield (@numberpatch) {
