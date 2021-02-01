@@ -216,7 +216,7 @@ sub encodingLevelCompare {
     } elsif (int($export_level) == int($remote_level)) {
         if ($export_status eq 'c' && $remote_status eq 'n') {
             $encoding_level = 'greater';
-        } else if ($export_status eq 'n' && $remote_status eq 'c') {
+        } elsif ($export_status eq 'n' && $remote_status eq 'c') {
             $encoding_level = 'lower';
         } else {
             $encoding_level = 'equal';
