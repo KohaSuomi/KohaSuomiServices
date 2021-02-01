@@ -207,12 +207,21 @@ sub encodingLevelCompare {
 
     my $export_level = substr( $export_value, 17 , 1 );
     my $remote_level = substr( $remote_value, 17 , 1 );
+    my $export_status = substr( $export_value, 5 , 1 );
+    my $remote_status = substr( $remote_value, 5 , 1 );
     my $encoding_level;
 
     if ((int($export_level) > int($remote_level)) || $export_level eq 'u' || $export_level eq 'z') {
         $encoding_level = 'lower';   
     } elsif (int($export_level) == int($remote_level)) {
-        $encoding_level = 'equal';
+        if ($export_status eq 'c' && $remote_status eq 'n') {
+            $encoding_level = 'greater';
+        } else if ($export_status eq 'n' && $remote_status eq 'c') {
+            $encoding_level = 'lower';
+        } else {
+            $encoding_level = 'equal';
+        }
+
     } else {
         $encoding_level = 'greater'; 
     }
