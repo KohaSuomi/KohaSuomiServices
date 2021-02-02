@@ -239,9 +239,12 @@ sub addActive {
         $params->{identifier_field} = join("|", map { "$_" } keys %{$matcher});
     }
     my $exist = $self->active->find($schema, $params);
-    $self->active->insert($schema, $params) unless @{$exist};
-
-    return {message => "Success"};
+    unless (@{$exist}) {
+        $self->active->insert($schema, $params);
+        return {message => "Success"};
+    } else {
+        return {message => "Already exists"};
+    }
 }
 
 sub updateActive {
