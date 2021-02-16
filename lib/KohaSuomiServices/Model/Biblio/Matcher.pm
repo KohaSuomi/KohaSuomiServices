@@ -56,9 +56,8 @@ sub find {
 
 sub defaultSearchMatchers {
     #return ("035" => "a", "020" => "a", "024" => "a", "027" => "a", "028" => ["a", "b"]);
-    return ("035" => "a", "020" => "a", "024" => "a");
+    return ("035" => "a", "020" => "a", "024" => "a", "003" => {"" => "FI-BTJ"}, "001" => "");
 }
-
 sub fetchMatchers {
     my ($self, $interface_name, $interface_type, $identifier_name) = @_;
 
@@ -75,7 +74,7 @@ sub removeMatchers {
 
 sub targetMatchers {
     my ($self, $matchers) = @_;
-
+    
     return unless $matchers;
     
     my $weighted;
@@ -114,6 +113,12 @@ sub targetMatchers {
             last if $matchers->{"024a"};
         }
     }
+
+    unless ($matchers->{"001"} && $matchers->{"003"}) {
+        delete $matchers->{"001"};
+        delete $matchers->{"003"};
+    }
+
     unless ($matchers->{"028a"} && $matchers->{"028b"}) {
         delete $matchers->{"028a"};
         delete $matchers->{"028b"};

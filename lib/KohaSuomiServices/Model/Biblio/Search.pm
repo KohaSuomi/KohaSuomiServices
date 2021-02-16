@@ -164,20 +164,27 @@ sub search_fields {
                     $matcher->{$field->{tag}.$matchers{$field->{tag}}} = $subfield->{value} unless $matcher->{$field->{tag}.$matchers{$field->{tag}}};
                 }
             }
-        } else {
-            my ($key, $value) = %matchers;
-            if ($key eq $field->{tag} && $field->{tag} ne '024') {
-                $matcher->{$field->{tag}} = $field->{value};
+            if (ref($matchers{$field->{tag}}) eq "HASH") {
+                my ($key, $value) = %{$matchers{$field->{tag}}};
+                if ($key eq '' && $field->{value} =~ /^$value/) {
+                    $matcher->{$field->{tag}} = $field->{value};
+                }
             }
+        } else {
+            foreach my $key (keys %matchers) {
+                if ($key eq $field->{tag} && $field->{tag} ne '024') {
+                    $matcher->{$field->{tag}} = $field->{value};
+                }
+            }
+            
         }
     }
-
     if ($matcher->{"028a"} && $matcher->{"028b"}) {
         $matcher->{"028a|028b"} = $matcher->{"028a"}.'|'.$matcher->{"028b"};
         delete $matcher->{"028a"};
         delete $matcher->{"028b"};
     }
-    
+
     return $matcher;
     
 }
