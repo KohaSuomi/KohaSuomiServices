@@ -60,9 +60,6 @@ sub export {
             $abort = 1 if $self->compare->intCompare($export_value, $remote_value) && $encoding_level ne 'greater';
             $errormessage = 'Older record';
         }
-        if ($modified_marc ne {}) {
-            my $diff = $self->compare->getDiff($params->{marc}, $modified_marc);
-        }
         
     }
 
