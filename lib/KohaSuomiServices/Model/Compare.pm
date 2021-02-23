@@ -6,6 +6,7 @@ use utf8;
 
 use Try::Tiny;
 use Scalar::Util qw(looks_like_number);
+use JSON::Patch qw(diff patch);
 
 has schema => sub {KohaSuomiServices::Database::Client->new};
 has config => sub {KohaSuomiServices::Model::Config->new->service("biblio")->load};
@@ -228,6 +229,14 @@ sub encodingLevelCompare {
 
     return $encoding_level;
 
+}
+
+sub getDiff {
+    my ($self, $old, $new) = @_;
+
+    my $patch = diff($old, $new);
+
+    return $patch;
 }
 
 1;

@@ -130,7 +130,25 @@ sub getSearchPath {
 
 sub getIdentifier {
     my ($self, $record, %matchers) = @_;
-    my ($key, $value) = %{$self->search_fields($record, %matchers)} if $self->search_fields($record, %matchers);
+    my %matcherhash = %{$self->search_fields($record, %matchers)} if $self->search_fields($record, %matchers);
+    my $count = keys %matcherhash;
+    my ($key, $value);
+    my @keys;
+    if ($count > 1) {
+        my $last_key = (keys %matcherhash)[-1];
+        foreach my $ckey (keys %matcherhash) {
+            unless ($ckey eq $last_key) {
+                $key .= $ckey.'|';
+                $value .= $matcherhash{$ckey}.'|';
+            } else {
+                $key .= $ckey;
+                $value .= $matcherhash{$ckey};
+            }
+        }
+    } else {
+        ($key, $value) = %matcherhash;
+    }
+
     $self->packages->log->debug("Key: ".$key." value: ".$value);
     if ($key eq "020a") {
         $value =~ s/\D//g;
@@ -184,7 +202,7 @@ sub search_fields {
         delete $matcher->{"028a"};
         delete $matcher->{"028b"};
     }
-
+    #print Data::Dumper::Dumper $matcher;
     return $matcher;
     
 }

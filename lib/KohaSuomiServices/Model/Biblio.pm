@@ -49,6 +49,7 @@ sub export {
 
     if ($params->{check} || ($params->{check} && $params->{parent_id})) {
         my ($modified_marc, $target_id, $remote_value) = $self->search->remoteValues($params->{interface}, $params->{marc}, "005", undef);
+        
         my $encoding_level = $self->compare->encodingLevelCompare($params->{marc}->{leader}, $modified_marc->{leader});
         if ($encoding_level eq 'lower') {
             $abort = 1;
@@ -59,6 +60,10 @@ sub export {
             $abort = 1 if $self->compare->intCompare($export_value, $remote_value) && $encoding_level ne 'greater';
             $errormessage = 'Older record';
         }
+        if ($modified_marc ne {}) {
+            my $diff = $self->compare->getDiff($params->{marc}, $modified_marc);
+        }
+        
     }
 
     my $interface = defined $params->{target_id} && $params->{target_id} ? $self->interface->load({name => $params->{interface}, type => "update"}) : $self->interface->load({name => $params->{interface}, type => "add"}); 
@@ -85,9 +90,29 @@ sub broadcast {
     $self->log->debug(Data::Dumper::Dumper $params);
     my %matchers = $self->matchers->defaultSearchMatchers();
     my $schema = $self->schema->client($self->config);
+    my @controlkey;
+    foreach my $ckey (keys %matchers) {
+        if ($ckey eq "003") {
+            $controlkey[0] = $ckey;
+            delete $matchers{"003"};
+        }
+        if ($ckey eq "001") {
+            $controlkey[1] = $ckey;
+            delete $matchers{"001"};
+        }
+    }
+    $matchers{$controlkey[0].'|'.$controlkey[1]} = {"" => "FI-BTJ"};
     while (my ($key, $value) = each %matchers) {
         my %matcher;
         $matcher{$key} = $value;
+
+        if($key =~ /\|/) {
+            my ($f003,$f001) = split(/\|/, $key);
+            $matcher{$f003} = $value;
+            $matcher{$f001} = "";
+            delete $matcher{"003|001"};
+        }
+        
         my $identifier = $self->search->getIdentifier($params->{marc}, %matcher);
         $self->log->debug($identifier);
         my $results = $self->active->find($schema, {identifier => $identifier});
@@ -99,7 +124,8 @@ sub broadcast {
                     target_id => $result->{target_id},
                     source_id => $params->{source_id},
                     marc => $params->{marc},
-                    interface => $result->{interface_name}
+                    interface => $result->{interface_name},
+                    check => 1
                 });
                 $self->response->componentparts->replaceComponentParts($result->{interface_name}, $result->{target_id}, $params->{source_id});
                 $self->active->update($schema, $result->{id}, {updated => $params->{updated}});
