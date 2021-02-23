@@ -135,8 +135,8 @@ sub getIdentifier {
     my ($key, $value);
     my @keys;
     if ($count > 1) {
-        my $last_key = (keys %matcherhash)[-1];
-        foreach my $ckey (keys %matcherhash) {
+        my $last_key = (sort {lc $b cmp lc $a} keys %matcherhash)[-1];
+        foreach my $ckey (sort {lc $b cmp lc $a} keys %matcherhash) {
             unless ($ckey eq $last_key) {
                 $key .= $ckey.'|';
                 $value .= $matcherhash{$ckey}.'|';
