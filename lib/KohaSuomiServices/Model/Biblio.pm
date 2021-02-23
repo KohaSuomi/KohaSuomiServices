@@ -124,8 +124,7 @@ sub broadcast {
                     target_id => $result->{target_id},
                     source_id => $params->{source_id},
                     marc => $params->{marc},
-                    interface => $result->{interface_name},
-                    check => 1
+                    interface => $result->{interface_name}
                 });
                 $self->response->componentparts->replaceComponentParts($result->{interface_name}, $result->{target_id}, $params->{source_id});
                 $self->active->update($schema, $result->{id}, {updated => $params->{updated}});
