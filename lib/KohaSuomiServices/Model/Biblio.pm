@@ -150,6 +150,11 @@ sub pushExport {
         my %removeMatchers = $self->matchers->removeMatchers($interface->{id});
         my $data = $self->fields->find($export->{id}, %removeMatchers);
         $data = $self->matchers->modifyFields($export->{interface_id}, $export->{id}, $data);
+        if ($type eq "update" && $export->{target_id}) {
+            my $remote = $self->search->searchTarget($interface->{name}, undef, $export->{target_id});
+            my $diff = $self->compare->getDiff($remote, $data);
+            $self->exporter->update($export->{id}, {diff => $diff});
+        }
         my $body = $self->search->create_body($interface->{params}, $data);
         my $headers = $self->search->create_headers($interface->{params});
         my $authentication = $self->exportauth->interfaceAuthentication($interface, $export->{authuser_id}, $interface->{method});

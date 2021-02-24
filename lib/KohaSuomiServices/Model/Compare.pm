@@ -6,7 +6,7 @@ use utf8;
 
 use Try::Tiny;
 use Scalar::Util qw(looks_like_number);
-use JSON::Patch qw(diff patch);
+use Mojo::JSON qw(to_json);
 
 has schema => sub {KohaSuomiServices::Database::Client->new};
 has config => sub {KohaSuomiServices::Model::Config->new->service("biblio")->load};
@@ -234,9 +234,69 @@ sub encodingLevelCompare {
 sub getDiff {
     my ($self, $old, $new) = @_;
 
-    my $patch = diff($old, $new);
+    my @oldfields = $self->comparePrepare($old);
+    my @newfields = $self->comparePrepare($new);    
+    my @candidates;
+    while (my ($i, $el) = each @oldfields) {
+        @newfields = grep {$_ ne $el} @newfields;
+    }
+    my %hash;
+    foreach my $diff (@newfields) {
+        my ($tag) = split(/\|/, $diff);
+        $hash{$tag}=1;
 
-    return $patch;
+    }
+    @candidates = keys%hash;
+
+    my @diff;
+    if ($old->{leader} ne $new->{leader}) {
+        my $leader->{leader}->{old} = $old->{leader};
+        $leader->{leader}->{new} = $new->{leader};
+        push @diff, $leader;
+    }
+    
+    foreach my $candidate (@candidates) {
+        my $hash->{$candidate}->{old} = [];
+        $hash->{$candidate}->{new} = [];
+        foreach my $oldf (@{$old->{fields}}) {
+            if ($candidate eq $oldf->{tag}) {
+                push @{$hash->{$candidate}->{old}}, $oldf;
+            }
+        }
+        foreach my $newf (@{$new->{fields}}) {
+            if ($candidate eq $newf->{tag}) {
+                push @{$hash->{$candidate}->{new}}, $newf;
+            }
+        }
+        push @diff, $hash;
+    }
+
+    return to_json(\@diff);
 }
+
+sub comparePrepare {
+    my ($self, $record) = @_;
+    my @fields;
+
+    foreach my $field (@{$record->{fields}}) {
+        if (looks_like_number($field->{tag})) {
+            my $fieldvalues = $field->{tag}.'|';
+            $fieldvalues .= '_ind1'.$field->{ind1}.'|' if defined $field->{ind1} && $field->{ind1} ne ' ';
+            $fieldvalues .= '_ind2'.$field->{ind2}.'|' if defined $field->{ind2} && $field->{ind2} ne ' ';
+            if ($field->{value}) {
+                $fieldvalues .= $field->{value}
+            } else {
+                my @sorted =  sort { $a->{code} cmp $b->{code} } @{$field->{subfields}};
+                foreach my $subfield (@sorted) {
+                    $fieldvalues .= $subfield->{code}.$subfield->{value}.'|';
+                }
+            }
+            push @fields, $fieldvalues;
+        }
+    }
+
+    return @fields;
+}
+
 
 1;
