@@ -234,52 +234,72 @@ sub encodingLevelCompare {
 sub getDiff {
     my ($self, $old, $new) = @_;
 
-    my @oldfields = $self->comparePrepare($old);
-    my @newfields = $self->comparePrepare($new);    
+    return unless $old && $new;
+
+    my ($oldfields, $oldtags) = $self->comparePrepare($old);
+    my ($newfields, $newtags) = $self->comparePrepare($new);  
+
     my @candidates;
-    while (my ($i, $el) = each @oldfields) {
-        @newfields = grep {$_ ne $el} @newfields;
+    while (my ($i, $el) = each @{$oldfields}) {
+        @{$newfields} = grep {$_ ne $el} @{$newfields};
     }
     my %hash;
-    foreach my $diff (@newfields) {
+    foreach my $diff (@{$newfields}) {
         my ($tag) = split(/\|/, $diff);
         $hash{$tag}=1;
 
     }
     @candidates = keys%hash;
 
-    my @diff;
+    my %diff;
     if ($old->{leader} ne $new->{leader}) {
-        my $leader->{leader}->{old} = $old->{leader};
-        $leader->{leader}->{new} = $new->{leader};
-        push @diff, $leader;
+        $diff{leader}, $old->{leader};
+        $diff{leader}, $new->{leader};
     }
     
     foreach my $candidate (@candidates) {
-        my $hash->{$candidate}->{old} = [];
-        $hash->{$candidate}->{new} = [];
         foreach my $oldf (@{$old->{fields}}) {
             if ($candidate eq $oldf->{tag}) {
-                push @{$hash->{$candidate}->{old}}, $oldf;
+                push @{$diff{$candidate}->{old}}, $oldf;
             }
         }
         foreach my $newf (@{$new->{fields}}) {
             if ($candidate eq $newf->{tag}) {
-                push @{$hash->{$candidate}->{new}}, $newf;
+                push @{$diff{$candidate}->{new}}, $newf;
             }
         }
-        push @diff, $hash;
     }
 
-    return to_json(\@diff);
+    my @excludenew = _check_array($newtags, $oldtags);
+    my @excludeold = _check_array($oldtags, $newtags);
+    
+    foreach my $tag (@excludenew) {
+        foreach my $add (@{$old->{fields}}) {
+            if ($add->{tag} eq $tag) {
+                push @{$diff{$tag}->{add}}, $add;
+            }
+        }
+    }
+
+    foreach my $tag (@excludeold) {
+        foreach my $remove (@{$old->{fields}}) {
+            if ($remove->{tag} eq $tag) {
+                push @{$diff{$tag}->{remove}}, $remove;
+            }
+        }
+    }
+
+    return to_json(\%diff);
 }
 
 sub comparePrepare {
     my ($self, $record) = @_;
-    my @fields;
+    my $fields;
+    my $tags;
 
     foreach my $field (@{$record->{fields}}) {
         if (looks_like_number($field->{tag})) {
+            push @{$tags}, $field->{tag};
             my $fieldvalues = $field->{tag}.'|';
             $fieldvalues .= '_ind1'.$field->{ind1}.'|' if defined $field->{ind1} && $field->{ind1} ne ' ';
             $fieldvalues .= '_ind2'.$field->{ind2}.'|' if defined $field->{ind2} && $field->{ind2} ne ' ';
@@ -291,12 +311,22 @@ sub comparePrepare {
                     $fieldvalues .= $subfield->{code}.$subfield->{value}.'|';
                 }
             }
-            push @fields, $fieldvalues;
+            push @{$fields}, $fieldvalues;
         }
     }
-
-    return @fields;
+    
+    return ($fields, $tags);
 }
+
+sub _check_array {
+	my ($test, $source) = @_;
+    my @arr;
+	foreach my $elt (@$test){
+		push @arr, $elt unless(grep /$elt/, @$source);
+	}
+	return @arr;
+}
+
 
 
 1;
