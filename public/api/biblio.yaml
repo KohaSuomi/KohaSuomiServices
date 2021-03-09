@@ -2,8 +2,8 @@ swagger: '2.0'
 info:
   version: '1.0'
   title: Biblio exporter
-schemes: [ http, https ]
-basePath: "/api"
+schemes: [http, https]
+basePath: '/api'
 securityDefinitions:
   APIKeyHeader:
     type: apiKey
@@ -14,22 +14,22 @@ security:
 paths:
   /biblio:
     get:
-      x-mojo-to: "biblio#list"
+      x-mojo-to: 'biblio#list'
       operationId: biblioList
       consumes:
         - application/json
       parameters:
-      - in: body
-        name: body
-        schema:
-          type: object
+        - in: body
+          name: body
+          schema:
+            type: object
       responses:
         200:
           description: Ok status
           schema:
             type: object
         401:
-          $ref: "#/responses/UnauthorizedError"
+          $ref: '#/responses/UnauthorizedError'
         404:
           description: Not found
           schema:
@@ -40,23 +40,23 @@ paths:
             type: object
   /biblio/{id}:
     get:
-      x-mojo-to: "biblio#get"
+      x-mojo-to: 'biblio#get'
       operationId: biblioGet
       consumes:
         - application/json
       parameters:
-      - in: path
-        name: id
-        required: true
-        type: integer
-        description: Get export report from biblio
+        - in: path
+          name: id
+          required: true
+          type: integer
+          description: Get export report from biblio
       responses:
         200:
           description: Ok status
           schema:
             type: array
         401:
-          $ref: "#/responses/UnauthorizedError"
+          $ref: '#/responses/UnauthorizedError'
         404:
           description: Not found
           schema:
@@ -67,23 +67,23 @@ paths:
             type: object
   /biblio/record/{id}:
     get:
-      x-mojo-to: "biblio#record"
+      x-mojo-to: 'biblio#record'
       operationId: biblioRecord
       consumes:
         - application/json
       parameters:
-      - in: path
-        name: id
-        required: true
-        type: integer
-        description: Get record
+        - in: path
+          name: id
+          required: true
+          type: integer
+          description: Get record
       responses:
         200:
           description: Ok status
           schema:
             type: object
         401:
-          $ref: "#/responses/UnauthorizedError"
+          $ref: '#/responses/UnauthorizedError'
         404:
           description: Not found
           schema:
@@ -94,35 +94,35 @@ paths:
             type: object
   /biblio/report/{interface_name}:
     get:
-      x-mojo-to: "biblio#report"
+      x-mojo-to: 'biblio#report'
       operationId: biblioInterface
       consumes:
         - application/json
       parameters:
-      - in: path
-        name: interface_name
-        required: true
-        type: string
-        description: Get export report from interface
-      - in: query
-        name: page
-        type: integer
-        description: Result page
-      - in: query
-        name: limit
-        type: integer
-        description: Result limit
-      - in: query
-        name: status
-        type: string
-        description: Result status
+        - in: path
+          name: interface_name
+          required: true
+          type: string
+          description: Get export report from interface
+        - in: query
+          name: page
+          type: integer
+          description: Result page
+        - in: query
+          name: limit
+          type: integer
+          description: Result limit
+        - in: query
+          name: status
+          type: string
+          description: Result status
       responses:
         200:
           description: Ok status
           schema:
             type: object
         401:
-          $ref: "#/responses/UnauthorizedError"
+          $ref: '#/responses/UnauthorizedError'
         404:
           description: Not found
           schema:
@@ -133,23 +133,23 @@ paths:
             type: object
   /biblio/{id}/force:
     put:
-      x-mojo-to: "biblio#force"
+      x-mojo-to: 'biblio#force'
       operationId: biblioForceExport
       consumes:
         - application/json
       parameters:
-      - in: path
-        name: id
-        required: true
-        type: integer
-        description: Force export biblio
+        - in: path
+          name: id
+          required: true
+          type: integer
+          description: Force export biblio
       responses:
         200:
           description: Ok status
           schema:
             type: object
         401:
-          $ref: "#/responses/UnauthorizedError"
+          $ref: '#/responses/UnauthorizedError'
         404:
           description: Not found
           schema:
@@ -160,49 +160,49 @@ paths:
             type: object
   /biblio/export:
     post:
-      x-mojo-to: "biblio#export"
+      x-mojo-to: 'biblio#export'
       operationId: biblioExport
       consumes:
         - application/x-www-form-urlencoded
       parameters:
-      - in: body
-        name: body
-        schema:
-          type: object
-          required:
-            - source_id
-            - interface
-            - marc
-          properties:
-            target_id:
-              type: [integer, string, "null"]
-            source_id:
-              type: [integer, string]
-            marc:
-              type: [object, string]
-            interface:
-              type: string
-            username:
-              type: string
-            parent_id:
-              type: [integer, string, "null"]
-            force: 
-              type: [integer, "null"]
-            componentparts:
-              type: [integer, "null"]
-            fetch_interface:
-              type: [string, "null"]
-            check:
-              type: boolean
-            componentparts_count: 
-              type: [integer, "null"]
+        - in: body
+          name: body
+          schema:
+            type: object
+            required:
+              - source_id
+              - interface
+              - marc
+            properties:
+              target_id:
+                type: [integer, string, 'null']
+              source_id:
+                type: [integer, string]
+              marc:
+                type: [object, string]
+              interface:
+                type: string
+              username:
+                type: string
+              parent_id:
+                type: [integer, string, 'null']
+              force:
+                type: [integer, 'null']
+              componentparts:
+                type: [integer, 'null']
+              fetch_interface:
+                type: [string, 'null']
+              check:
+                type: boolean
+              componentparts_count:
+                type: [integer, 'null']
       responses:
         200:
           description: Ok status
           schema:
             type: object
         401:
-          $ref: "#/responses/UnauthorizedError"
+          $ref: '#/responses/UnauthorizedError'
         404:
           description: Not found
           schema:
@@ -213,30 +213,30 @@ paths:
             type: object
   /biblio/search:
     post:
-      x-mojo-to: "biblio#check"
+      x-mojo-to: 'biblio#check'
       operationId: biblioExportCheck
       consumes:
         - application/x-www-form-urlencoded
       parameters:
-      - in: body
-        name: body
-        schema:
-          type: object
-          required:
-            - marcxml
-            - interface
-          properties:
-            marcxml:
-              type: string
-            interface:
-              type: string
+        - in: body
+          name: body
+          schema:
+            type: object
+            required:
+              - marcxml
+              - interface
+            properties:
+              marcxml:
+                type: string
+              interface:
+                type: string
       responses:
         200:
           description: Ok status
           schema:
             type: object
         401:
-          $ref: "#/responses/UnauthorizedError"
+          $ref: '#/responses/UnauthorizedError'
         404:
           description: Not found
           schema:
@@ -247,39 +247,65 @@ paths:
             type: object
   /biblio/active:
     post:
-      x-mojo-to: "biblio#activate"
+      x-mojo-to: 'biblio#activate'
       operationId: biblioSetActive
       consumes:
         - application/x-www-form-urlencoded
       parameters:
-      - in: body
-        name: body
-        schema:
-          type: object
-          required:
-            - interface_name
-            - target_id
-            - marcxml
-          properties:
-            interface:
-              type: string
-              description: Name of the interface
-            target_id:
-              type: integer
-              description: Records id on local environment
-            marcxml:
-              type: string
-              description: Marcxml
-            updated:
-              type: string
-              description: Datetime of record's update
+        - in: body
+          name: body
+          schema:
+            type: object
+            required:
+              - interface_name
+              - target_id
+              - marcxml
+            properties:
+              interface:
+                type: string
+                description: Name of the interface
+              target_id:
+                type: integer
+                description: Records id on local environment
+              marcxml:
+                type: string
+                description: Marcxml
+              updated:
+                type: string
+                description: Datetime of record's update
       responses:
         200:
           description: Ok status
           schema:
             type: object
         401:
-          $ref: "#/responses/UnauthorizedError"
+          $ref: '#/responses/UnauthorizedError'
+        404:
+          description: Not found
+          schema:
+            type: object
+        500:
+          description: Internal server error
+          schema:
+            type: object
+  /biblio/active/lastrecord:
+    get:
+      x-mojo-to: 'biblio#lastrecord'
+      operationId: biblioLastActiveRecord
+      consumes:
+        - application/json
+      parameters:
+        - in: query
+          name: interface
+          type: string
+          description: Interface name
+      responses:
+        200:
+          description: Ok status
+          schema:
+            type: object
+        401:
+          $ref: '#/responses/UnauthorizedError'
         404:
           description: Not found
           schema:
@@ -290,36 +316,36 @@ paths:
             type: object
   /biblio/broadcast:
     post:
-      x-mojo-to: "biblio#broadcast"
+      x-mojo-to: 'biblio#broadcast'
       operationId: biblioBroadCast
       consumes:
         - application/x-www-form-urlencoded
       parameters:
-      - in: body
-        name: body
-        schema:
-          type: object
-          required:
-            - source_id
-            - marcxml
-            - updated
-          properties:
-            source_id:
-              type: integer
-              description: Records id on local environment
-            marcxml:
-              type: string
-              description: Marcxml
-            updated:
-              type: string
-              description: Datetime of record's update
+        - in: body
+          name: body
+          schema:
+            type: object
+            required:
+              - source_id
+              - marcxml
+              - updated
+            properties:
+              source_id:
+                type: integer
+                description: Records id on local environment
+              marcxml:
+                type: string
+                description: Marcxml
+              updated:
+                type: string
+                description: Datetime of record's update
       responses:
         200:
           description: Ok status
           schema:
             type: object
         401:
-          $ref: "#/responses/UnauthorizedError"
+          $ref: '#/responses/UnauthorizedError'
         404:
           description: Not found
           schema:

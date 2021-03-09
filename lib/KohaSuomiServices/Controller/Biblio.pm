@@ -156,6 +156,19 @@ sub activate {
     }
 }
 
+sub lastrecord {
+    my $c = shift->openapi->valid_input or return;
+
+    try {
+        my $interface = $c->validation->param('interface');
+        my $response = $c->biblio->getLastActive($interface);
+        $c->render(status => 200, openapi => $response);
+    } catch {
+        my $e = $_;
+        $c->render(KohaSuomiServices::Model::Exception::handleDefaults($e));
+    }
+}
+
 sub broadcast {
     my $c = shift->openapi->valid_input or return;
 

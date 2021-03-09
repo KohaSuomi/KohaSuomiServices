@@ -18,6 +18,11 @@ sub find {
     return $self->schema->get_columns($client->resultset('ActiveRecords')->search($params));
 }
 
+sub findLast {
+    my ($self, $client, $params) = @_;
+    return $self->schema->get_columns($client->resultset('ActiveRecords')->find($params, {order_by => {-desc => 'target_id'}}));
+}
+
 sub insert {
     my ($self, $client, $params) = @_;
     return $client->resultset('ActiveRecords')->new($params)->insert();
