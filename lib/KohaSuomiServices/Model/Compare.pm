@@ -7,6 +7,7 @@ use utf8;
 use Try::Tiny;
 use Scalar::Util qw(looks_like_number);
 use Mojo::JSON qw(to_json);
+use List::MoreUtils qw(uniq);
 
 has schema => sub {KohaSuomiServices::Database::Client->new};
 has config => sub {KohaSuomiServices::Model::Config->new->service("biblio")->load};
@@ -236,60 +237,107 @@ sub getDiff {
 
     return unless $old && $new;
 
+    my %diff;
+
+    my $records;
+    push @{$records}, $old;
+    push @{$records}, $new;
+
     my ($oldfields, $oldtags) = $self->comparePrepare($old);
-    my ($newfields, $newtags) = $self->comparePrepare($new);  
+    my ($newfields, $newtags) = $self->comparePrepare($new);
+
+    my @uniqtags = (@{$oldtags}, @{$newtags}); 
+
+    @uniqtags = uniq @uniqtags;
+    @uniqtags = sort @uniqtags;
 
     my @candidates;
-    while (my ($i, $el) = each @{$oldfields}) {
-        @{$newfields} = grep {$_ ne $el} @{$newfields};
+    for(my $ri=0 ; $ri<scalar(@$records) ; $ri++) {
+        my $r = $records->[$ri];
+        foreach my $tag (@uniqtags) {
+            $candidates[$ri]->{$tag} = [];
+            foreach my $field (@{$r->{fields}}) {
+                if ($field->{tag} eq $tag) {
+                    push @{$candidates[$ri]->{$tag}}, $field;
+                }
+            }
+        }
     }
-    my %hash;
-    foreach my $diff (@{$newfields}) {
-        my ($tag) = split(/\|/, $diff);
-        $hash{$tag}=1;
-
-    }
-    @candidates = keys%hash;
-
-    my %diff;
-    if ($old->{leader} ne $new->{leader}) {
-        $diff{leader}, $old->{leader};
-        $diff{leader}, $new->{leader};
-    }
-    
+    my $index = 0;
     foreach my $candidate (@candidates) {
-        foreach my $oldf (@{$old->{fields}}) {
-            if ($candidate eq $oldf->{tag}) {
-                push @{$diff{$candidate}->{old}}, $oldf;
-            }
+        foreach my $key (sort(keys(%$candidate))) {
+            $diff{$key}->{$index} = $candidate->{$key};
         }
-        foreach my $newf (@{$new->{fields}}) {
-            if ($candidate eq $newf->{tag}) {
-                push @{$diff{$candidate}->{new}}, $newf;
+        $index++;
+    }
+    my %output;
+    foreach my $key (sort(keys(%diff))) {
+        my @oldfield = @{$diff{$key}->{0}};
+        my @newfield = @{$diff{$key}->{1}};
+        my $oldfieldcount = scalar(@oldfield);
+        my $newfieldcount = scalar(@newfield);
+        if ($oldfieldcount == $newfieldcount) {
+            for(my $oi=0 ; $oi<scalar(@oldfield) ; $oi++) {
+                my $diff = $self->valuesDiff($oldfield[$oi], $newfield[$oi]);
+                if ($diff) {
+                    push @{$output{$key}->{old}},  $oldfield[$oi];
+                    push @{$output{$key}->{new}},  $newfield[$oi];
+                }
+            }
+        } elsif ($oldfieldcount > $newfieldcount && $newfieldcount != 0) {
+            for(my $oi=0 ; $oi<scalar(@oldfield) ; $oi++) {
+                if ($oldfield[$oi] && !$newfield[$oi]) {
+                    push @{$output{$key}->{remove}},  $oldfield[$oi];
+                } else {
+                    my $diff = $self->valuesDiff($oldfield[$oi], $newfield[$oi]);
+                    if ($diff) {
+                        push @{$output{$key}->{remove}},  $oldfield[$oi];
+                        push @{$output{$key}->{add}},  $newfield[$oi];
+                    }
+                }
+            }
+        } elsif ($oldfieldcount < $newfieldcount && $oldfieldcount != 0) {
+            for(my $oi=0 ; $oi<scalar(@newfield) ; $oi++) {
+                if (!$oldfield[$oi] && $newfield[$oi]) {
+                    push @{$output{$key}->{add}},  $newfield[$oi];
+                } else {
+                    my $diff = $self->valuesDiff($oldfield[$oi], $newfield[$oi]);
+                    if ($diff) {
+                        push @{$output{$key}->{remove}},  $oldfield[$oi];
+                        push @{$output{$key}->{add}},  $newfield[$oi];
+                    }
+                }
+            }
+        } elsif ($oldfieldcount > $newfieldcount && $newfieldcount == 0) {
+            @{$output{$key}->{remove}} = @oldfield;
+        } elsif ($oldfieldcount < $newfieldcount && $oldfieldcount == 0) {
+            @{$output{$key}->{add}} = @newfield;
+        }
+    }
+
+    return to_json(\%output);
+}
+
+sub valuesDiff {
+    my ($self, $firstvalue, $secondvalue) = @_;
+
+    my $bol = 0;
+    if ($firstvalue->{ind1} && $secondvalue->{ind1} && $firstvalue->{ind1} ne $secondvalue->{ind1}) {
+        $bol = 1;
+    } elsif ($firstvalue->{ind2} && $secondvalue->{ind2} && $firstvalue->{ind2} ne $secondvalue->{ind2}) {
+        $bol = 1;
+    } else {
+        if ($firstvalue->{subfields} && $secondvalue->{subfields}) {
+            my $ne = $self->matchers->compareArrays($firstvalue->{subfields}, $secondvalue->{subfields});
+            $bol = $ne; 
+        } else {
+            if ($firstvalue->{value} ne $secondvalue->{value}) {
+                $bol = 1;
             }
         }
     }
 
-    my @excludenew = _check_array($newtags, $oldtags);
-    my @excludeold = _check_array($oldtags, $newtags);
-    
-    foreach my $tag (@excludenew) {
-        foreach my $add (@{$old->{fields}}) {
-            if ($add->{tag} eq $tag) {
-                push @{$diff{$tag}->{add}}, $add;
-            }
-        }
-    }
-
-    foreach my $tag (@excludeold) {
-        foreach my $remove (@{$old->{fields}}) {
-            if ($remove->{tag} eq $tag) {
-                push @{$diff{$tag}->{remove}}, $remove;
-            }
-        }
-    }
-
-    return to_json(\%diff);
+    return $bol;
 }
 
 sub comparePrepare {
@@ -316,15 +364,6 @@ sub comparePrepare {
     }
     
     return ($fields, $tags);
-}
-
-sub _check_array {
-	my ($test, $source) = @_;
-    my @arr;
-	foreach my $elt (@$test){
-		push @arr, $elt unless(grep /$elt/, @$source);
-	}
-	return @arr;
 }
 
 
