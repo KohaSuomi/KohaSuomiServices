@@ -20,7 +20,7 @@ sub find {
 
 sub findLast {
     my ($self, $client, $params) = @_;
-    return $self->schema->get_columns($client->resultset('ActiveRecords')->find($params, {order_by => {-desc => 'target_id'}}));
+    return $self->schema->get_columns($client->resultset('ActiveRecords')->find($params, {order_by => {-desc => 'created'}}));
 }
 
 sub insert {
