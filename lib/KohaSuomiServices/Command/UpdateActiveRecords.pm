@@ -11,6 +11,7 @@ has usage => <<"USAGE";
 $0 UpdateActiveRecords [OPTIONS]
 OPTIONS:
   -w, --wait  Define wait time
+  -i, --interfaces Define update for certain interfaces, is repeatable.
 USAGE
 
 sub run {
@@ -22,10 +23,11 @@ sub run {
   getopt(
     \@args,
     'w|wait=i' => \my $wait,
+    'i|interfaces=s' => \my @interfaces,
   );
 
   while($loopcount < 5) {
-    $app->biblio->updateActive();
+    $app->biblio->updateActive(@interfaces);
     sleep $wait if $wait;
   }
 

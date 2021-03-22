@@ -288,11 +288,11 @@ sub addActive {
 }
 
 sub updateActive {
-    my ($self) = @_;
+    my ($self, @interfaces) = @_;
     
     my $schema = $self->schema->client($self->config);
     my $dt = strftime "%Y-%m-%d 00:00:00", ( localtime(time) );
-    my $params = {updated => undef, created => {">=" => $dt}};
+    my $params = @interfaces ? {updated => undef, created => {">=" => $dt}, interface_name => \@interfaces} : {updated => undef, created => {">=" => $dt}};
     my $results = $self->active->find($schema, $params);
     foreach my $result (@{$results}) {
         $self->active->updateActiveRecords($result->{id});
