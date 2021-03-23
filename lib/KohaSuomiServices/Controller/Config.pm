@@ -3,6 +3,7 @@ use Mojo::Base 'Mojolicious::Controller';
 
 use Modern::Perl;
 use utf8;
+use MIME::Base64;
 
 use Try::Tiny;
 
@@ -55,7 +56,9 @@ sub add {
         my $table = ucfirst $req->{table};
 
         my $client = $c->schema->client($c->configs->service($req->{service})->load);
-
+        if ($params->{password}) {
+            $params->{password} = encode_base64($params->{password});
+        }
         my $data = $client->resultset($table)->new($params);
         $data->insert();
 
@@ -82,6 +85,9 @@ sub update {
         my $client = $c->schema->client($c->configs->service($req->{service})->load);
 
         my $data = $client->resultset($table)->find($id);
+        if ($params->{password}) {
+            $params->{password} = encode_base64($params->{password});
+        }
         $data->update($params);
 
         if ($client) {

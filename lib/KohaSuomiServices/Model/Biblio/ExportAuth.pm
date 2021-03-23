@@ -10,6 +10,7 @@ use KohaSuomiServices::Model::Exception::BadParameter;
 use Mojo::JSON qw(from_json);
 use Mojo::URL;
 use Digest::SHA qw(hmac_sha256_hex);
+use MIME::Base64;
 
 has schema => sub {KohaSuomiServices::Database::Client->new};
 has config => sub {KohaSuomiServices::Model::Config->new->service("biblio")->load};
@@ -60,7 +61,7 @@ sub interfaceAuthentication {
 
     return unless $user;
     if ($interface->{auth_url}) {
-        my $sign = $self->signIn($interface->{auth_url}, {userid => $user->username, password => $user->password});
+        my $sign = $self->signIn($interface->{auth_url}, {userid => $user->username, password => decode_base64($user->password)});
         $return = $self->getCookie($interface->{params}, $sign);
     } else {
         $return = $self->getAuthorization($interface->{params}, $user, $method);
@@ -104,7 +105,7 @@ sub getAuthorization {
     foreach my $param (@{$params}) {
         if ($param->{type} eq "header" && $param->{name} eq "Authorization") {
             if ($param->{value} eq "Basic") {
-                $authorization = $user->username.":".$user->password;
+                $authorization = $user->username.":".decode_base64($user->password);
             }
             if ($param->{value} eq "Koha") {
                 my $date = Mojo::Date->new;
