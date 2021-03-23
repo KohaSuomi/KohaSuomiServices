@@ -274,7 +274,7 @@ sub addActive {
     if ($matcher->{"028a"} && $matcher->{"028b"}) {
         $params->{identifier_field} = "028a|028b";
         $params->{identifier} = $matcher->{"028a"}.'|'.$matcher->{"028b"};
-    else if ($matcher->{"003"} && $matcher->{"001"}) {
+    } elsif ($matcher->{"003"} && $matcher->{"001"}) {
         $params->{identifier_field} = "003|001";
         $params->{identifier} = $matcher->{"003"}.'|'.$matcher->{"001"};
     } else {
