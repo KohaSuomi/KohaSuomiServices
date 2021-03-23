@@ -278,12 +278,20 @@ sub addActive {
         $params->{identifier} = join("|", map { "$_" } values %{$matcher});
         $params->{identifier_field} = join("|", map { "$_" } keys %{$matcher});
     }
-    my $exist = $self->active->find($schema, $params);
+    my $exist = $self->active->find($schema, {target_id => $params->{target_id}, interface_name => $params->{interface_name}});
     unless (@{$exist}) {
         $self->active->insert($schema, $params);
         return {message => "Success"};
     } else {
-        return {message => "Already exists"};
+        my $newweight = $self->matchers->weightMatchers($params->{identifier_field});
+        $exist = shift @{$exist};
+        my $activeweight = $self->matchers->weightMatchers($exist->{identifier_field});
+        if ($newweight < $activeweight) {
+            $self->active->update($schema, $exist->{id}, {identifier_field => $params->{identifier_field}, identifier => $params->{identifier}});
+            return {message => "Active record updated"};
+        } else {
+            return {message => "Already exists"};
+        }     
     }
 }
 
