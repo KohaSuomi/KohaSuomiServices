@@ -272,8 +272,11 @@ sub addActive {
     KohaSuomiServices::Model::Exception::NotFound->throw(error => "No valid identifier ") unless defined $matcher && $matcher && %{$matcher};
     delete $params->{marcxml};
     if ($matcher->{"028a"} && $matcher->{"028b"}) {
-        $params->{identifier} = "028a|028b";
-        $params->{identifier_field} = $matcher->{"028a"}.'|'.$matcher->{"028b"};
+        $params->{identifier_field} = "028a|028b";
+        $params->{identifier} = $matcher->{"028a"}.'|'.$matcher->{"028b"};
+    else if ($matcher->{"003"} && $matcher->{"001"}) {
+        $params->{identifier_field} = "003|001";
+        $params->{identifier} = $matcher->{"003"}.'|'.$matcher->{"001"};
     } else {
         $params->{identifier} = join("|", map { "$_" } values %{$matcher});
         $params->{identifier_field} = join("|", map { "$_" } keys %{$matcher});
@@ -286,7 +289,7 @@ sub addActive {
         my $newweight = $self->matchers->weightMatchers($params->{identifier_field});
         $exist = shift @{$exist};
         my $activeweight = $self->matchers->weightMatchers($exist->{identifier_field});
-        if ($newweight < $activeweight) {
+        if (($exist->{identifier_field} eq "003|001" && $params->{identifier_field} ne "003|001") || $newweight < $activeweight) {
             $self->active->update($schema, $exist->{id}, {identifier_field => $params->{identifier_field}, identifier => $params->{identifier}});
             return {message => "Active record updated"};
         } else {
