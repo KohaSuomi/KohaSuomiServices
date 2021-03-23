@@ -58,7 +58,7 @@ sub componentpartsCount {
     my $length = @{$self->packages->schema->get_columns(@componentparts)};
     unless ($length == $count_value) {
         $self->packages->log->info("Missing component parts, will not process parent ". $parent_id);
-        my @failedcomponentparts = $self->packages->exporter->find($schema, {status => "failed", parent_id => $parent_id, timestamp => {">=" $parent_datetime}}, undef);
+        my @failedcomponentparts = $self->packages->exporter->find($schema, {status => "failed", parent_id => $parent_id, timestamp => {">=" => $parent_datetime}}, undef);
         if (@failedcomponentparts) {
             $self->packages->exporter->update($exporter_id, {status => "failed", errorstatus => "Component parts failed"});
         }
