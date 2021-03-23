@@ -83,10 +83,9 @@ sub targetMatchers {
             $weighted->{$self->weightMatchers($matcher)} = %{$matchers}{$matcher};
         }
     }
-
-    foreach my $weight (keys %{$weighted}) {
+    foreach my $weight (sort keys %{$weighted}) {
         $matchers = {};
-        if ($weight eq "3") {
+        if ($weight eq "1") {
             $matchers->{"035a"} = %{$weighted}{$weight};
             unless ($matchers->{"035a"} =~ /^\(/){
                 delete $matchers->{"035a"};
@@ -103,7 +102,7 @@ sub targetMatchers {
             }
             last if $matchers->{"020a"};
         }
-        elsif ($weight eq "1") {
+        elsif ($weight eq "3") {
             $matchers->{"024a"} = %{$weighted}{$weight};
             $matchers->{"024a"} =~ s/\D//g;
             unless (length($matchers->{"024a"}) >= 10){
@@ -131,7 +130,7 @@ sub weightMatchers {
     my ($self, $matcher) = @_;
 
     if ($matcher eq "035a") {
-        return 3;
+        return 1;
     }
 
     if ($matcher eq "020a") {
@@ -139,7 +138,7 @@ sub weightMatchers {
     }
 
     if ($matcher eq "024a") {
-        return 1;
+        return 3;
     }
 }
 
