@@ -309,6 +309,9 @@ sub updateActive {
         $self->active->updateActiveRecords($result->{id});
         my $source_id;
         my $host = $self->interface->load({host => 1, type => "search"});
+        if ($result->{identifier_field} eq "035a") {
+            $result->{identifier} =~ s/\D//g;
+        }
         my $path = $self->search->getSearchPath($host, {$result->{identifier_field} => $result->{identifier}});
         my $search = $self->sru->search($path);
         $search = shift @{$search};
