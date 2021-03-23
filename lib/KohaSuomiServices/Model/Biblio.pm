@@ -317,7 +317,6 @@ sub updateActive {
             my $remote = $self->search->searchTarget($result->{interface_name}, $search, $result->{target_id});
             my $encoding_level = $self->compare->encodingLevelCompare($search->{leader}, $remote->{leader});
             $abort = 1 if $encoding_level eq 'lower';
-            $abort = $self->compare->intCompare($self->fields->findField($search, "005", undef), $self->fields->findField($remote, "005", undef)) if $encoding_level eq 'equal';
             unless ($abort) {
                 my $hascomponentparts = $self->response->componentparts->deleteTargetsComponentParts($result->{interface_name}, $result->{target_id});
                 $source_id = $self->response->componentparts->fetchComponentParts($result->{interface_name}, undef, undef, $search);
