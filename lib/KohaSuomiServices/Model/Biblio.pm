@@ -289,7 +289,7 @@ sub addActive {
         my $newweight = $self->matchers->weightMatchers($params->{identifier_field});
         $exist = shift @{$exist};
         my $activeweight = $self->matchers->weightMatchers($exist->{identifier_field});
-        if (($exist->{identifier_field} eq "003|001" && $params->{identifier_field} ne "003|001") || $newweight < $activeweight) {
+        if ((($exist->{identifier_field} eq "003|001" || $exist->{identifier_field} eq "001|003") && $params->{identifier_field} ne "003|001") || $newweight < $activeweight) {
             $self->active->update($schema, $exist->{id}, {updated => undef, identifier_field => $params->{identifier_field}, identifier => $params->{identifier}});
             return {message => "Active record updated"};
         } else {
