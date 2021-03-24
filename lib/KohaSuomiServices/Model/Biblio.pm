@@ -275,8 +275,8 @@ sub addActive {
         $params->{identifier_field} = "028a|028b";
         $params->{identifier} = $matcher->{"028a"}.'|'.$matcher->{"028b"};
     } elsif ($matcher->{"003"} && $matcher->{"001"}) {
-        $params->{identifier_field} = "035a";
-        $params->{identifier} = '('.$matcher->{"003"}.')'.$matcher->{"001"};
+        $params->{identifier_field} = "003|001";
+        $params->{identifier} = $matcher->{"003"}.'|'.$matcher->{"001"};
     } else {
         $params->{identifier} = join("|", map { "$_" } values %{$matcher});
         $params->{identifier_field} = join("|", map { "$_" } keys %{$matcher});
