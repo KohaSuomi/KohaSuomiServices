@@ -312,6 +312,15 @@ sub updateActive {
         my $matcher = {$result->{identifier_field} => $result->{identifier}};
         if ($result->{identifier_field} eq "035a") {
             $matcher = {$result->{identifier_field} => '"'.$result->{identifier}.'"'};
+            my $f003;
+            if ($result->{identifier} =~ /\((.*)\)/ ) { 
+                $f003 = $1; 
+            }
+            if ($f003 eq 'FI-BTJ') {
+                $result->{identifier} =~ s/\D//g;
+                $matcher = {'003' => '"'.$f003.'"', '001' => $result->{identifier}};
+            }
+            
         } 
         my $path = $self->search->getSearchPath($host, $matcher);
         my $search = $self->sru->search($path);

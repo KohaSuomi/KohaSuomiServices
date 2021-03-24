@@ -272,12 +272,9 @@ sub create_query {
     foreach my $param (@{$params}) {
         if($param->{type} eq "query") {
             my @valuematch = $param->{value} =~ /{(.*?)}/g;
-            if (defined $valuematch[0]) {
+            if (defined $valuematch[0] && !$valuematch[1]) {
                 my ($key, $value) = %{$matcher} if $matcher;
-                if ($valuematch[0] eq "028a" && $matcher->{$valuematch[0]} && $valuematch[1] eq "028b" && $matcher->{$valuematch[1]}) {
-                    $param->{value} =~ s/{$valuematch[0]}/$matcher->{$valuematch[0]}/g;
-                    $param->{value} =~ s/{$valuematch[1]}/$matcher->{$valuematch[1]}/g;
-                } elsif ($matcher->{$valuematch[0]}) {
+                if ($matcher->{$valuematch[0]}) {
                     if ($param->{value} =~ /id=/ || $valuematch[0] eq "020a") {
                         $matcher->{$valuematch[0]} =~ s/\D//g;
                     }
@@ -288,6 +285,10 @@ sub create_query {
                     delete $param->{name};
                     delete $param->{value};
                 }
+            } elsif (defined $valuematch[0] && defined $valuematch[1]) {
+                my ($key, $value) = %{$matcher} if $matcher;
+                $param->{value} =~ s/{$valuematch[0]}/$matcher->{$valuematch[0]}/g;
+                $param->{value} =~ s/{$valuematch[1]}/$matcher->{$valuematch[1]}/g;
             }
             if (defined $param->{name} && defined $param->{value}) {
                 $query->{$param->{name}} = $param->{value};
