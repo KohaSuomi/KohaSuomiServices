@@ -321,7 +321,13 @@ sub updateActive {
                 $matcher = {'003' => '"'.$f003.'"', '001' => $result->{identifier}};
             }
             
-        } 
+        } elsif($result->{identifier_field} eq "003|001") {
+            my ($f003, $f001) = split(/\|/, $result->{identifier});
+            $matcher = {'003' => '"'.$f003.'"', '001' => $f001};
+        } elsif($result->{identifier_field} eq "001|003") {
+            my ($f001, $f003) = split(/\|/, $result->{identifier});
+            $matcher = {'003' => '"'.$f003.'"', '001' => $f001};
+        }
         my $path = $self->search->getSearchPath($host, $matcher);
         my $search = $self->sru->search($path);
         $search = shift @{$search};
