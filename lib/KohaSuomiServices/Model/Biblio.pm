@@ -275,8 +275,8 @@ sub addActive {
         $params->{identifier_field} = "028a|028b";
         $params->{identifier} = $matcher->{"028a"}.'|'.$matcher->{"028b"};
     } elsif ($matcher->{"003"} && $matcher->{"001"}) {
-        $params->{identifier_field} = "003|001";
-        $params->{identifier} = $matcher->{"003"}.'|'.$matcher->{"001"};
+        $params->{identifier_field} = "035a";
+        $params->{identifier} = '('.$matcher->{"003"}.')'.$matcher->{"001"};
     } else {
         $params->{identifier} = join("|", map { "$_" } values %{$matcher});
         $params->{identifier_field} = join("|", map { "$_" } keys %{$matcher});
@@ -289,7 +289,7 @@ sub addActive {
         my $newweight = $self->matchers->weightMatchers($params->{identifier_field});
         $exist = shift @{$exist};
         my $activeweight = $self->matchers->weightMatchers($exist->{identifier_field});
-        if ((($exist->{identifier_field} eq "003|001" || $exist->{identifier_field} eq "001|003") && $params->{identifier_field} ne "003|001") || $newweight < $activeweight) {
+        if ($newweight < $activeweight) {
             $self->active->update($schema, $exist->{id}, {updated => undef, identifier_field => $params->{identifier_field}, identifier => $params->{identifier}});
             return {message => "Active record updated"};
         } else {
@@ -309,10 +309,11 @@ sub updateActive {
         $self->active->updateActiveRecords($result->{id});
         my $source_id;
         my $host = $self->interface->load({host => 1, type => "search"});
+        my $matcher = {$result->{identifier_field} => $result->{identifier}};
         if ($result->{identifier_field} eq "035a") {
-            $result->{identifier} =~ s/\D//g;
-        }
-        my $path = $self->search->getSearchPath($host, {$result->{identifier_field} => $result->{identifier}});
+            $matcher = {$result->{identifier_field} => '"'.$result->{identifier}.'"'};
+        } 
+        my $path = $self->search->getSearchPath($host, $matcher);
         my $search = $self->sru->search($path);
         $search = shift @{$search};
         if ($search) {
