@@ -274,7 +274,7 @@ sub create_query {
             my @valuematch = $param->{value} =~ /{(.*?)}/g;
             if (defined $valuematch[0]) {
                 my ($key, $value) = %{$matcher} if $matcher;
-                if ($valuematch[0] eq "003" && $matcher->{$valuematch[0]} && $valuematch[1] eq "001" && $matcher->{$valuematch[1]}) {
+                if (($valuematch[0] eq "001" || $valuematch[0] eq "003") && $matcher->{$valuematch[0]} && ($valuematch[1] eq "003" || $valuematch[1] eq "001") && $matcher->{$valuematch[1]}) {
                     $param->{value} =~ s/{$valuematch[0]}/$matcher->{$valuematch[0]}/g;
                     $param->{value} =~ s/{$valuematch[1]}/$matcher->{$valuematch[1]}/g;
                 } elsif ($matcher->{$valuematch[0]}) {
