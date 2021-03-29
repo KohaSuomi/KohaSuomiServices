@@ -39,13 +39,7 @@ sub searchTarget {
     if ($interface->{interface} eq "SRU" && !$source_id) {
         my $matcher = $self->search_fields($record, %matchers);
         my $path;       
-        if(to_json($matcher) ne "{}") {
-
-            $path = $self->create_query($interface->{params}, $matcher);
-            $path->{url} = $interface->{endpoint_url};
-            $search = $self->packages->sru->search($path);
-        }
-        else {
+        if(defined $matcher->{"024a"} && $matcher->{"024a"}) {
             my $tag = "024";
             my @matcher_array = $self->search_024_fields($record, $tag ,%matchers);
             my $value_count =  scalar @matcher_array;
@@ -65,6 +59,11 @@ sub searchTarget {
                 };
                 $ii++;
             }
+        }
+        else {
+            $path = $self->create_query($interface->{params}, $matcher);
+            $path->{url} = $interface->{endpoint_url};
+            $search = $self->packages->sru->search($path);
         }
     }
 
@@ -166,7 +165,7 @@ sub search_fields {
 
     my $matcher;
     foreach my $field (@{$record->{fields}}) {
-        if ($matchers{$field->{tag}} && $field->{tag} ne '024') {
+        if ($matchers{$field->{tag}} && $field->{tag} ne '024' || ($matchers{$field->{tag}} && $field->{tag} eq '024' && $field->{ind1} eq "3")) {
             foreach my $subfield (@{$field->{subfields}}) {
                 if (ref($matchers{$field->{tag}}) eq "ARRAY") {
                     foreach my $code (@{$matchers{$field->{tag}}}) {
@@ -206,7 +205,7 @@ sub search_fields {
         delete $matcher->{"028a"};
         delete $matcher->{"028b"};
     }
-    #print Data::Dumper::Dumper $matcher;
+    
     return $matcher;
     
 }
