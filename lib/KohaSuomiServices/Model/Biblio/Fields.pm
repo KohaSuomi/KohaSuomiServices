@@ -34,7 +34,7 @@ sub store {
 
 sub insert {
     my ($self, $client, $field) = @_;
-    return $client->resultset('Fields')->new($field)->insert();
+    return $client->resultset('Fields')->new($field)->create();
 }
 
 sub update {

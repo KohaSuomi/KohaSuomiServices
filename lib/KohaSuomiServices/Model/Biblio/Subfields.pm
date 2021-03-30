@@ -37,7 +37,7 @@ sub findAll {
 
 sub insert {
     my ($self, $client, $field) = @_;
-    my $data = $client->resultset('Subfields')->new($field)->insert();
+    my $data = $client->resultset('Subfields')->new($field)->create();
     return $data;
 }
 
