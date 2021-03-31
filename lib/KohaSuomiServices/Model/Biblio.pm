@@ -164,7 +164,7 @@ sub pushExport {
             $self->response->getAndUpdate($interface, $resBody, $resHeaders, $export->{source_id}, $type);
             $self->active->updateActiveRecords($export->{activerecord_id}) if defined $export->{activerecord_id} && $export->{activerecord_id};
             $self->log->info("Export ".$export->{id}." finished successfully with");
-            $self->log->debug($resBody);
+            $self->log->debug(Data::Dumper::Dumper $resBody);
         } else {
             my $error = $resHeaders;
             $error = $resHeaders.' '.$resBody if ($type eq "add");
@@ -290,7 +290,7 @@ sub addActive {
         $exist = shift @{$exist};
         my $activeweight = $self->matchers->weightMatchers($exist->{identifier_field});
         if ($newweight < $activeweight) {
-            $self->active->update($schema, $exist->{id}, {updated => undef, identifier_field => $params->{identifier_field}, identifier => $params->{identifier}});
+            $self->active->update($schema, $exist->{id}, {identifier_field => $params->{identifier_field}, identifier => $params->{identifier}});
             return {message => "Active record updated"};
         } else {
             return {message => "Already exists"};
@@ -335,7 +335,7 @@ sub updateActive {
             my $abort = 0;
             my $remote = $self->search->searchTarget($result->{interface_name}, $search, $result->{target_id});
             my $encoding_level = $self->compare->encodingLevelCompare($search->{leader}, $remote->{leader});
-            $abort = 1 if $encoding_level eq 'lower';
+            $abort = 1 if $encoding_level eq 'lower' || $encoding_level eq 'equal';
             unless ($abort) {
                 my $hascomponentparts = $self->response->componentparts->deleteTargetsComponentParts($result->{interface_name}, $result->{target_id});
                 $source_id = $self->response->componentparts->fetchComponentParts($result->{interface_name}, undef, undef, $search);
@@ -347,6 +347,8 @@ sub updateActive {
                     activerecord_id => $result->{id}
                 };
                 my $res = $self->export($exporter);
+            } else {
+                $self->log->info("Aborted target_id $result->{target_id}, encoding level is $encoding_level");
             }
         }
     }
