@@ -93,7 +93,8 @@ sub getCookie {
             last;
         }
     }
-    KohaSuomiServices::Model::Exception::NotFound->throw(error => "No authorization cookie parameter\n") unless $cookie;
+    $self->log->debug("No authorization cookie parameter") unless $cookie;
+    #KohaSuomiServices::Model::Exception::NotFound->throw(error => "No authorization cookie parameter\n") unless $cookie;
     return $cookie;
 
 }
