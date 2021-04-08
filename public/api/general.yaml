@@ -2,8 +2,8 @@ swagger: '2.0'
 info:
   version: '1.0'
   title: General
-schemes: [ http, https ]
-basePath: "/api"
+schemes: [http, https]
+basePath: '/api'
 securityDefinitions:
   APIKeyHeader:
     type: apiKey
@@ -12,24 +12,24 @@ securityDefinitions:
 paths:
   /config:
     get:
-      x-mojo-to: "config#get"
+      x-mojo-to: 'config#get'
       operationId: configGet
       consumes:
         - application/json
       security:
         - APIKey: []
       parameters:
-      - in: body
-        name: body
-        schema:
-          type: object
+        - in: body
+          name: body
+          schema:
+            type: object
       responses:
         200:
           description: Ok status
           schema:
             type: array
         401:
-          $ref: "#/responses/UnauthorizedError"
+          $ref: '#/responses/UnauthorizedError'
         404:
           description: Not found
           schema:
@@ -39,24 +39,24 @@ paths:
           schema:
             type: object
     post:
-      x-mojo-to: "config#add"
+      x-mojo-to: 'config#add'
       operationId: configAdd
       consumes:
         - application/json
       security:
         - APIKey: []
       parameters:
-      - in: body
-        name: body
-        schema:
-          type: object
+        - in: body
+          name: body
+          schema:
+            type: object
       responses:
         200:
           description: Ok status
           schema:
             type: object
         401:
-          $ref: "#/responses/UnauthorizedError"
+          $ref: '#/responses/UnauthorizedError'
         404:
           description: Not found
           schema:
@@ -66,24 +66,24 @@ paths:
           schema:
             type: object
     put:
-      x-mojo-to: "config#update"
+      x-mojo-to: 'config#update'
       operationId: configUpdate
       consumes:
         - application/json
       security:
         - APIKey: []
       parameters:
-      - in: body
-        name: body
-        schema:
-          type: object
+        - in: body
+          name: body
+          schema:
+            type: object
       responses:
         200:
           description: Ok status
           schema:
             type: object
         401:
-          $ref: "#/responses/UnauthorizedError"
+          $ref: '#/responses/UnauthorizedError'
         404:
           description: Not found
           schema:
@@ -93,7 +93,7 @@ paths:
           schema:
             type: object
     delete:
-      x-mojo-to: "config#delete"
+      x-mojo-to: 'config#delete'
       operationId: configDelete
       consumes:
         - application/json
@@ -102,17 +102,45 @@ paths:
       security:
         - APIKey: []
       parameters:
-      - in: body
-        name: body
-        schema:
-          type: object
+        - in: body
+          name: body
+          schema:
+            type: object
       responses:
         200:
           description: Ok status
           schema:
             type: object
         401:
-          $ref: "#/responses/UnauthorizedError"
+          $ref: '#/responses/UnauthorizedError'
+        404:
+          description: Not found
+          schema:
+            type: object
+        500:
+          description: Internal server error
+          schema:
+            type: object
+  /config/auth:
+    get:
+      x-mojo-to: 'config#checkAuth'
+      operationId: configCheckAuth
+      consumes:
+        - application/json
+      security:
+        - APIKey: []
+      parameters:
+        - in: body
+          name: body
+          schema:
+            type: object
+      responses:
+        200:
+          description: Ok status
+          schema:
+            type: object
+        401:
+          $ref: '#/responses/UnauthorizedError'
         404:
           description: Not found
           schema:
@@ -123,43 +151,43 @@ paths:
             type: object
   /sru:
     get:
-      x-mojo-to: "SRU#get"
+      x-mojo-to: 'SRU#get'
       operationId: SRUGet
       consumes:
         - application/json
       security:
         - APIKey: []
       parameters:
-      - in: query
-        name: url
-        type: string
-        required: true
-        description: Url of the SRU service
-      - in: query
-        name: version
-        type: string
-        description: Version of the SRU server, default is 1.1
-      - in: query
-        name: operation
-        required: true
-        type: string
-        description: Operation of the SRU service
-      - in: query
-        name: query
-        required: true
-        type: string
-        description: Search query
-      - in: query
-        name: maxrecords
-        type: integer
-        description: Maximum records to be fetched, default is 1
+        - in: query
+          name: url
+          type: string
+          required: true
+          description: Url of the SRU service
+        - in: query
+          name: version
+          type: string
+          description: Version of the SRU server, default is 1.1
+        - in: query
+          name: operation
+          required: true
+          type: string
+          description: Operation of the SRU service
+        - in: query
+          name: query
+          required: true
+          type: string
+          description: Search query
+        - in: query
+          name: maxrecords
+          type: integer
+          description: Maximum records to be fetched, default is 1
       responses:
         200:
           description: Ok status
           schema:
             type: array
         401:
-          $ref: "#/responses/UnauthorizedError"
+          $ref: '#/responses/UnauthorizedError'
         404:
           description: Not found
           schema:
@@ -170,41 +198,41 @@ paths:
             type: object
   /compiler:
     post:
-      x-mojo-to: "Compiler#run"
+      x-mojo-to: 'Compiler#run'
       operationId: CompilerRun
       consumes:
         - application/x-www-form-urlencoded
       security:
         - APIKey: []
       parameters:
-      - in: body
-        name: body
-        schema:
-          type: object
-          required:
-            - language
-            - import_format
-            - export_format
-            - marc
-          properties:
-            language:
-              type: string
-              enum: [fi, sv]
-            import_format:
-              type: string
-              enum: [isbd]
-            export_format:
-              type: string
-              enum: [rda]
-            marc:
-              type: [object, string]
+        - in: body
+          name: body
+          schema:
+            type: object
+            required:
+              - language
+              - import_format
+              - export_format
+              - marc
+            properties:
+              language:
+                type: string
+                enum: [fi, sv]
+              import_format:
+                type: string
+                enum: [isbd]
+              export_format:
+                type: string
+                enum: [rda]
+              marc:
+                type: [object, string]
       responses:
         200:
           description: Ok status
           schema:
             type: object
         401:
-          $ref: "#/responses/UnauthorizedError"
+          $ref: '#/responses/UnauthorizedError'
         404:
           description: Not found
           schema:

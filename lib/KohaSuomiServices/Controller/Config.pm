@@ -14,6 +14,9 @@ use KohaSuomiServices::Model::Exception;
 
 use Mojo::JSON qw(decode_json encode_json);
 
+use Mojo::UserAgent;
+use Mojo::URL;
+
 sub get {
     my $c = shift->openapi->valid_input or return;
 
@@ -26,6 +29,8 @@ sub get {
         if (defined $req->{id}) {
             @rs = $client->resultset($table)->search({id => $req->{id}});
         } elsif (defined $req->{interface_id}) {
+            @rs = $client->resultset($table)->search({interface_id => $req->{interface_id}});
+        } elsif (defined $req->{interface_name}) {
             @rs = $client->resultset($table)->search({interface_id => $req->{interface_id}});
         } elsif (defined $req->{authuser_id}) {
             @rs = $client->resultset($table)->search({authuser_id => $req->{authuser_id}});
@@ -118,6 +123,45 @@ sub delete {
             $c->render(status => 200, openapi => {data => $data});
         } else {
             $c->render(status => 404, openapi => {message => "Not found"});
+        }
+    } catch {
+        my $e = $_;
+        $c->render(KohaSuomiServices::Model::Exception::handleDefaults($e));
+    }
+}
+
+sub checkAuth {
+    my $c = shift->openapi->valid_input or return;
+
+    try {
+        my $req  = $c->req->params->to_hash;
+
+        my $table = ucfirst $req->{table};
+        my $client = $c->schema->client($c->configs->service($req->{service})->load);
+        my $data = $client->resultset($table)->search({id => $req->{id}})->next;
+        my $interface = $client->resultset("Interface")->search({id => $data->interface_id})->next;
+        my $getinterface = $client->resultset("Interface")->search({name => $interface->name, interface => 'REST', type => 'get'})->next;
+        unless ($getinterface) {
+            $c->render(status => 404, openapi => {message => "Define get interface for $interface->{name}"});
+        } else {
+            my $error;
+            if ($getinterface->auth_url) {
+                $c->render(status => 404, openapi => {message => "Authentication url check not implemented"});
+            } else {
+                my $bib = '017386346'; ## MELINDA ID
+                my $path = $getinterface->endpoint_url;
+                $path =~ s/{target_id}/$bib/g;
+                my $authentication = $data->username.":".decode_base64($data->password);
+                my $ua = Mojo::UserAgent->new;
+                $path = Mojo::URL->new($path)->userinfo($authentication);
+                my $tx = $ua->get($path);
+                $error = $tx->error;
+                if ($error) {
+                    $c->render(status => 401, openapi => $error);
+                } else {
+                    $c->render(status => 200, openapi => {message => "Success"});
+                }
+            }
         }
     } catch {
         my $e = $_;

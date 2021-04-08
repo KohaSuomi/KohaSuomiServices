@@ -16,6 +16,10 @@
             <button v-if="showUpdate" v-on:click="updateAuth($event)" class="btn btn-sm btn-primary" type="submit"><i class="far fa-save"></i></button>
             <button v-if="showUpdate" v-on:click="deleteAuth($event)" class="btn btn-sm btn-warning" type="submit"><i class="far fa-trash-alt"></i></button>
         </div>
-        <div class="d-inline-block float-right"><i v-on:click="linksToggle()" class="fas fa-link pl-1 pr-1" style="cursor: pointer;"></i><i v-on:click="updateToggle" class="fas fa-edit pl-1 pr-1" style="cursor: pointer;"></i></div>
+        <div class="d-inline-block float-right">
+        <i v-on:click="linksToggle()" class="fas fa-link pl-1 pr-1" style="cursor: pointer;"></i>
+        <i v-on:click="updateToggle" class="fas fa-edit pl-1 pr-1" style="cursor: pointer;"></i>
+        <i v-on:click="checkAuthentication()" class="fas fa-network-wired" style="cursor: pointer;"></i>
+        </div>
     </td>
 </tr>
