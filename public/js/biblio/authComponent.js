@@ -195,8 +195,8 @@ Vue.component('auth-component', {
       }
     },
     authChecked() {
-      this.authcheck = '';
-      this.authcheck = 'Authenticated successfully';
+      this.authsuccess = '';
+      this.authsuccess = 'Authenticated successfully';
     },
     authError(val) {
       this.errors = [];
