@@ -8,16 +8,13 @@
         </button>
       </div>
       <div class="modal-body">
-        <p v-if="errors.length">
+        <p class="text-danger" v-if="errors.length">
             <b>Please correct the following error(s):</b>
             <ul>
             <li v-for="error in errors">{{ error }}</li>
             </ul>
         </p>
-        <p v-if="authcheck.message != 'Success'" class="text-danger">
-            Authentication failure with: {{authcheck.message}}
-        </p>
-        <p class="text-success" v-else>
+        <p class="text-success" v-if="authsuccess">
             Authenticated successfully
         </p>
         <h5 class="modal-title">Authentication url <i v-if="showEdit" v-on:click="toggleAuthUrl" class="far fa-edit" style="cursor:pointer"></i></h5>
