@@ -195,10 +195,12 @@ Vue.component('auth-component', {
       }
     },
     authChecked() {
+      this.errors = [];
       this.authsuccess = '';
       this.authsuccess = 'Authenticated successfully';
     },
     authError(val) {
+      this.authsuccess = '';
       this.errors = [];
       this.errors.push('Authetication failure with: ' + val.message);
     },
