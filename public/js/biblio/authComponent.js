@@ -269,7 +269,11 @@ Vue.component('auth-list', {
           this.$parent.authChecked();
         })
         .catch((error) => {
-          this.$parent.authError(error);
+          if (error.response.data) {
+            this.$parent.authError(error.response.data);
+          } else {
+            this.$parent.authError(error);
+          }
         });
     },
     updateToggle() {

@@ -146,20 +146,25 @@ sub checkAuth {
             $c->render(status => 404, openapi => {message => "Define get interface for $interface->{name}"});
         } else {
             my $error;
-            my $path = $getinterface->endpoint_url;
-            $path =~ s/{target_id}/$config->{testbiblio}/g;
-            $path =~ s/{source_id}/$config->{testbiblio}/g;
-            $c->biblio->log->debug($path);
-            my $authentication = $data->username.":".decode_base64($data->password);
-            my $ua = Mojo::UserAgent->new;
-            $path = Mojo::URL->new($path)->userinfo($authentication);
-            my $tx = $ua->get($path => {Accept => 'application/json'});
-            $error = $tx->error if $tx->error;
-            if ($error) {
-                $c->render(status => 401, openapi => $error);
+            if ($getinterface->auth_url) { 
+                $c->render(status => 404, openapi => {message => "auth_url not implemented yet"});
             } else {
-                $c->render(status => 200, openapi => {message => "Success"});
+                my $path = $getinterface->endpoint_url;
+                $path =~ s/{target_id}/$config->{testbiblio}/g;
+                $path =~ s/{source_id}/$config->{testbiblio}/g;
+                $c->biblio->log->debug($path);
+                my $authentication = $data->username.":".decode_base64($data->password);
+                my $ua = Mojo::UserAgent->new;
+                $path = Mojo::URL->new($path)->userinfo($authentication);
+                my $tx = $ua->get($path => {Accept => 'application/json'});
+                $error = $tx->error if $tx->error;
+                if ($error) {
+                    $c->render(status => 401, openapi => $error);
+                } else {
+                    $c->render(status => 200, openapi => {message => "Success"});
+                }
             }
+            
         }
     } catch {
         my $e = $_;
