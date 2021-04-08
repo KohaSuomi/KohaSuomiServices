@@ -137,7 +137,8 @@ sub checkAuth {
         my $req  = $c->req->params->to_hash;
 
         my $table = ucfirst $req->{table};
-        my $client = $c->schema->client($c->configs->service($req->{service})->load);
+        my $config = $c->configs->service($req->{service})->load;
+        my $client = $c->schema->client($config);
         my $data = $client->resultset($table)->search({id => $req->{id}})->next;
         my $interface = $client->resultset("Interface")->search({id => $data->interface_id})->next;
         my $getinterface = $client->resultset("Interface")->search({name => $interface->name, interface => 'REST', type => 'get'})->next;
@@ -148,9 +149,8 @@ sub checkAuth {
             if ($getinterface->auth_url) {
                 $c->render(status => 404, openapi => {message => "Authentication url check not implemented"});
             } else {
-                my $bib = '017386346'; ## MELINDA ID
                 my $path = $getinterface->endpoint_url;
-                $path =~ s/{target_id}/$bib/g;
+                $path =~ s/{target_id}/$config->{testbiblio}/g;
                 my $authentication = $data->username.":".decode_base64($data->password);
                 my $ua = Mojo::UserAgent->new;
                 $path = Mojo::URL->new($path)->userinfo($authentication);
@@ -159,7 +159,7 @@ sub checkAuth {
                 if ($error) {
                     $c->render(status => 401, openapi => $error);
                 } else {
-                    $c->render(status => 200, openapi => {message => "Success"});
+                    $c->render(status => 200, openapi => {code => 200, message => "Success"});
                 }
             }
         }

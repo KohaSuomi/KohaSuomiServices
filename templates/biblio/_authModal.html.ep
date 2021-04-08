@@ -14,6 +14,12 @@
             <li v-for="error in errors">{{ error }}</li>
             </ul>
         </p>
+        <p class="text-success" v-if="authcheck && authcheck.code == 200">
+            Authenticated successfully
+        </p>
+        <p v-if="authcheck && authcheck.code != 200" class="text-danger">
+            Authentication failure with: {{authcheck.message}}
+        </p>
         <h5 class="modal-title">Authentication url <i v-if="showEdit" v-on:click="toggleAuthUrl" class="far fa-edit" style="cursor:pointer"></i></h5>
         <hr/>
         <div class="mb-2">

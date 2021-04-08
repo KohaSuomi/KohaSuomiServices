@@ -17,6 +17,7 @@ Vue.component('auth-component', {
       apikey: '',
       userid: '',
       auth_url: this.config.auth_url,
+      authcheck: '',
     };
   },
   methods: {
@@ -193,6 +194,9 @@ Vue.component('auth-component', {
         this.errors.push('Incorrect url.');
       }
     },
+    authChecked(val) {
+      this.authcheck = val;
+    },
   },
   props: ['config'],
 });
@@ -257,10 +261,10 @@ Vue.component('auth-list', {
           },
         })
         .then((response) => {
-          console.log(response);
+          this.$parent.authChecked(response);
         })
         .catch((error) => {
-          console.log(error.response.data);
+          this.$parent.authChecked(error);
         });
     },
     updateToggle() {
