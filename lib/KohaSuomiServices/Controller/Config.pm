@@ -151,11 +151,13 @@ sub checkAuth {
             } else {
                 my $path = $getinterface->endpoint_url;
                 $path =~ s/{target_id}/$config->{testbiblio}/g;
+                $path =~ s/{source_id}/$config->{testbiblio}/g;
+                $c->log->debug("checkAuth path: ".$path);
                 my $authentication = $data->username.":".decode_base64($data->password);
                 my $ua = Mojo::UserAgent->new;
                 $path = Mojo::URL->new($path)->userinfo($authentication);
                 my $tx = $ua->get($path => {Accept => 'application/json'});
-                $error = $tx->error;
+                $error = $tx->error if $tx->error;
                 if ($error) {
                     $c->render(status => 401, openapi => $error);
                 } else {
