@@ -17,7 +17,7 @@ Vue.component('auth-component', {
       apikey: '',
       userid: '',
       auth_url: this.config.auth_url,
-      authcheck: '',
+      authsuccess: '',
     };
   },
   methods: {
@@ -194,8 +194,13 @@ Vue.component('auth-component', {
         this.errors.push('Incorrect url.');
       }
     },
-    authChecked(val) {
-      this.authcheck = val;
+    authChecked() {
+      this.authcheck = '';
+      this.authcheck = 'Authenticated successfully';
+    },
+    authError(val) {
+      this.errors = [];
+      this.errors.push('Authetication failure with: ' + val.message);
     },
   },
   props: ['config'],
@@ -260,13 +265,11 @@ Vue.component('auth-list', {
             id: this.auth.id,
           },
         })
-        .then((response) => {
-          console.log(response);
-          this.$parent.authChecked(response);
+        .then(() => {
+          this.$parent.authChecked();
         })
         .catch((error) => {
-          console.log(error.response.data);
-          this.$parent.authChecked(error);
+          this.$parent.authError(error);
         });
     },
     updateToggle() {

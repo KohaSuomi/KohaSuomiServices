@@ -14,7 +14,7 @@
             <li v-for="error in errors">{{ error }}</li>
             </ul>
         </p>
-        <p v-if="authcheck && authcheck.code != 200" class="text-danger">
+        <p v-if="authcheck.message != 'Success'" class="text-danger">
             Authentication failure with: {{authcheck.message}}
         </p>
         <p class="text-success" v-else>
