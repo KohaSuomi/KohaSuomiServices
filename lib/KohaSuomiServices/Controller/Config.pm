@@ -154,7 +154,7 @@ sub checkAuth {
                 my $authentication = $data->username.":".decode_base64($data->password);
                 my $ua = Mojo::UserAgent->new;
                 $path = Mojo::URL->new($path)->userinfo($authentication);
-                my $tx = $ua->get($path);
+                my $tx = $ua->get($path => {Accept => 'application/json'});
                 $error = $tx->error;
                 if ($error) {
                     $c->render(status => 401, openapi => $error);
