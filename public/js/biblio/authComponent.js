@@ -261,9 +261,11 @@ Vue.component('auth-list', {
           },
         })
         .then((response) => {
+          console.log(response);
           this.$parent.authChecked(response);
         })
         .catch((error) => {
+          console.log(error.response.data);
           this.$parent.authChecked(error);
         });
     },
