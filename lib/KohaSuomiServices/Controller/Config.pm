@@ -158,7 +158,7 @@ sub checkAuth {
             if ($error) {
                 $c->render(status => 401, openapi => $error);
             } else {
-                $c->render(status => 200, openapi => {code => 200, message => "Success"});
+                $c->render(status => 200, openapi => {message => "Success"});
             }
         }
     } catch {
