@@ -161,7 +161,7 @@ sub replaceComponentParts {
         foreach my $result (@{$results}) {
             my $marc = $result->{marcxml} ? $self->packages->convert->formatjson($result->{marcxml}) : $result;
             my $sourceid = $result->{biblionumber} ? $result->{biblionumber} : $self->biblio->search->getTargetId($host->{name}, $result);
-            my $res = $self->packages->biblio->export({source_id => $sourceid, target_id => $targetid, marc => $marc, interface => $remote_interface});
+            my $res = $self->packages->biblio->export({source_id => $sourceid, marc => $marc, interface => $remote_interface});
             $self->packages->log->info("New component part ".$res->{export}." added");
         }
     } else {
