@@ -154,21 +154,29 @@ sub replaceComponentParts {
     my ($self, $remote_interface, $target_id, $source_id) = @_;
 
     my @arr = $self->getTargetsComponentParts($remote_interface, $target_id);
-    return unless @arr;
     my $host = $self->packages->interface->host("update");
     my $results = $self->find($host->{name}, $source_id);
     $self->packages->log->info("Component parts not found from ".$remote_interface. " for ".$source_id) unless defined $results && $results;
-    foreach my $result (@{$results}) {
-        my $marc = $result->{marcxml} ? $self->packages->convert->formatjson($result->{marcxml}) : $result;
-        my $targetid = shift @arr;
-        if (defined $targetid && $targetid) {
+    unless (@arr) {
+        foreach my $result (@{$results}) {
+            my $marc = $result->{marcxml} ? $self->packages->convert->formatjson($result->{marcxml}) : $result;
             my $sourceid = $result->{biblionumber} ? $result->{biblionumber} : $self->biblio->search->getTargetId($host->{name}, $result);
             my $res = $self->packages->biblio->export({source_id => $sourceid, target_id => $targetid, marc => $marc, interface => $remote_interface});
-            $self->packages->log->info("Component part ".$res->{export}." replaced");
-        } else {
-            last;
+            $self->packages->log->info("New component part ".$res->{export}." added");
         }
+    } else {
+        foreach my $result (@{$results}) {
+            my $marc = $result->{marcxml} ? $self->packages->convert->formatjson($result->{marcxml}) : $result;
+            my $targetid = shift @arr;
+            if (defined $targetid && $targetid) {
+                my $sourceid = $result->{biblionumber} ? $result->{biblionumber} : $self->biblio->search->getTargetId($host->{name}, $result);
+                my $res = $self->packages->biblio->export({source_id => $sourceid, target_id => $targetid, marc => $marc, interface => $remote_interface});
+                $self->packages->log->info("Component part ".$res->{export}." replaced");
+            } else {
+                last;
+            }
 
+        }
     }
 
 }
