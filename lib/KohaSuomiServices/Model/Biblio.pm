@@ -116,7 +116,7 @@ sub broadcast {
         next unless defined $results && $results;
         foreach my $result (@{$results}) {
             $self->log->debug($result->{updated});
-            if (($params->{updated} gt $result->{updated}) || !defined $result->{updated}) {
+            if ($params->{updated} gt $result->{updated}) {
                 $self->export({
                     target_id => $result->{target_id},
                     source_id => $params->{source_id},
