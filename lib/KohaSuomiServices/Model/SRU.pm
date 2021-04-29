@@ -19,7 +19,7 @@ has log => sub {Mojo::Log->new(path => KohaSuomiServices::Model::Config->new->lo
 sub search {
     my ($self, $params) = @_;
 
-    KohaSuomiServices::Model::Exception::NotFound->throw(error => "No SRU search parameter") unless $params->{query};
+    return unless $params->{query};
     my $path = $params->{url}."?operation=".$params->{operation}."&query=".$params->{query};
     $path .= "&startRecord=".$params->{startRecord} if ($params->{startRecord});
     $path .= defined $params->{version} ? "&version=".$params->{version} : "&version=1.1";
