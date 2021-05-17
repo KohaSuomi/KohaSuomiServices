@@ -288,7 +288,7 @@ sub addActive {
     } else {
         my $newweight = $self->matchers->weightMatchers($params->{identifier_field});
         $exist = shift @{$exist};
-        my $activeweight = $self->matchers->weightMatchers($exist->{identifier_field});
+        my $activeweight = $self->matchers->weightMatchers($exist->{identifier_field}) ? $self->matchers->weightMatchers($exist->{identifier_field}) : 4;
         if ($newweight < $activeweight) {
             $self->active->update($schema, $exist->{id}, {identifier_field => $params->{identifier_field}, identifier => $params->{identifier}});
             return {message => "Active record updated"};
