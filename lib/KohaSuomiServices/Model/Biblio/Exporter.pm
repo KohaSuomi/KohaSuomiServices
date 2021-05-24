@@ -73,7 +73,7 @@ sub abortOldExports {
     return unless @export;
     foreach my $export (@{$self->packages->schema->get_columns(@export)}) {
         $self->packages->log->info("Aborting ".$export->{id}.", newer export record added");
-        $self->update($export->{id}, {status => 'failed', errorstatus => 'Aborting this! Added newer export'});
+        $self->update($export->{id}, {status => 'failed', errorstatus => 'Aborting! Newer export added'});
     }
 }
 
