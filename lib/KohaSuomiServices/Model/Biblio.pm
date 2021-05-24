@@ -45,8 +45,6 @@ sub export {
     my $abort = 0;
     my $errormessage;
 
-    $self->exporter->abortOldExports($params->{source_id});
-
     $params->{marc} = ref($params->{marc}) eq "HASH" ? $params->{marc} : $self->convert->formatjson($params->{marc});
 
     if ($params->{check} || ($params->{check} && $params->{parent_id})) {
@@ -68,6 +66,8 @@ sub export {
     my $interface = defined $params->{target_id} && $params->{target_id} ? $self->interface->load({name => $params->{interface}, type => "update"}) : $self->interface->load({name => $params->{interface}, type => "add"}); 
     my $type = defined $params->{target_id} && $params->{target_id} ? "update" : "add";
     my $authuser = $self->exportauth->checkAuthUser($schema, $params->{username}, $interface->{id});
+
+    $self->exporter->abortOldExports($type, $interface->{id}, $params->{source_id});
 
     my $exporter;
     unless ($abort) {
