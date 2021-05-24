@@ -69,10 +69,12 @@ sub setExporterParams {
 sub abortOldExports {
     my ($self, $id) = @_;
     my $client = $self->packages->schema->client($self->packages->config);
-    my $export = $self->find($client, {source_id => $id, status => 'pending'}, undef);
-    return unless $export;
-    $self->packages->log->info("Aborting ".$id.", newer export record added");
-    $self->update($id, {status => 'failed', errorstatus => 'Aborting this! Added newer export'});
+    my @export = $self->find($client, {source_id => $id, status => 'pending'}, undef);
+    return unless @export;
+    foreach my $export (@{$self->packages->schema->get_columns(@export)}) {
+        $self->packages->log->info("Aborting ".$export->{id}.", newer export record added");
+        $self->update($export->{id}, {status => 'failed', errorstatus => 'Aborting this! Added newer export'});
+    }
 }
 
 1;
