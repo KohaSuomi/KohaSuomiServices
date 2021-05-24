@@ -73,8 +73,9 @@ sub interfaceAuthentication {
 sub signIn {
     my ($self, $path, $body) = @_;
     my $tx = $self->ua->post($path => form => $body);
+    $self->log->debug("Check userid: ".$body->{userid}) if $tx->res->error;
     $self->log->debug($tx->res->error->{message}) if $tx->res->error;
-    KohaSuomiServices::Model::Exception::BadParameter->throw(error => "Bad authuser parameters\n") if $tx->res->error;
+    #KohaSuomiServices::Model::Exception::BadParameter->throw(error => "Bad authuser parameters\n") if $tx->res->error;
     return from_json($tx->res->body);
 }
 
