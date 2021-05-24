@@ -6,14 +6,10 @@ use utf8;
 
 use Try::Tiny;
 use Mojo::UserAgent;
-use KohaSuomiServices::Model::Convert;
 use Mojo::JSON qw(decode_json encode_json);
-use KohaSuomiServices::Model::Biblio::Subfields;
-use KohaSuomiServices::Model::Config;
-use KohaSuomiServices::Database::Client;
+use KohaSuomiServices::Model::Packages::Biblio;
 
-has schema => sub {KohaSuomiServices::Database::Client->new};
-has config => sub {KohaSuomiServices::Model::Config->new->service("biblio")->load};
+has packages => sub {KohaSuomiServices::Model::Packages::Biblio->new};
 
 
 sub find {
@@ -33,7 +29,7 @@ sub insert {
 
 sub update {
     my ($self, $id, $params) = @_;
-    my $client = $self->schema->client($self->config);
+    my $client = $self->packages->schema->client($self->packages->config);
     return $client->resultset('Exporter')->find($id)->update($params);
 }
 
@@ -43,9 +39,9 @@ sub getExports {
     my $params = {type => $type, status => "pending", parent_id => undef};
     $params = {type => $type, status => "pending", parent_id => {'!=', undef}} if defined $components && $components;
     my $order = defined $components && $components ? {order_by => { -asc => [qw/parent_id source_id/] }} : undef;
-    my $schema = $self->schema->client($self->config);
+    my $schema = $self->packages->schema->client($self->packages->config);
     my @data = $self->find($schema, $params, $order);
-    return $self->schema->get_columns(@data);
+    return $self->schema->packages->get_columns(@data);
 
 }
 
@@ -68,6 +64,15 @@ sub setExporterParams {
     $exporter->{componentparts_count} = $componentparts_count;
 
     return $exporter;
+}
+
+sub abortOldExports {
+    my ($self, $id) = @_;
+    my $client = $self->packages->schema->client($self->packages->config);
+    my $export = $self->find($client, {source_id => $id, status => 'pending'}, undef);
+    return unless $export;
+    $self->packages->log->info("Aborting ".$id.", newer export record added");
+    $self->update($id, {status => 'failed', errorstatus => 'Aborting this! Added newer export'});
 }
 
 1;

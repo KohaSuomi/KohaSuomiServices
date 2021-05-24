@@ -45,6 +45,8 @@ sub export {
     my $abort = 0;
     my $errormessage;
 
+    $self->exporter->abortOldExports($params->{source_id});
+
     $params->{marc} = ref($params->{marc}) eq "HASH" ? $params->{marc} : $self->convert->formatjson($params->{marc});
 
     if ($params->{check} || ($params->{check} && $params->{parent_id})) {
