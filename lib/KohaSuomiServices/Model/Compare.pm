@@ -28,8 +28,8 @@ sub getMandatory {
 
     $alephnumberpatch = [] if $alephnumberpatch eq undef; 
     $alephcharpatch = [] if  $alephcharpatch eq undef; 
-    $fieldnumberpatch = [] if $fieldnumberpatch eq undef; 
-    $fieldcharpatch = [] if  $fieldcharpatch eq undef; 
+    $fieldnumberpatch = [] if $fieldnumberpatch eq undef || $fieldnumberpatch eq 1; 
+    $fieldcharpatch = [] if  $fieldcharpatch eq undef || $fieldcharpatch eq 1; 
     $emptynumberpatch = [] if $emptynumberpatch eq undef; 
     $emptycharpatch = [] if $emptycharpatch eq undef;
 
