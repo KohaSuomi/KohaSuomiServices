@@ -41,7 +41,7 @@ sub getExports {
     my $order = defined $components && $components ? {order_by => { -asc => [qw/parent_id source_id/] }} : undef;
     my $schema = $self->packages->schema->client($self->packages->config);
     my @data = $self->find($schema, $params, $order);
-    return $self->schema->packages->get_columns(@data);
+    return $self->packages->schema->get_columns(@data);
 
 }
 
