@@ -262,6 +262,19 @@ sub getLastActive {
     
 }
 
+sub getActiveRecord {
+    my ($self, $interface, $id) = @_;
+
+    my $schema = $self->schema->client($self->config);
+    my $record = $self->active->find($schema, {interface_name => $interface, target_id => $id});
+    
+    if ($record) {
+       $record = shift @{$record};
+       return $record;
+    }
+
+}
+
 sub addActive {
     my ($self, $params) = @_;
     

@@ -198,4 +198,22 @@ sub force {
     
 }
 
+sub getActiveRecord {
+    my $c = shift->openapi->valid_input or return;
+
+    try {
+        my $interface = $c->validation->param('interface');
+        my $id = $c->validation->param('id');
+        my $response = $c->biblio->getActiveRecord($interface, $id);
+        if ($response) {
+            $c->render(status => 200, openapi => $response);
+        } else {
+            $c->render(status => 404, openapi => {message => "Not found"});
+        }
+    } catch {
+        my $e = $_;
+        $c->render(KohaSuomiServices::Model::Exception::handleDefaults($e));
+    }
+}
+
 1;
