@@ -76,12 +76,12 @@ sub fetchComponentParts {
         $self->packages->log->info("Source id: ".$source_id);
         $remote_interface = $host->{name};
     }
-    my $results = defined $fetch_interface && $fetch_interface ? $self->find($fetch_interface, $source_id) : $self->find($remote_interface, $source_id);
-    $self->packages->log->info("Component parts not found from ".$remote_interface. " for ".$source_id) unless defined $results && $results && !$fetch_interface;
-    $self->packages->log->info("Component parts not found from ".$fetch_interface. " for ".$source_id) unless defined $results && $results && $fetch_interface;
+    my $get_interface = defined $fetch_interface && $fetch_interface ? $fetch_interface : $remote_interface;
+    my $results = $self->find($get_interface, $source_id);
+    $self->packages->log->info("Component parts not found from ".$get_interface. " for ".$source_id) unless defined $results && $results;
     foreach my $result (@{$results}) {
         my $marc = $result->{marcxml} ? $self->packages->convert->formatjson($result->{marcxml}) : $result;
-        my $sourceid = $result->{biblionumber} ? $result->{biblionumber} : $self->packages->search->getTargetId($remote_interface, $result);
+        my $sourceid = $result->{biblionumber} ? $result->{biblionumber} : $self->packages->search->getTargetId($get_interface, $result);
         my $res = $self->packages->biblio->export({source_id => $sourceid, marc => $marc, interface => $interface->{name}});
         $self->packages->log->info("Component part ".$res->{export}." fetched");
     }
