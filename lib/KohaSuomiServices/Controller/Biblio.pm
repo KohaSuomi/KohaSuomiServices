@@ -208,7 +208,7 @@ sub getActiveRecord {
         if ($response) {
             $c->render(status => 200, openapi => $response);
         } else {
-            $c->render(status => 404, openapi => {message => "Not found"});
+            $c->render(status => 404, openapi => {error => "Not found"});
         }
     } catch {
         my $e = $_;
