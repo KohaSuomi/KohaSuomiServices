@@ -48,7 +48,7 @@ sub findFirstUser {
 sub checkAuthUser {
     my ($self, $client, $username, $interface_id) = @_;
     my $authuser = $self->findUserFromLink($client, $username, $interface_id) ? $self->findUserFromLink($client, $username, $interface_id) : $self->findFirstUser($client, $interface_id);
-    KohaSuomiServices::Model::Exception::NotFound->throw(error => "No authentication user\n") unless $authuser;
+    KohaSuomiServices::Model::Exception::NotFound->throw(error => "No authentication user for $interface_id \n") unless $authuser;
     return $authuser->id;
 }
 
