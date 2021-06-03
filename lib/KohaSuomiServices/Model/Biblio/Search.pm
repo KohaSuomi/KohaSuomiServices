@@ -133,7 +133,7 @@ sub getSearchPath {
 
 sub getIdentifier {
     my ($self, $record, %matchers) = @_;
-    my %matcherhash = %{$self->search_fields($record, %matchers)} if $self->search_fields($record, %matchers);
+    my %matcherhash = %{$self->search_fields_refactor($record, %matchers)} if $self->search_fields_refactor($record, %matchers);
     my $count = keys %matcherhash;
     my ($key, $value);
     my @keys;
@@ -151,7 +151,7 @@ sub getIdentifier {
     } else {
         ($key, $value) = %matcherhash;
     }
-
+    
     $self->packages->log->debug("Key: ".$key." value: ".$value);
     if ($key eq "020a") {
         $value =~ s/\D//g;
@@ -164,8 +164,10 @@ sub search_fields {
     my ($self, $record, %matchers) = @_;
 
     my $matcher;
+    my @matcherfields;
     foreach my $field (@{$record->{fields}}) {
         if ($matchers{$field->{tag}} && $field->{tag} ne '024' || ($matchers{$field->{tag}} && $field->{tag} eq '024' && $field->{ind1} eq "3")) {
+            push @matcherfields, $field->{tag};
             foreach my $subfield (@{$field->{subfields}}) {
                 if (ref($matchers{$field->{tag}}) eq "ARRAY") {
                     foreach my $code (@{$matchers{$field->{tag}}}) {
@@ -194,6 +196,7 @@ sub search_fields {
         } else {
             foreach my $key (keys %matchers) {
                 if ($key eq $field->{tag} && $field->{tag} ne '024') {
+                    push @matcherfields, $field->{tag};
                     $matcher->{$field->{tag}} = $field->{value};
                 }
             }
@@ -208,6 +211,53 @@ sub search_fields {
     
     return $matcher;
     
+}
+
+sub search_fields_refactor {
+    my ($self, $record, %matchers) = @_;
+
+    my @matchedfields;
+    my @matchedsubfields;
+    foreach my $key (keys %matchers) {
+        foreach my $field (@{$record->{fields}}) {
+            if ($field->{tag} eq $key) {
+                push @matchedfields, {field => $field, subfield => $matchers{$key}};
+            }
+        }
+    }
+    my $matcher;
+    my $count;
+
+    foreach my $fields (@matchedfields) {
+        
+        if ($fields->{field}->{subfields}) {
+            foreach my $subfield (@{$fields->{field}->{subfields}}) {
+                if ($subfield->{code} eq $fields->{subfield}) {
+                    my $tag = $fields->{field}->{tag}.$fields->{subfield};
+                    if ($matcher->{$tag}) {
+                        my @arr;
+                        push @arr, $matcher->{$tag};
+                        push @arr,  $subfield->{value};
+                        $matcher->{$tag} = @arr;
+                    } else {
+                        $matcher->{$tag} = $subfield->{value};
+                    }
+                }
+            }
+            
+        } else {
+            $matcher->{$fields->{field}->{tag}} = $fields->{field}->{value};
+        }
+    }
+
+    # if ($matcher->{"003"} && $matcher->{"001"}) {
+    #     $matcher->{"003|001"} = $matcher->{"003"}.'|'.$matcher->{"001"};
+    #     delete $matcher->{"003"};
+    #     delete $matcher->{"001"};
+    # }
+
+    print Data::Dumper::Dumper $matcher;
+    return $matcher;
 }
 
 #######################################
