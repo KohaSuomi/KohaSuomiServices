@@ -245,7 +245,7 @@ paths:
           description: Internal server error
           schema:
             type: object
-  /biblio/active/{interface}/{id}:
+  /biblio/active/{interface}/{target_id}:
     get:
       x-mojo-to: 'biblio#getActiveRecord'
       operationId: biblioGetActiveRecord
@@ -258,7 +258,7 @@ paths:
           type: string
           description: Record's interface
         - in: path
-          name: id
+          name: target_id
           required: true
           type: integer
           description: Target id
@@ -305,6 +305,43 @@ paths:
               updated:
                 type: string
                 description: Datetime of record's update
+      responses:
+        200:
+          description: Ok status
+          schema:
+            type: object
+        401:
+          $ref: '#/responses/UnauthorizedError'
+        404:
+          description: Not found
+          schema:
+            type: object
+        500:
+          description: Internal server error
+          schema:
+            type: object
+  /biblio/active/{id}:
+    put:
+      x-mojo-to: 'biblio#updateActiveRecord'
+      operationId: biblioUpdateActiveRecord
+      consumes:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: integer
+          description: Active record id
+        - in: formData
+          name: identifier_field
+          required: true
+          type: string
+          description: Record's identifier field
+        - in: formData
+          name: identifier
+          required: true
+          type: string
+          description: Record's identifier
       responses:
         200:
           description: Ok status

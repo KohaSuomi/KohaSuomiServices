@@ -203,13 +203,28 @@ sub getActiveRecord {
 
     try {
         my $interface = $c->validation->param('interface');
-        my $id = $c->validation->param('id');
+        my $id = $c->validation->param('target_id');
         my $response = $c->biblio->getActiveRecord($interface, $id);
         if ($response) {
             $c->render(status => 200, openapi => $response);
         } else {
             $c->render(status => 404, openapi => {error => "Not found"});
         }
+    } catch {
+        my $e = $_;
+        $c->render(KohaSuomiServices::Model::Exception::handleDefaults($e));
+    }
+}
+
+sub updateActiveRecord {
+    my $c = shift->openapi->valid_input or return;
+
+    try {
+        my $id = $c->validation->param('id');
+        my $identifier_field = $c->validation->param('identifier_field');
+        my $identifier = $c->validation->param('identifier');
+        my $response = $c->biblio->updateActiveRecord($id, $identifier_field, $identifier);
+        $c->render(status => 200, openapi => $response);
     } catch {
         my $e = $_;
         $c->render(KohaSuomiServices::Model::Exception::handleDefaults($e));

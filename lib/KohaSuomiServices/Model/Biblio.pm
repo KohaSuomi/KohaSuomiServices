@@ -275,6 +275,14 @@ sub getActiveRecord {
 
 }
 
+sub updateActiveRecord {
+    my ($self, $id, $identifier_field, $identifier) = @_;
+
+    my $schema = $self->schema->client($self->config);
+    $self->active->update($schema, $id, {identifier_field => $identifier_field, identifier => $identifier});
+    return {message => "Success"};
+}
+
 sub addActive {
     my ($self, $params) = @_;
     
