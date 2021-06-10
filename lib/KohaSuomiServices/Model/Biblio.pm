@@ -117,13 +117,17 @@ sub broadcast {
         my $results = $self->active->find($schema, {identifier => $identifier});
         next unless defined $results && $results;
         foreach my $result (@{$results}) {
-            $self->log->debug($result->{updated});
-            if ($params->{updated} gt $result->{updated}) {
+            my $exists = $self->active->checkActiveRecord($result->{interface_name}, $result->{target_id});
+            if (!$exists) {
+                my $schema = $self->packages->schema->client($self->config);
+                $self->active->delete($schema, $result->{id});
+            } elsif ($exists && $params->{updated} gt $result->{updated}) {
                 $self->export({
                     target_id => $result->{target_id},
                     source_id => $params->{source_id},
                     marc => $params->{marc},
-                    interface => $result->{interface_name}
+                    interface => $result->{interface_name},
+                    activerecord_id => $result->{id}
                 });
                 $self->response->componentparts->replaceComponentParts($result->{interface_name}, $result->{target_id}, $params->{source_id});
                 $self->active->update($schema, $result->{id}, {updated => $params->{updated}});

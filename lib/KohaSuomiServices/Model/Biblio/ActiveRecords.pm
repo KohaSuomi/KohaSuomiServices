@@ -6,21 +6,19 @@ use utf8;
 use Try::Tiny;
 use POSIX 'strftime';
 
-use KohaSuomiServices::Model::Config;
-use KohaSuomiServices::Database::Client;
+use KohaSuomiServices::Model::Packages::Biblio;
 
-has schema => sub {KohaSuomiServices::Database::Client->new};
-has config => sub {KohaSuomiServices::Model::Config->new->service("biblio")->load};
+has packages => sub {KohaSuomiServices::Model::Packages::Biblio->new};
 
 
 sub find {
     my ($self, $client, $params) = @_;
-    return $self->schema->get_columns($client->resultset('ActiveRecords')->search($params));
+    return $self->packages->schema->get_columns($client->resultset('ActiveRecords')->search($params));
 }
 
 sub findLast {
     my ($self, $client, $params) = @_;
-    return $self->schema->get_columns($client->resultset('ActiveRecords')->find($params, {order_by => {-desc => \'CAST(target_id AS int)'}}));
+    return $self->packages->schema->get_columns($client->resultset('ActiveRecords')->find($params, {order_by => {-desc => \'CAST(target_id AS int)'}}));
 }
 
 sub insert {
@@ -33,12 +31,33 @@ sub update {
     return $client->resultset('ActiveRecords')->find($id)->update($params);
 }
 
+sub delete {
+    my ($self, $client, $id) = @_;
+    return $client->resultset('ActiveRecords')->find($id)->delete;
+}
+
 sub updateActiveRecords {
     my ($self, $id) = @_;
 
-    my $schema = $self->schema->client($self->config);
+    my $schema = $self->packages->schema->client($self->config);
     my $now = strftime "%Y-%m-%d %H:%M:%S", ( localtime(time + 5*60) );
     $self->update($schema, $id, {updated => $now});
+}
+
+sub checkActiveRecord {
+    my ($self, $interface_name, $target_id, $id) = @_;
+    my $interface = $self->packages->interface->load({name => $interface_name, type => "get"});
+    my $path = $self->packages->biblio->search->create_path($interface, {source_id => $target_id});
+    my $authentication = $self->packages->exportauth->authorize($interface);
+    my $reqHeaders = $self->packages->biblio->search->create_headers($interface->{params});
+    my ($resCode, $resBody, $resHeaders) = $self->packages->biblio->search->callInterface($interface->{method}, $interface->{format}, $path, undef, $authentication, $reqHeaders);
+    if ($resCode eq '200' && $resBody->{biblionumber}) {
+        return 1;
+    } else {
+        return 0;
+    }
+    
+
 }
 
 
