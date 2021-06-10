@@ -119,7 +119,6 @@ sub broadcast {
         foreach my $result (@{$results}) {
             my $exists = $self->active->checkActiveRecord($result->{interface_name}, $result->{target_id});
             if (!$exists) {
-                my $schema = $self->packages->schema->client($self->config);
                 $self->active->delete($schema, $result->{id});
             } elsif ($exists && $params->{updated} gt $result->{updated}) {
                 $self->export({
