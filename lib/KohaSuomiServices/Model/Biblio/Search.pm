@@ -133,7 +133,7 @@ sub getSearchPath {
 
 sub getIdentifier {
     my ($self, $record, %matchers) = @_;
-    my %matcherhash = %{$self->search_fields_refactor($record, %matchers)} if $self->search_fields_refactor($record, %matchers);
+    my %matcherhash = %{$self->search_fields($record, %matchers)} if $self->search_fields($record, %matchers);
     my $count = keys %matcherhash;
     my ($key, $value);
     my @keys;
@@ -164,10 +164,8 @@ sub search_fields {
     my ($self, $record, %matchers) = @_;
 
     my $matcher;
-    my @matcherfields;
     foreach my $field (@{$record->{fields}}) {
         if ($matchers{$field->{tag}} && $field->{tag} ne '024' || ($matchers{$field->{tag}} && $field->{tag} eq '024' && $field->{ind1} eq "3")) {
-            push @matcherfields, $field->{tag};
             foreach my $subfield (@{$field->{subfields}}) {
                 if (ref($matchers{$field->{tag}}) eq "ARRAY") {
                     foreach my $code (@{$matchers{$field->{tag}}}) {
@@ -196,7 +194,6 @@ sub search_fields {
         } else {
             foreach my $key (keys %matchers) {
                 if ($key eq $field->{tag} && $field->{tag} ne '024') {
-                    push @matcherfields, $field->{tag};
                     $matcher->{$field->{tag}} = $field->{value};
                 }
             }
