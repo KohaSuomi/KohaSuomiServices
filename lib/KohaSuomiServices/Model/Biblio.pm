@@ -113,8 +113,21 @@ sub broadcast {
         }
         
         my $identifier = $self->search->getIdentifier($params->{marc}, %matcher);
-        $self->log->debug($identifier);
-        my $results = $self->active->find($schema, {identifier => $identifier});
+        my $results;
+        if (ref($identifier) eq "ARRAY") {
+            foreach my $id (@{$identifier}) {
+                if (ref($results) eq "ARRAY") {
+                    foreach my $result (@{$self->active->find($schema, {identifier => $id})}) {
+                        push @{$results}, $result;
+                    }
+                } else {
+                    $results = $self->active->find($schema, {identifier => $id});
+                }
+            }
+        } else {
+            $results = $self->active->find($schema, {identifier => $identifier});
+        }
+        
         next unless defined $results && $results;
         foreach my $result (@{$results}) {
             my $exists = $self->active->checkActiveRecord($result->{interface_name}, $result->{target_id});

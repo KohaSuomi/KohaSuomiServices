@@ -133,7 +133,7 @@ sub getSearchPath {
 
 sub getIdentifier {
     my ($self, $record, %matchers) = @_;
-    my %matcherhash = %{$self->search_fields($record, %matchers)} if $self->search_fields($record, %matchers);
+    my %matcherhash = %{$self->search_fields_refactor($record, %matchers)} if $self->search_fields_refactor($record, %matchers);
     my $count = keys %matcherhash;
     my ($key, $value);
     my @keys;
@@ -222,20 +222,20 @@ sub search_fields_refactor {
             }
         }
     }
-    my $matcher;
-    my $count;
 
+    my $matcher;
     foreach my $fields (@matchedfields) {
-        
         if ($fields->{field}->{subfields}) {
             foreach my $subfield (@{$fields->{field}->{subfields}}) {
                 if ($subfield->{code} eq $fields->{subfield}) {
                     my $tag = $fields->{field}->{tag}.$fields->{subfield};
                     if ($matcher->{$tag}) {
-                        my @arr;
-                        push @arr, $matcher->{$tag};
-                        push @arr,  $subfield->{value};
-                        $matcher->{$tag} = @arr;
+                        my $oldval = $matcher->{$tag};
+                        unless (ref($matcher->{tag}) eq "ARRAY") {
+                            $matcher->{$tag} = [];
+                            push @{$matcher->{$tag}}, $oldval;
+                        }
+                        push @{$matcher->{$tag}}, $subfield->{value};
                     } else {
                         $matcher->{$tag} = $subfield->{value};
                     }
@@ -247,13 +247,6 @@ sub search_fields_refactor {
         }
     }
 
-    # if ($matcher->{"003"} && $matcher->{"001"}) {
-    #     $matcher->{"003|001"} = $matcher->{"003"}.'|'.$matcher->{"001"};
-    #     delete $matcher->{"003"};
-    #     delete $matcher->{"001"};
-    # }
-
-    print Data::Dumper::Dumper $matcher;
     return $matcher;
 }
 
