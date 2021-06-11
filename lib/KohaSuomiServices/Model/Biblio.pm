@@ -179,7 +179,7 @@ sub pushExport {
         my ($resCode, $resBody, $resHeaders) = $self->search->callInterface($interface->{method}, $interface->{format}, $path, $body, $authentication, $headers);
         if ($resCode eq "200" || $resCode eq "201") {
             $self->exporter->update($export->{id}, {status => "success", errorstatus => ""});
-            $self->response->getAndUpdate($interface, $resBody, $resHeaders, $export->{source_id}, $type);
+            $self->response->getAndUpdate($interface, $resBody, $resHeaders, $export->{source_id}, $type, $export->{timestamp});
             $self->active->updateActiveRecords($export->{activerecord_id}) if defined $export->{activerecord_id} && $export->{activerecord_id};
             $self->log->info("Export ".$export->{id}." finished successfully with");
             $self->log->debug(Data::Dumper::Dumper $resBody);

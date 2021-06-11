@@ -14,9 +14,9 @@ use KohaSuomiServices::Model::Packages::Biblio;
 has packages => sub {KohaSuomiServices::Model::Packages::Biblio->new};
 
 sub exportComponentParts {
-    my ($self, $parent_id, $linkvalue) = @_;
+    my ($self, $parent_id, $linkvalue, $parent_datetime) = @_;
     my $schema = $self->packages->schema->client($self->packages->config);
-    my @componentparts = $self->packages->exporter->find($schema, {status => "waiting", parent_id => $parent_id}, undef);
+    my @componentparts = $self->packages->exporter->find($schema, {status => "waiting", parent_id => $parent_id, timestamp => {">=" => $parent_datetime}}, undef);
     foreach my $d (@{$self->packages->schema->get_columns(@componentparts)}) {
         $self->packages->log->info("Processing componentpart ".$d->{id});
         $self->packages->fields->replaceValue($d->{id}, "773", "w", $linkvalue) if $linkvalue;

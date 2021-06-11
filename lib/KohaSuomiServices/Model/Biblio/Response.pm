@@ -18,7 +18,7 @@ has componentparts => sub {KohaSuomiServices::Model::Biblio::ComponentParts->new
 has config => sub {KohaSuomiServices::Model::Config->new->service("biblio")->load};
 
 sub getAndUpdate {
-    my ($self, $interface, $params, $headers, $source_id, $type) = @_;
+    my ($self, $interface, $params, $headers, $source_id, $type, $parent_datetime) = @_;
 
     my $targetId = $self->parseResponse($interface, $params, $headers);
     $self->componentparts->exportComponentParts($source_id, undef) if $type eq "update" && !$targetId;
@@ -38,7 +38,7 @@ sub getAndUpdate {
         my $link001 = $self->biblio->fields->findValue($res->{export}, "001", undef);
         my $link003 = $self->biblio->fields->findValue($res->{export}, "003", undef);
         my $linkvalue = '('.$link003.')'.$link001;
-        $self->componentparts->exportComponentParts($source_id, $linkvalue);
+        $self->componentparts->exportComponentParts($source_id, $linkvalue, $parent_datetime);
     }
     
 }
