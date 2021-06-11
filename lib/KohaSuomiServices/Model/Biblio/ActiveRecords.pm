@@ -39,7 +39,7 @@ sub delete {
 sub updateActiveRecords {
     my ($self, $id) = @_;
 
-    my $schema = $self->packages->schema->client($self->config);
+    my $schema = $self->packages->schema->client($self->packages->config);
     my $now = strftime "%Y-%m-%d %H:%M:%S", ( localtime(time + 5*60) );
     $self->update($schema, $id, {updated => $now});
 }
