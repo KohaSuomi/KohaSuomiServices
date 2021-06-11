@@ -21,7 +21,7 @@ sub getAndUpdate {
     my ($self, $interface, $params, $headers, $source_id, $type, $parent_datetime) = @_;
 
     my $targetId = $self->parseResponse($interface, $params, $headers);
-    $self->componentparts->exportComponentParts($source_id, undef) if $type eq "update" && !$targetId;
+    $self->componentparts->exportComponentParts($source_id, undef, $parent_datetime) if $type eq "update" && !$targetId;
     return unless $targetId;
     my $schema = $self->schema->client($self->config);
     my $getInterface = $self->interface->load({name => $interface->{name}, type => "get"});
