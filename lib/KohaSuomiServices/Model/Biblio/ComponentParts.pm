@@ -147,7 +147,14 @@ sub getSourceId {
 
     my ($interface, %matchers) = $self->packages->matchers->fetchMatchers($remote_interface, "getcomponentparts", "identifier");
     $self->packages->log->info("No identifier defined for getcomponentparts ".$remote_interface) unless %matchers;
-    return $self->packages->search->getIdentifier($search, %matchers);
+    my $identifiers = $self->packages->search->getIdentifier($search, %matchers);
+    my $identifier;
+    if (ref($identifiers) eq "ARRAY") {
+        $identifier = @{$identifiers}[0];
+    } else {
+        $identifier = $identifiers;
+    }
+    return $identifier;
 }
 
 sub replaceComponentParts {
