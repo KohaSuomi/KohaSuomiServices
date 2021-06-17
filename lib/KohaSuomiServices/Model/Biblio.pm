@@ -295,7 +295,7 @@ sub updateActiveRecord {
     my ($self, $id, $identifier_field, $identifier) = @_;
 
     my $schema = $self->schema->client($self->config);
-    $self->active->update($schema, $id, {identifier_field => $identifier_field, identifier => $identifier});
+    $self->active->update($schema, $id, {identifier_field => $identifier_field, identifier => $identifier, updated => undef});
     return {message => "Success"};
 }
 
