@@ -189,6 +189,7 @@ sub addFields {
         foreach my $field (@{$data->{fields}}) {
             if ($newfield->{tag} eq $field->{tag}) {
                 $add = $self->compareArrays($newfield->{subfields}, $field->{subfields});
+                last unless $add;   
             }
         }
         if ($add) {
