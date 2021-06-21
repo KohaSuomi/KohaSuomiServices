@@ -20,12 +20,12 @@
       export => "manual", # automatic or manual
       baseendpoint => 'http://127.0.0.1:8080/service/api/',
       testbiblio => '017386346',
-      blockactive => {
-        [
+      blockactive => [
+        {
           interface => 'FOOBAA',
-          untildate => '2021-06-12'
-        ]
-      }
+          untildate => '2021-06-22'
+        }
+      ],
       database => {
         sharebase => "/home/foo/bar/", #DBIX share directory base path
         version => 1, # Database update version, increase this if schema changes
