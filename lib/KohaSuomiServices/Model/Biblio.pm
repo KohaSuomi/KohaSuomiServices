@@ -131,9 +131,15 @@ sub broadcast {
         next unless defined $results && $results;
         foreach my $result (@{$results}) {
             my $exists = $self->active->checkActiveRecord($result->{interface_name}, $result->{target_id});
+            my $blockactivedate;
+            foreach my $block (@{$self->config->{blockactive}}) {
+                if ($block->{interface} eq $result->{interface_name}) {
+                    $blockactivedate = $block->{untildate};
+                }
+            };
             if (!$exists) {
                 $self->active->delete($schema, $result->{id});
-            } elsif ($exists && $params->{updated} gt $result->{updated}) {
+            } elsif ($exists && $params->{updated} gt $result->{updated} && (!$blockactivedate || $result->{updated} gt $blockactivedate)) {
                 $self->export({
                     target_id => $result->{target_id},
                     source_id => $params->{source_id},
