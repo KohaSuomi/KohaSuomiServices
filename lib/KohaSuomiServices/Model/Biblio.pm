@@ -312,7 +312,7 @@ sub addActive {
     my $schema = $self->schema->client($self->config);
     my %matchers = $self->matchers->defaultSearchMatchers();
     my $record = $self->convert->formatjson($params->{marcxml});
-    my $matcher = $self->search->search_fields_refactor($record, %matchers);
+    my $matcher = $self->search->search_fields($record, %matchers);
     $matcher = $self->matchers->targetMatchers($matcher);
     KohaSuomiServices::Model::Exception::NotFound->throw(error => "No valid identifier ") unless defined $matcher && $matcher && %{$matcher};
     delete $params->{marcxml};
@@ -334,7 +334,7 @@ sub addActive {
         my $newweight = $self->matchers->weightMatchers($params->{identifier_field});
         $exist = shift @{$exist};
         my $activeweight = $self->matchers->weightMatchers($exist->{identifier_field}) ? $self->matchers->weightMatchers($exist->{identifier_field}) : 4;
-        if ($newweight <= $activeweight && $exist->{identifier} ne $params->{identifier}) {
+        if ($newweight < $activeweight) {
             $self->active->update($schema, $exist->{id}, {identifier_field => $params->{identifier_field}, identifier => $params->{identifier}});
             return {message => "Active record updated"};
         } else {
