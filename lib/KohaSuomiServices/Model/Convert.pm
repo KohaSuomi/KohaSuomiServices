@@ -59,7 +59,6 @@ sub xmltohashsimple {
 
 sub xmlescape {
     my ($self, $string) = @_;
-    $string = Encode::encode("UTF-8", $string);
     return XML::Simple->new()->escape_value($string);
 }
 
@@ -98,8 +97,8 @@ sub formatxml {
         }
     }
     $format .= "</record>";
-
-    return $format;
+    my $xml = XML::LibXML->load_xml(string => $format);
+    return $xml->toString();
 
 }
 
