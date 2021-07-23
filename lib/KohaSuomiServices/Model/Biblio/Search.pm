@@ -231,7 +231,7 @@ sub search_fields_refactor {
                     my $tag = $fields->{field}->{tag}.$fields->{subfield};
                     if ($matcher->{$tag}) {
                         my $oldval = $matcher->{$tag};
-                        unless (ref($matcher->{tag}) eq "ARRAY") {
+                        unless (ref($matcher->{$tag}) eq "ARRAY") {
                             $matcher->{$tag} = [];
                             push @{$matcher->{$tag}}, $oldval;
                         }
