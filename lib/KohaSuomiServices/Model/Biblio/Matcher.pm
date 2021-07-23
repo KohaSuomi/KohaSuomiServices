@@ -95,8 +95,17 @@ sub targetMatchers {
         }
         elsif ($weight eq "2") {
             $matchers->{"020a"} = %{$weighted}{$weight};
-            $matchers->{"020a"} =~ s/\D//g;
-            unless (length($matchers->{"020a"}) >= 10){
+            $matchers->{"020a"} =~ s/\D//g unless ref($matchers->{"020a"}) eq "ARRAY";
+            if (ref($matchers->{"020a"}) eq "ARRAY") {
+                foreach my $match (@{$matchers->{"020a"}}) {
+                    $match =~ s/\D//g;
+                    if (length($match) >= 10) {
+                        $matchers->{"020a"} = $match;
+                        last;
+                    }
+                }
+            }
+            elsif (length($matchers->{"020a"}) < 10){
                 delete $matchers->{"020a"};
                 next;
             }
@@ -104,8 +113,17 @@ sub targetMatchers {
         }
         elsif ($weight eq "3") {
             $matchers->{"024a"} = %{$weighted}{$weight};
-            $matchers->{"024a"} =~ s/\D//g;
-            unless (length($matchers->{"024a"}) >= 10){
+            $matchers->{"024a"} =~ s/\D//g unless ref($matchers->{"024a"}) eq "ARRAY";
+            if (ref($matchers->{"024a"}) eq "ARRAY") {
+                foreach my $match (@{$matchers->{"024a"}}) {
+                    $match =~ s/\D//g;
+                    if (length($match) >= 10) {
+                        $matchers->{"024a"} = $match;
+                        last;
+                    }
+                }
+            }
+            elsif (length($matchers->{"024a"}) < 10){
                 delete $matchers->{"024a"};
                 next;
             }
