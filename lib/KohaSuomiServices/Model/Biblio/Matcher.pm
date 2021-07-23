@@ -87,7 +87,21 @@ sub targetMatchers {
         $matchers = {};
         if ($weight eq "1") {
             $matchers->{"035a"} = %{$weighted}{$weight};
-            unless ($matchers->{"035a"} =~ /^\(/){
+            if (ref($matchers->{"035a"}) eq "ARRAY") {
+                foreach my $match (@{$matchers->{"035a"}}) {
+                    if ($match =~ /FI-MELINDA/) {
+                        $matchers->{"035a"} = $match;
+                        last;
+                    } elsif ($match =~ /FI-BTJ/) {
+                        $matchers->{"035a"} = $match;
+                        last;
+                    } else {
+                        delete $matchers->{"035a"};
+                        next;
+                    }
+                }
+            }
+            elsif ($matchers->{"035a"} !~ /^\(/){
                 delete $matchers->{"035a"};
                 next;
             }
