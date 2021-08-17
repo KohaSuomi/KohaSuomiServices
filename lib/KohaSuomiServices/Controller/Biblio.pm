@@ -156,6 +156,19 @@ sub activate {
     }
 }
 
+sub activateIdentifier {
+    my $c = shift->openapi->valid_input or return;
+
+    try {
+        my $req  = $c->req->json;
+        my $response = $c->biblio->addActiveIdentifier($req);
+        $c->render(status => 200, openapi => $response);
+    } catch {
+        my $e = $_;
+        $c->render(KohaSuomiServices::Model::Exception::handleDefaults($e));
+    }
+}
+
 sub lastrecord {
     my $c = shift->openapi->valid_input or return;
 

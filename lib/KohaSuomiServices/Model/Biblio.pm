@@ -342,6 +342,28 @@ sub addActive {
     }
 }
 
+sub addActiveIdentifier {
+    my ($self, $params) = @_;
+    
+    
+    my $schema = $self->schema->client($self->config);
+    my $exist = $self->active->find($schema, {target_id => $params->{target_id}, interface_name => $params->{interface_name}});
+    unless (@{$exist}) {
+        $self->active->insert($schema, $params);
+        return {message => "Success"};
+    } else {
+        my $newweight = $self->matchers->weightMatchers($params->{identifier_field});
+        $exist = shift @{$exist};
+        my $activeweight = $self->matchers->weightMatchers($exist->{identifier_field}) ? $self->matchers->weightMatchers($exist->{identifier_field}) : 4;
+        if ($newweight <= $activeweight && $exist->{identifier} ne $params->{identifier}) {
+            $self->active->update($schema, $exist->{id}, {identifier_field => $params->{identifier_field}, identifier => $params->{identifier}});
+            return {message => "Active record updated"};
+        } else {
+            return {message => "Already exists"};
+        }     
+    }
+}
+
 sub updateActive {
     my ($self, @interfaces) = @_;
     

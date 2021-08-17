@@ -320,6 +320,53 @@ paths:
           description: Internal server error
           schema:
             type: object
+  /biblio/active/identifier:
+    post:
+      x-mojo-to: 'biblio#activateIdentifier'
+      operationId: biblioSetActiveIdentifier
+      consumes:
+        - application/x-www-form-urlencoded
+      parameters:
+        - in: body
+          name: body
+          schema:
+            type: object
+            required:
+              - interface_name
+              - target_id
+              - identifier
+              - identifier_field
+            properties:
+              interface:
+                type: string
+                description: Name of the interface
+              target_id:
+                type: integer
+                description: Records id on local environment
+              identifier:
+                type: string
+                description: Record's identifier
+              identifier_field:
+                type: string
+                description: Record's identifier field
+              updated:
+                type: string
+                description: Datetime of record's update
+      responses:
+        200:
+          description: Ok status
+          schema:
+            type: object
+        401:
+          $ref: '#/responses/UnauthorizedError'
+        404:
+          description: Not found
+          schema:
+            type: object
+        500:
+          description: Internal server error
+          schema:
+            type: object
   /biblio/active/{id}:
     put:
       x-mojo-to: 'biblio#updateActiveRecord'
