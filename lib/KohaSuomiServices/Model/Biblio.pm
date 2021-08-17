@@ -276,8 +276,7 @@ sub getLastActive {
     my $schema = $self->schema->client($self->config);
     my $last = $self->active->findLast($schema, {interface_name => $interface});
     if ($last) {
-       $last = pop @{$last};
-       return {target_id => $last->{target_id}};
+       return {target_id => $last->target_id};
     } else {
        return {target_id => 1};
     }

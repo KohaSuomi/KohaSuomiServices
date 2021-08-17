@@ -18,7 +18,7 @@ sub find {
 
 sub findLast {
     my ($self, $client, $params) = @_;
-    return $self->packages->schema->get_columns($client->resultset('ActiveRecords')->find($params, {order_by => {-desc => \'CAST(target_id AS int)'}}));
+    return $client->resultset('ActiveRecords')->search($params, {order_by => {-desc => \'CAST(target_id AS int)'}})->next();
 }
 
 sub insert {
