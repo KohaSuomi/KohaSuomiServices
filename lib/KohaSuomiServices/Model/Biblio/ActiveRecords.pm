@@ -18,7 +18,7 @@ sub find {
 
 sub findLast {
     my ($self, $client, $params) = @_;
-    return $client->resultset('ActiveRecords')->search($params, {order_by => {-desc => \'CAST(target_id AS int)'}})->next();
+    return $client->resultset('ActiveRecords')->search($params, {order_by => {-desc => \'CAST(target_id AS int)'}, {rows => 1}})->next();
 }
 
 sub insert {
