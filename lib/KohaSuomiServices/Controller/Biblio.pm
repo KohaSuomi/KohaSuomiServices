@@ -244,4 +244,17 @@ sub updateActiveRecord {
     }
 }
 
+sub deleteActiveRecord {
+    my $c = shift->openapi->valid_input or return;
+
+    try {
+        my $id = $c->validation->param('id');
+        my $response = $c->biblio->deleteActiveRecord($id);
+        $c->render(status => 200, openapi => $response);
+    } catch {
+        my $e = $_;
+        $c->render(KohaSuomiServices::Model::Exception::handleDefaults($e));
+    }
+}
+
 1;

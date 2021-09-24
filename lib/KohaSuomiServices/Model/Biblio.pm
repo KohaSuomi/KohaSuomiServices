@@ -304,6 +304,14 @@ sub updateActiveRecord {
     return {message => "Success"};
 }
 
+sub deleteActiveRecord {
+    my ($self, $id) = @_;
+
+    my $schema = $self->schema->client($self->config);
+    $self->active->delete($schema, $id);
+    return {message => "Success"};
+}
+
 sub addActive {
     my ($self, $params) = @_;
     

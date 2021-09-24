@@ -406,6 +406,32 @@ paths:
           description: Internal server error
           schema:
             type: object
+    delete:
+      x-mojo-to: 'biblio#deleteActiveRecord'
+      operationId: biblioDeleteActiveRecord
+      consumes:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: integer
+          description: Active record id
+      responses:
+        200:
+          description: Ok status
+          schema:
+            type: object
+        401:
+          $ref: '#/responses/UnauthorizedError'
+        404:
+          description: Not found
+          schema:
+            type: object
+        500:
+          description: Internal server error
+          schema:
+            type: object
   /biblio/active/lastrecord:
     get:
       x-mojo-to: 'biblio#lastrecord'
