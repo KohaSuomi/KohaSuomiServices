@@ -66,12 +66,14 @@ sub report {
         my $page;
         my $limit;
         my $status;
+        my $target_id;
         if ($req) {
             $page = $req->{page} if $req->{page};
             $limit = $req->{limit} if $req->{limit};
             $status = $req->{status} if $req->{status};
+            $target_id = $req->{target_id} if $req->{target_id};
         }
-        my $data = $c->biblio->interfaceReport($interface_name, $status, $page, $limit);
+        my $data = $c->biblio->interfaceReport($interface_name, $status, $page, $limit, $target_id);
         $c->render(status => 200, openapi => $data);
     } catch {
         my $e = $_;

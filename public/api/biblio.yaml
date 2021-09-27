@@ -116,6 +116,10 @@ paths:
           name: status
           type: string
           description: Result status
+        - in: query
+          name: target_id
+          type: string
+          description: Target id
       responses:
         200:
           description: Ok status
