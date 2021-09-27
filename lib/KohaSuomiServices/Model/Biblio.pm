@@ -237,7 +237,7 @@ sub list {
 }
 
 sub interfaceReport {
-    my ($self, $interface_name, $status, $page, $rows) = @_;
+    my ($self, $interface_name, $status, $page, $rows, $target_id) = @_;
     
     my $schema = $self->schema->client($self->config);
     my $interfaces = $self->interface->find({name => $interface_name});
@@ -251,7 +251,13 @@ sub interfaceReport {
             $update_id = $interface->{id};
         }
     }
-    my $params = $status ? [{interface_id => $add_id, status => $status}, {interface_id => $update_id, status => $status}] : [{interface_id => $add_id}, {interface_id => $update_id}];
+    my $addparams = {interface_id => $add_id};
+    $addparams->{status} = $status if $status;
+    $addparams->{target_id} = $target_id if $target_id;
+    my $updateparams = {interface_id => $update_id};
+    $updateparams->{status} = $status if $status;
+    $updateparams->{target_id} = $target_id if $target_id;
+    my $params = [$addparams, $updateparams];
     my $conditions = defined $page && defined $rows ? { order_by => { -desc => [qw/timestamp/]}, page => $page, rows => $rows } : { order_by => { -desc => [qw/timestamp/]}};
     my @data = $self->exporter->find($schema, $params, $conditions);
     my $count = $self->exporter->count($schema, $params);
