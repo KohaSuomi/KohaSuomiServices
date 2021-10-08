@@ -13,6 +13,16 @@ use KohaSuomiServices::Model::Packages::Biblio;
 
 has packages => sub {KohaSuomiServices::Model::Packages::Biblio->new};
 
+sub search {
+    my ($self, $client, $params) = @_;
+    return $self->packages->schema->get_columns($client->resultset('ComponentParts')->search($params));
+}
+
+sub insert {
+    my ($self, $client, $params) = @_;
+    return $client->resultset('ComponentParts')->new($params)->insert();
+}
+
 sub exportComponentParts {
     my ($self, $parent_id, $linkvalue, $parent_datetime) = @_;
     my $schema = $self->packages->schema->client($self->packages->config);

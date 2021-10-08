@@ -107,13 +107,24 @@ sub broadcast {
                     source_id => $params->{source_id},
                     marc => $params->{marc},
                     interface => $result->{interface_name},
-                    activerecord_id => $result->{id}
+                    activerecord_id => $result->{id},
+                    componentparts_count => $params->{componentparts_count},
                 });
-                $self->response->componentparts->replaceComponentParts($result->{interface_name}, $result->{target_id}, $params->{source_id});
+                #$self->response->componentparts->replaceComponentParts($result->{interface_name}, $result->{target_id}, $params->{source_id});
                 $self->active->update($schema, $result->{id}, {updated => $params->{updated}});
+                $added = 1;
             }
         }
     }
+
+    return $added ? {message => "Success"} : {message => "Empty"};
+}
+
+sub broadcastComponentParts {
+    my ($self, $params) = @_;
+    my $schema = $self->schema->client($self->config);
+    $params->{marc} = to_json($params->{marc});
+    $self->response->componentparts->insert($schema, $params);
 
     return {message => "Success"};
 }
