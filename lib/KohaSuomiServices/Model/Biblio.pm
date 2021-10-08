@@ -87,47 +87,8 @@ sub broadcast {
     my ($self, $params) = @_;
     
     $self->log->debug(Data::Dumper::Dumper $params);
-    my %matchers = $self->matchers->defaultSearchMatchers();
-    my $schema = $self->schema->client($self->config);
-    my @controlkey;
-    foreach my $ckey (keys %matchers) {
-        if ($ckey eq "003") {
-            $controlkey[0] = $ckey;
-            delete $matchers{"003"};
-        }
-        if ($ckey eq "001") {
-            $controlkey[1] = $ckey;
-            delete $matchers{"001"};
-        }
-    }
-    $matchers{$controlkey[0].'|'.$controlkey[1]} = {"" => "FI-BTJ"};
-    while (my ($key, $value) = each %matchers) {
-        my %matcher;
-        $matcher{$key} = $value;
-
-        if($key =~ /\|/) {
-            my ($f003,$f001) = split(/\|/, $key);
-            $matcher{$f003} = $value;
-            $matcher{$f001} = "";
-            delete $matcher{"003|001"};
-        }
-        
-        my $identifier = $self->search->getIdentifier($params->{marc}, %matcher);
-        my $results;
-        if (ref($identifier) eq "ARRAY") {
-            foreach my $id (@{$identifier}) {
-                if (ref($results) eq "ARRAY") {
-                    foreach my $result (@{$self->active->find($schema, {identifier => $id})}) {
-                        push @{$results}, $result;
-                    }
-                } else {
-                    $results = $self->active->find($schema, {identifier => $id});
-                }
-            }
-        } else {
-            $results = $self->active->find($schema, {identifier => $identifier});
-        }
-        
+    foreach my $activefield (@{$params->{activefields}}) {
+        my $results = $self->active->find($schema, {identifier => $activefield->{identifier}, identifier_field => $activefield->{identifier_field} });
         next unless defined $results && $results;
         foreach my $result (@{$results}) {
             my $exists = $self->active->checkActiveRecord($result->{interface_name}, $result->{target_id});
