@@ -487,6 +487,49 @@ paths:
               updated:
                 type: string
                 description: Datetime of record's update
+              componentparts_count:
+                type: integer
+                description: Record has component parts
+      responses:
+        200:
+          description: Ok status
+          schema:
+            type: object
+        401:
+          $ref: '#/responses/UnauthorizedError'
+        404:
+          description: Not found
+          schema:
+            type: object
+        500:
+          description: Internal server error
+          schema:
+            type: object
+  /biblio/broadcast/componentparts:
+    post:
+      x-mojo-to: 'biblio#broadcastComponentParts'
+      operationId: biblioBroadCastComponentParts
+      consumes:
+        - application/x-www-form-urlencoded
+      parameters:
+        - in: body
+          name: body
+          schema:
+            type: object
+            required:
+              - source_id
+              - marcxml
+              - parent_id
+            properties:
+              source_id:
+                type: integer
+                description: Records id on local environment
+              marcxml:
+                type: string
+                description: Marcxml
+              parent_id:
+                type: integer
+                description: Host record's id
       responses:
         200:
           description: Ok status
