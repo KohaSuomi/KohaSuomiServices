@@ -477,6 +477,7 @@ paths:
               - source_id
               - marcxml
               - updated
+              - activefields
             properties:
               source_id:
                 type: integer
@@ -487,6 +488,9 @@ paths:
               updated:
                 type: string
                 description: Datetime of record's update
+              activefields:
+                type: array
+                description: Identifier fields for finding the activation
       responses:
         200:
           description: Ok status
