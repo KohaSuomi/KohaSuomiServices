@@ -23,6 +23,38 @@ sub insert {
     return $client->resultset('ComponentParts')->new($params)->insert();
 }
 
+sub update {
+    my ($self, $client, $id, $params) = @_;
+    return $client->resultset('ComponentParts')->find($id)->update($params);
+}
+
+sub pushToExport {
+    my ($self, $client, $remote_interface, $parent_id) = @_;
+    my $componentParts = $self->search($client, {parent_id => $parent_id, pushed => 0});
+    my @arr = $self->getTargetsComponentParts($remote_interface, $parent_id);
+    unless (@arr) {
+        foreach my $componentpart (@{$componentParts}) {
+            my $res = $self->packages->biblio->export({source_id => $componentpart->{source_id}, marc => from_json($componentpart->{marc}), interface => $remote_interface, parent_id => $parent_id});
+            $self->update($client, $componentpart->{id}, {pushed => 1});
+            $self->packages->log->info("New component part export ".$res->{export}." added");
+        }
+    } else {
+        foreach my $componentpart (@{$componentParts}) {
+            my $res;
+            my $targetid = shift @arr;
+            if (defined $targetid && $targetid) {
+                $res = $self->packages->biblio->export({target_id => $targetid, source_id => $componentpart->{source_id}, marc => from_json($componentpart->{marc}), interface => $remote_interface, parent_id => $parent_id});
+                $self->update($client, $componentpart->{id}, {pushed => 1});
+                $self->packages->log->info("Component part ".$res->{export}." replaced");
+            } else {
+                $res = $self->packages->biblio->export({source_id => $componentpart->{source_id}, marc => from_json($componentpart->{marc}), interface => $remote_interface, parent_id => $parent_id});
+                $self->update($client, $componentpart->{id}, {pushed => 1});
+                $self->packages->log->info("New component part export ".$res->{export}." added");
+            }
+        }
+    }
+}
+
 sub exportComponentParts {
     my ($self, $parent_id, $linkvalue, $parent_datetime) = @_;
     my $schema = $self->packages->schema->client($self->packages->config);

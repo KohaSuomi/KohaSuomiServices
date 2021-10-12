@@ -492,7 +492,7 @@ paths:
                 type: array
                 description: Identifier fields for finding the activation
               componentparts_count:
-                type: integer
+                type: [integer, 'null']
                 description: Record has component parts
       responses:
         200:
