@@ -162,8 +162,11 @@ sub broadcastComponentParts {
     my ($self, $params) = @_;
     my $schema = $self->schema->client($self->config);
     $params->{marc} = to_json($params->{marc});
-    $self->response->componentparts->insert($schema, $params);
-
+    $params->{updated} = strftime "%Y-%m-%d %H:%M:%S", ( localtime(time) );
+    my $res = $self->response->componentparts->update($schema, $params);
+    unless ($res) {
+        $self->response->componentparts->insert($schema, $params);
+    }
     return {message => "Success"};
 }
 
@@ -202,7 +205,7 @@ sub pushExport {
         my ($resCode, $resBody, $resHeaders) = $self->search->callInterface($interface->{method}, $interface->{format}, $path, $body, $authentication, $headers);
         if ($resCode eq "200" || $resCode eq "201") {
             $self->exporter->update($export->{id}, {status => "success", errorstatus => ""});
-            $self->response->getAndUpdate($interface, $resBody, $resHeaders, $export->{source_id}, $type, $export->{timestamp});
+            $self->response->getAndUpdate($interface, $resBody, $resHeaders, $export->{source_id}, $type, $export->{timestamp}) unless defined $export->{activerecord_id} && $export->{activerecord_id};
             $self->active->updateActiveRecords($export->{activerecord_id}) if defined $export->{activerecord_id} && $export->{activerecord_id};
             $self->log->info("Export ".$export->{id}." finished successfully with");
             $self->log->debug(Data::Dumper::Dumper $resBody);
