@@ -149,7 +149,6 @@ sub broadcast {
                     activerecord_id => $result->{id},
                     componentparts_count => $params->{componentparts_count},
                 });
-                #$self->response->componentparts->replaceComponentParts($result->{interface_name}, $result->{target_id}, $params->{source_id});
                 $self->active->update($schema, $result->{id}, {updated => $params->{updated}});
                 $added = 1;
             }
@@ -173,14 +172,20 @@ sub pushExport {
 
     my $exports = $self->exporter->getExports($type, $componentparts);
     foreach my $export (@{$exports}){
-        if ($export->{componentparts_count}) {
+
+        my $interface = $self->interface->load({id=> $export->{interface_id}}, $export->{force_tag});
+        if ($export->{activerecord_id} && $export->{componentparts_count}) {
+            my $schema = $self->schema->client($self->config);
+            $self->response->componentparts->pushToExport($schema, $interface->{name}, $export->{source_id});
+        }
+        if ($export->{componentparts_count} && !$export->{activerecord_id}) {
             my $equal = $self->response->componentparts->componentpartsCount($export->{id}, $export->{source_id}, $export->{timestamp}, $export->{componentparts_count});
             next unless $equal;
         }
-        my $interface = $self->interface->load({id=> $export->{interface_id}}, $export->{force_tag});
         if ($export->{componentparts} && $export->{fetch_interface}) {
             $self->response->componentparts->fetchComponentParts($interface->{name}, $export->{fetch_interface}, $export->{source_id}, undef);
         }
+
         my $query = $self->search->create_query($interface->{params});
         my $path = $self->search->create_path($interface, $export, $query);
         my %removeMatchers = $self->matchers->removeMatchers($interface->{id});
