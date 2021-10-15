@@ -63,7 +63,7 @@ sub setExporterParams {
     $exporter->{activerecord_id} = $activerecord_id;
     $exporter->{errorstatus} = $errorstatus;
     $exporter->{componentparts_count} = $componentparts_count;
-    $exporter->{broadcast_record} = $broadcast_record;
+    $exporter->{broadcast_record} = $broadcast_record || 0;
 
     return $exporter;
 }
