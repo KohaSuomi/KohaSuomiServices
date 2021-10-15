@@ -67,7 +67,7 @@ sub export {
     my $type = defined $params->{target_id} && $params->{target_id} ? "update" : "add";
     my $authuser = $self->exportauth->checkAuthUser($schema, $params->{username}, $interface->{id});
 
-    $self->exporter->abortOldExports($type, $interface->{id}, $params->{source_id}, $params->{target_id});
+    $self->exporter->abortOldExports($type, $interface->{id}, $params->{source_id}, $params->{target_id}, $params->{parent_id}, $params->{broadcast_record});
 
     my $exporter;
     unless ($abort) {
