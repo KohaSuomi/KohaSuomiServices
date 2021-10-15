@@ -33,9 +33,9 @@ sub update {
 }
 
 sub pushToExport {
-    my ($self, $client, $remote_interface, $parent_id) = @_;
+    my ($self, $client, $remote_interface, $parent_id, $target_parent) = @_;
     my $componentParts = $self->search($client, {parent_id => $parent_id});
-    my @arr = $self->getTargetsComponentParts($remote_interface, $parent_id);
+    my @arr = $self->getTargetsComponentParts($remote_interface, $target_parent);
     unless (@arr) {
         foreach my $componentpart (@{$componentParts}) {
             my $res = $self->packages->biblio->export({source_id => $componentpart->{source_id}, marc => from_json($componentpart->{marc}), interface => $remote_interface, parent_id => $parent_id, broadcast_record => 1});
