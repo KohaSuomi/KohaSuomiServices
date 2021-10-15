@@ -19,4 +19,10 @@ __PACKAGE__->set_primary_key('id');
 ## ## ##   DONE WITH DBIx::Schema   ## ## ##
 ############################################
 
+sub sqlt_deploy_hook {
+  my ($self, $sqlt_table) = @_;
+
+  $sqlt_table->add_index(name => 'exporter_index', fields => ['exporter_id']);
+}
+
 1;
