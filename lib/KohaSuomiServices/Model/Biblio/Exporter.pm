@@ -72,7 +72,7 @@ sub abortOldExports {
     my $client = $self->packages->schema->client($self->packages->config);
     my $params = {type => $type, interface_id => $interface_id, target_id => $target_id, source_id => $source_id, -or => [status => 'waiting', status => 'pending']};
     $params = {type => $type, interface_id => $interface_id, broadcast_record => 1, target_id => $target_id, source_id => $source_id, -or => [status => 'waiting', status => 'pending']} if $broadcastrecord && !$parent_id;
-    $params = {parent_id => $parent_id, broadcast_record => 1, target_id => $target_id, source_id => $source_id, -or => [status => 'waiting', status => 'pending']} if $broadcastrecord && $parent_id;
+    $params = {parent_id => $parent_id, broadcast_record => 1, source_id => $source_id, -or => [status => 'waiting', status => 'pending']} if $broadcastrecord && $parent_id;
     my @export = $self->find($client, $params, undef);
     return unless @export;
     foreach my $export (@{$self->packages->schema->get_columns(@export)}) {
