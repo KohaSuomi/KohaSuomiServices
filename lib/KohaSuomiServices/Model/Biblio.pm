@@ -148,6 +148,7 @@ sub broadcast {
                     interface => $result->{interface_name},
                     activerecord_id => $result->{id},
                     componentparts_count => $params->{componentparts_count},
+                    broadcast_record => 1,
                 });
                 $self->active->update($schema, $result->{id}, {updated => $params->{updated}});
                 $added = 1;
@@ -171,18 +172,18 @@ sub broadcastComponentParts {
 }
 
 sub pushExport {
-    my ($self, $type, $componentparts) = @_;
+    my ($self, $type, $componentparts, $broadcastrecord) = @_;
 
-    my $exports = $self->exporter->getExports($type, $componentparts);
+    my $exports = $self->exporter->getExports($type, $componentparts, $broadcastrecord);
     foreach my $export (@{$exports}){
 
         my $interface = $self->interface->load({id=> $export->{interface_id}}, $export->{force_tag});
-        if ($export->{activerecord_id} && $export->{componentparts_count}) {
+        if ($export->{broadcast_record} && $export->{componentparts_count}) {
             my $schema = $self->schema->client($self->config);
             $self->response->componentparts->pushToExport($schema, $interface->{name}, $export->{source_id});
         }
-        if ($export->{componentparts_count} && !$export->{activerecord_id}) {
-            my $equal = $self->response->componentparts->componentpartsCount($export->{id}, $export->{source_id}, $export->{timestamp}, $export->{componentparts_count});
+        if ($export->{componentparts_count}) {
+            my $equal = $self->response->componentparts->componentpartsCount($export->{id}, $export->{source_id}, $export->{timestamp}, $export->{componentparts_count}, $export->{broadcast_record});
             next unless $equal;
         }
         if ($export->{componentparts} && $export->{fetch_interface}) {

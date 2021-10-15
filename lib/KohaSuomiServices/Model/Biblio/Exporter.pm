@@ -34,10 +34,10 @@ sub update {
 }
 
 sub getExports {
-    my ($self, $type, $components) = @_;
+    my ($self, $type, $components, $broadcastrecord) = @_;
 
-    my $params = {type => $type, status => "pending", parent_id => undef};
-    $params = {type => $type, status => "pending", parent_id => {'!=', undef}} if defined $components && $components;
+    my $params = {type => $type, status => "pending", parent_id => undef, broadcast_record => $broadcastrecord};
+    $params->{parent_id} = {'!=', undef} if defined $components && $components;
     my $order = defined $components && $components ? {order_by => { -asc => [qw/parent_id source_id/] }} : undef;
     my $schema = $self->packages->schema->client($self->packages->config);
     my @data = $self->find($schema, $params, $order);
