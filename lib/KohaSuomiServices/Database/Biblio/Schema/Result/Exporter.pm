@@ -20,6 +20,7 @@ __PACKAGE__->add_columns(
   force_tag => {data_type => 'integer', is_boolean  => 1, default_value => 0, false_is    => ['0', '-1']},
   componentparts => {data_type => 'integer', is_boolean  => 1, default_value => 0, false_is    => ['0', '-1']},
   componentparts_count => { data_type => 'integer', is_nullable => 1 },
+  broadcast_record => {data_type => 'integer', is_boolean  => 1, default_value => 0, false_is    => ['0', '-1']},
   fetch_interface => { data_type => 'varchar', size => 30, is_nullable => 1 },
   diff => { data_type => 'longtext', default_value => '' },
   timestamp => { data_type => 'datetime', default_value => \"current_timestamp", is_nullable => 0 },
