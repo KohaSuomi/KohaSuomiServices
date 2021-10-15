@@ -180,7 +180,7 @@ sub pushExport {
         my $interface = $self->interface->load({id=> $export->{interface_id}}, $export->{force_tag});
         if ($export->{broadcast_record} && $export->{componentparts_count}) {
             my $schema = $self->schema->client($self->config);
-            $self->response->componentparts->pushToExport($schema, $interface->{name}, $export->{source_id});
+            $self->response->componentparts->pushToExport($schema, $interface->{name}, $export->{source_id}, $export->{target_id});
         }
         if ($export->{componentparts_count}) {
             my $equal = $self->response->componentparts->componentpartsCount($export->{id}, $export->{source_id}, $export->{timestamp}, $export->{componentparts_count}, $export->{broadcast_record});
