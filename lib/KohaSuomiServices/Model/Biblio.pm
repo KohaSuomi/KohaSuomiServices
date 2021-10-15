@@ -71,9 +71,9 @@ sub export {
 
     my $exporter;
     unless ($abort) {
-        $exporter = $self->exporter->setExporterParams($interface, $type, "waiting", $params->{source_id}, $params->{target_id}, $authuser, $params->{parent_id}, $params->{force}, $params->{componentparts}, $params->{fetch_interface}, $params->{activerecord_id}, "", $params->{componentparts_count});
+        $exporter = $self->exporter->setExporterParams($interface, $type, "waiting", $params->{source_id}, $params->{target_id}, $authuser, $params->{parent_id}, $params->{force}, $params->{componentparts}, $params->{fetch_interface}, $params->{activerecord_id}, "", $params->{componentparts_count}, $params->{broadcast_record});
     } else {
-        $exporter = $self->exporter->setExporterParams($interface, $type, "failed", $params->{source_id}, $params->{target_id}, $authuser, $params->{parent_id}, $params->{force}, $params->{componentparts}, $params->{fetch_interface}, $params->{activerecord_id}, $errormessage, $params->{componentparts_count});
+        $exporter = $self->exporter->setExporterParams($interface, $type, "failed", $params->{source_id}, $params->{target_id}, $authuser, $params->{parent_id}, $params->{force}, $params->{componentparts}, $params->{fetch_interface}, $params->{activerecord_id}, $errormessage, $params->{componentparts_count}, $params->{broadcast_record});
     }
 
     my $data = $self->exporter->insert($schema, $exporter);
