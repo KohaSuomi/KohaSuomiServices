@@ -67,9 +67,12 @@ sub setExporterParams {
 }
 
 sub abortOldExports {
-    my ($self, $type, $interface_id, $source_id, $target_id) = @_;
+    my ($self, $type, $interface_id, $source_id, $target_id, $parent_id, $broadcastrecord) = @_;
     my $client = $self->packages->schema->client($self->packages->config);
-    my @export = $self->find($client, {type => $type, interface_id => $interface_id, target_id => $target_id, source_id => $source_id, -or => [status => 'waiting', status => 'pending']}, undef);
+    my $params = {type => $type, interface_id => $interface_id, target_id => $target_id, source_id => $source_id, -or => [status => 'waiting', status => 'pending']};
+    $params = {type => $type, interface_id => $interface_id, broadcast_record => 1, target_id => $target_id, source_id => $source_id, -or => [status => 'waiting', status => 'pending']} if $broadcastrecord && !$parent_id;
+    $params = {parent_id => $parent_id, broadcast_record => 1, target_id => $target_id, source_id => $source_id, -or => [status => 'waiting', status => 'pending']} if $broadcastrecord && $parent_id;
+    my @export = $self->find($client, $params, undef);
     return unless @export;
     foreach my $export (@{$self->packages->schema->get_columns(@export)}) {
         $self->packages->log->info("Aborting ".$export->{id}.", newer export record added");
