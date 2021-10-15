@@ -20,11 +20,13 @@ sub run {
   my ($self, @args) = @_;
   my $app = $self->app;
 
+  my $broadcastrecord = 0;
+
   getopt(
     \@args,
     't|type=s' => \my $type,
     'c|componentparts' => \my $componentparts,
-    'b|broadcastrecord' => \my $broadcastrecord,
+    'b|broadcastrecord' => \$broadcastrecord,
   );
   
   $app->biblio->pushExport($type, $componentparts, $broadcastrecord);
