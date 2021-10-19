@@ -125,8 +125,13 @@ sub broadcastComponentParts {
     my $schema = $self->schema->client($self->config);
     $params->{marc} = to_json($params->{marc});
     $params->{updated} = strftime "%Y-%m-%d %H:%M:%S", ( localtime(time) );
+    
     my $res = $self->response->componentparts->update($schema, $params);
     unless ($res) {
+        my $old = $self->response->componentparts->search($schema, {parent_id => $params->{parent_id}});
+        if ($old) {
+            $self->response->componentparts->delete($schema, {parent_id => $params->{parent_id}});
+        }
         $self->response->componentparts->insert($schema, $params);
     }
     return {message => "Success"};
