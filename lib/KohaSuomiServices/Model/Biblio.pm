@@ -128,9 +128,9 @@ sub broadcastComponentParts {
     
     my $res = $self->response->componentparts->update($schema, $params);
     unless ($res) {
-        my $old = $self->response->componentparts->search($schema, {parent_id => $params->{parent_id}, part_order => $params->{order}});
+        my $old = $self->response->componentparts->search($schema, {parent_id => $params->{parent_id}, part_order => $params->{part_order}});
         if ($old) {
-            $self->response->componentparts->delete($schema, {parent_id => $params->{parent_id}, part_order => $params->{order}});
+            $self->response->componentparts->delete($schema, {parent_id => $params->{parent_id}, part_order => $params->{part_order}});
         }
         $self->response->componentparts->insert($schema, $params);
     }
