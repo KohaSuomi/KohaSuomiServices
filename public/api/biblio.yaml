@@ -520,6 +520,7 @@ paths:
               - source_id
               - marcxml
               - parent_id
+              - part_order
             properties:
               source_id:
                 type: integer
@@ -530,6 +531,9 @@ paths:
               parent_id:
                 type: integer
                 description: Host record's id
+              part_order:
+                type: integer
+                description: Order of component parts
       responses:
         200:
           description: Ok status

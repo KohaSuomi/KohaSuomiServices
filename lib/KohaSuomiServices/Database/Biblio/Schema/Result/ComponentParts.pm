@@ -10,6 +10,7 @@ __PACKAGE__->add_columns(
   source_id => { data_type => 'varchar', size => 50 },
   parent_id => { data_type => 'varchar', size => 50, is_nullable => 1 },
   marc => { data_type => 'longtext', default_value => '' },
+  part_order => { data_type => 'integer', is_nullable => 0 },
   updated => { data_type => 'datetime', is_nullable => 0}
 );
 __PACKAGE__->set_primary_key('source_id');

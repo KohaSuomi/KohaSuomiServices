@@ -34,7 +34,7 @@ sub update {
 
 sub delete {
     my ($self, $client, $params) = @_;
-    return $client->resultset('ComponentParts')->find($params)->delete;
+    return $client->resultset('ComponentParts')->search($params)->delete;
 }
 
 sub pushToExport {
