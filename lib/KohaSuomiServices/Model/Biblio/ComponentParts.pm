@@ -32,6 +32,11 @@ sub update {
     return $client->resultset('ComponentParts')->find($id)->update($params);
 }
 
+sub delete {
+    my ($self, $client, $params) = @_;
+    return $client->resultset('ComponentParts')->find($params)->delete;
+}
+
 sub pushToExport {
     my ($self, $client, $remote_interface, $parent_id, $target_parent) = @_;
     my $componentParts = $self->search($client, {parent_id => $parent_id});
