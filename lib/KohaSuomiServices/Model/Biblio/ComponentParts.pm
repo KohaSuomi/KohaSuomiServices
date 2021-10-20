@@ -102,7 +102,9 @@ sub componentpartsCount {
     my ($self, $exporter_id, $parent_id, $parent_datetime, $count_value, $broadcast) = @_;
     my $equal = 1;
     my $schema = $self->packages->schema->client($self->packages->config);
-    my @componentparts = $self->packages->exporter->find($schema, {status => "waiting", parent_id => $parent_id, broadcast_record => $broadcast}, undef);
+    my $find = {status => "waiting", parent_id => $parent_id, broadcast_record => $broadcast};
+    $find->{timestamp} = {">=" => $parent_datetime} if $broadcast;
+    my @componentparts = $self->packages->exporter->find($schema, $find, undef);
     my $length = @{$self->packages->schema->get_columns(@componentparts)};
     unless ($length == $count_value) {
         $self->packages->log->info("Missing component parts, will not process parent ". $parent_id);
