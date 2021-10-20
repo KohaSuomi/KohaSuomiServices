@@ -88,6 +88,7 @@ sub broadcast {
     
     $self->log->debug(Data::Dumper::Dumper $params);
     my $schema = $self->schema->client($self->config);
+    my $added = 0;
     foreach my $activefield (@{$params->{activefields}}) {
         my $results = $self->active->find($schema, {identifier => $activefield->{identifier}, identifier_field => $activefield->{identifier_field} });
         next unless defined $results && $results;
