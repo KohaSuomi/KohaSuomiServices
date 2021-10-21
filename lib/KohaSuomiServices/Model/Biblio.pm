@@ -162,7 +162,7 @@ sub pushExport {
         my %removeMatchers = $self->matchers->removeMatchers($interface->{id});
         my $data = $self->fields->find($export->{id}, %removeMatchers);
         $data = $self->matchers->modifyFields($export->{interface_id}, $export->{id}, $data);
-        if ($type eq "update" && $export->{target_id}) {
+        if ($export->{type} eq "update" && $export->{target_id}) {
             my $remote = $self->search->searchTarget($interface->{name}, undef, $export->{target_id});
             my $diff = $self->compare->getDiff($remote, $data);
             $self->exporter->update($export->{id}, {diff => $diff});
