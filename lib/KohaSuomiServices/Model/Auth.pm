@@ -12,12 +12,13 @@ use KohaSuomiServices::Model::Exception::Unauthorized;
 use C4::Auth qw( haspermission );
 use Mojo::URL;
 use Cache::FastMmap;
+use Digest::SHA;
 
 has schema => sub {KohaSuomiServices::Database::Client->new};
 has ua => sub {Mojo::UserAgent->new};
 has config => sub {KohaSuomiServices::Model::Config->new->load};
 has session => sub {KohaSuomiServices::Model::Auth::Session->new};
-has cache => sub {Cache::FastMmap->new(share_file => '/tmp/ks_sessions', cache_size => '1h')};
+has cache => sub {Cache::FastMmap->new(share_file => '/tmp/ks_sessions', cache_size => '10m')};
 
 sub valid {
     my ($self, $token) = @_;
