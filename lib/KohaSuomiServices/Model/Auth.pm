@@ -18,7 +18,7 @@ has schema => sub {KohaSuomiServices::Database::Client->new};
 has ua => sub {Mojo::UserAgent->new};
 has config => sub {KohaSuomiServices::Model::Config->new->load};
 has session => sub {KohaSuomiServices::Model::Auth::Session->new};
-has cache => sub {Cache::FastMmap->new(share_file => '/tmp/ks_sessions', cache_size => '10m')};
+has cache => sub {Cache::FastMmap->new(share_file => '/tmp/ks_sessions', cache_size => '10m', expire_time => '1h')};
 
 sub valid {
     my ($self, $token) = @_;
@@ -50,10 +50,7 @@ sub get {
 sub delete {
     my ($self, $sessionid) = @_;
 
-    my $path = $self->config->{auth}->{internallogin};
-    my $params = {sessionid => $sessionid};
-    my $tx = $self->ua->build_tx(DELETE => $path => {Accept => 'application/json'} => json => $params);
-    $tx = $self->ua->start($tx);
+    $self->cache->remove($sessionid);
 }
 
 sub checkPermissions {
