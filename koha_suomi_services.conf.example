@@ -8,10 +8,7 @@
   log_level => 'debug',
   auth => { # Koha and internal auth paths
     baseendpoint => 'http://127.0.0.1:8080/service/api/',
-    internallogin => 'http://127.0.0.1/api/v1/auth/session',
-    permissions => [
-      "superlibrarian"
-    ]
+    internallogin => 'http://127.0.0.1/api/v1/auth/session'
   },
   services => {
     biblio => {
