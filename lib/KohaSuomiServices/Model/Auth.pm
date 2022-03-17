@@ -37,7 +37,7 @@ sub login {
     my $user = decode_json($tx->res->body);
     $user = shift @$user;
     my $hash = $self->checkPermissions($user);
-    $self->cache->set($hash, $user->{userid});
+    $self->cache->set($hash, $user->{userid}) if $hash;
     return ($hash, $error);
 }
 
