@@ -3,6 +3,7 @@ package KohaSuomiServices::Model::Exception;
 use Modern::Perl;
 use utf8;
 use Scalar::Util qw( blessed );
+use KohaSuomiServices::Model::Config;
 
 use Exception::Class (
     'KohaSuomiServices::Model::Exception' => {
@@ -10,6 +11,7 @@ use Exception::Class (
         fields => ['httpStatus'],
     },
 );
+
 
 sub generateNew {
   return 'sub new {
@@ -26,6 +28,8 @@ sub newFromDie {
 
 sub handleDefaults {
   my ($e) = @_;
+  my $log = Mojo::Log->new(path => KohaSuomiServices::Model::Config->new->load->{"logs"}, level => KohaSuomiServices::Model::Config->new->load->{"log_level"});
+  $log->debug($e);
   return (status => 500, openapi => { error => "Something went wrong!"}) unless blessed($e);
   return (status => 500, openapi => { error => "Something went wrong!"}) if $e->isa('Mojo::Exception');
   return (status => 500, openapi => { error => "Something went wrong!"}) if ref($e) eq 'KohaSuomiServices::Model::Exception'; #If this is THE 'Hetula::Exception', then handle it here
