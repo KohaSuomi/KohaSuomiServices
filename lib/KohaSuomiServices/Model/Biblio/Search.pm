@@ -69,7 +69,9 @@ sub searchTarget {
 
     if ($interface->{interface} eq "REST" && $source_id) {
         my $path = $self->create_path($interface, {source_id => $source_id});
-        my ($resCode, $resBody, $resHeaders) = $self->callInterface($interface->{method}, $interface->{format}, $path, undef, undef);
+        my $authentication = $self->packages->exportauth->authorize($interface);
+        my $reqHeaders = $self->packages->biblio->search->create_headers($interface->{params});
+        my ($resCode, $resBody, $resHeaders) = $self->callInterface($interface->{method}, $interface->{format}, $path, undef, $authentication, $reqHeaders);
         if ($resCode eq "200" || $resCode eq "201") {
             $resBody = $resBody->{marcxml} if $resBody->{marcxml};
             $resBody = ref($resBody) eq "HASH" ? $resBody : $self->packages->convert->formatjson($resBody);
