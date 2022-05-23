@@ -51,7 +51,7 @@ sub checkActiveRecord {
     my $authentication = $self->packages->exportauth->authorize($interface);
     my $reqHeaders = $self->packages->biblio->search->create_headers($interface->{params});
     my ($resCode, $resBody, $resHeaders) = $self->packages->biblio->search->callInterface($interface->{method}, $interface->{format}, $path, undef, $authentication, $reqHeaders);
-    if ($resCode eq '200' && $resBody->{biblionumber}) {
+    if ($resCode eq '200') {
         return 1;
     } else {
         return 0;
