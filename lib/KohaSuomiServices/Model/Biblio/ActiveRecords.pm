@@ -54,6 +54,7 @@ sub checkActiveRecord {
     if ($resCode eq '200') {
         return 1;
     } else {
+        $self->packages->log->info("Failed to check active record from ". $interface_name.": ".$resHeaders);
         return 0;
     }
     
