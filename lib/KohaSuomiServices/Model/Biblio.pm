@@ -411,7 +411,8 @@ sub updateActive {
                     target_id => $result->{target_id},
                     source_id => $source_id,
                     marc => $search,
-                    activerecord_id => $result->{id}
+                    activerecord_id => $result->{id},
+                    broadcast_record => 1,
                 };
                 my $res = $self->export($exporter);
             } else {
