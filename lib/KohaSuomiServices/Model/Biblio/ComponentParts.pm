@@ -192,7 +192,7 @@ sub restGetAll {
     my $tx = $self->packages->interface->buildTX($interface->{method}, $interface->{format}, $path, $authentication);
     $self->packages->log->error($interface->{name}." REST error: ". $tx->res->message) if $tx->res->error;
     return if $tx->res->error;
-    my $body = from_json($tx->res->body);
+    my $body = decode_json($tx->res->body);
     if ($body->{componentparts}) {
         return $body->{componentparts};
     }
