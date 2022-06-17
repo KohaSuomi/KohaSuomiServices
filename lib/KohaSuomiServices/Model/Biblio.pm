@@ -153,7 +153,7 @@ sub pushExport {
             my $equal = $self->response->componentparts->componentpartsCount($export->{id}, $export->{source_id}, $export->{timestamp}, $export->{componentparts_count}, $export->{broadcast_record});
             next unless $equal;
         }
-        if ($export->{componentparts} && $export->{fetch_interface}) {
+        if (($export->{componentparts} && $export->{fetch_interface}) || $export->{fetch_interface} eq "TatiImport") {
             $self->response->componentparts->fetchComponentParts($interface->{name}, $export->{fetch_interface}, $export->{source_id}, undef);
         }
 
