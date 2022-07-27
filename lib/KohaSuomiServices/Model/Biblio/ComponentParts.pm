@@ -118,9 +118,7 @@ sub componentpartsCount {
         my $today = time;
         my $yesterday = $today - 1 * 24 * 60 * 60; # current date - 1 days
         my $yesterday_date=strftime "%Y-%m-%d", localtime($yesterday);
-        $self->packages->log->info("timestamp:".$date);
-        $self->packages->log->info("yesterday:".$yesterday_date);
-        if ($date <= $yesterday_date) {
+        if ($date lt $yesterday_date || $date eq $yesterday_date) {
             $self->packages->exporter->update($exporter_id, {status => "failed", errorstatus => "Component parts count not matching"});
         }
         $equal = 0;
