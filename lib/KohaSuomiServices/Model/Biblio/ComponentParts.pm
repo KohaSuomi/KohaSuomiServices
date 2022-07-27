@@ -108,9 +108,9 @@ sub componentpartsCount {
     my @componentparts = $self->packages->exporter->find($schema, $find, undef);
     my $length = @{$self->packages->schema->get_columns(@componentparts)};
     unless ($length == $count_value) {
-        $self->packages->log->info("Missing component parts, will not process parent ". $parent_id);
         my @failedcomponentparts = $self->packages->exporter->find($schema, {status => "failed", parent_id => $parent_id, timestamp => {">=" => $parent_datetime}, broadcast_record => $broadcast}, undef);
         if (@failedcomponentparts) {
+            $self->packages->log->info("Failed component parts, will not process parent ". $parent_id);
             $self->packages->exporter->update($exporter_id, {status => "failed", errorstatus => "Component parts failed"});
         }
         my ($y, $m, $d) = $parent_datetime =~ /^(\d\d\d\d)-(\d\d)-(\d\d)/;
@@ -119,6 +119,7 @@ sub componentpartsCount {
         my $yesterday = $today - 1 * 24 * 60 * 60; # current date - 1 days
         my $yesterday_date=strftime "%Y-%m-%d", localtime($yesterday);
         if ($date lt $yesterday_date || $date eq $yesterday_date) {
+            $self->packages->log->info("Missing component parts, will not process parent ". $parent_id);
             $self->packages->exporter->update($exporter_id, {status => "failed", errorstatus => "Component parts count not matching"});
         }
         $equal = 0;
