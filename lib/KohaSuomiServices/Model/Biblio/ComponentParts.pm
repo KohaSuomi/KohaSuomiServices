@@ -6,6 +6,7 @@ use utf8;
 
 use Try::Tiny;
 use Mojo::JSON qw(decode_json encode_json from_json);
+use POSIX;
 
 use KohaSuomiServices::Model::Exception::NotFound;
 
@@ -111,6 +112,14 @@ sub componentpartsCount {
         my @failedcomponentparts = $self->packages->exporter->find($schema, {status => "failed", parent_id => $parent_id, timestamp => {">=" => $parent_datetime}, broadcast_record => $broadcast}, undef);
         if (@failedcomponentparts) {
             $self->packages->exporter->update($exporter_id, {status => "failed", errorstatus => "Component parts failed"});
+        }
+        my ($y, $m, $d) = $parent_datetime =~ /^(\d\d\d\d)-(\d\d)-(\d\d)/;
+        my $date = $y.'-'.$m.'-'.$d;
+        my $today = time;
+        my $lastweek = $today - 7 * 24 * 60 * 60; # current date - 7 days
+        my $lastweek_date=strftime "%Y-%m-%d", localtime($lastweek);
+        if ($date >= $lastweek_date) {
+            $self->packages->exporter->update($exporter_id, {status => "failed", errorstatus => "Component parts count not matching"});
         }
         $equal = 0;
     }
