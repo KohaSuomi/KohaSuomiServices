@@ -116,9 +116,11 @@ sub componentpartsCount {
         my ($y, $m, $d) = $parent_datetime =~ /^(\d\d\d\d)-(\d\d)-(\d\d)/;
         my $date = $y.'-'.$m.'-'.$d;
         my $today = time;
-        my $lastweek = $today - 7 * 24 * 60 * 60; # current date - 7 days
-        my $lastweek_date=strftime "%Y-%m-%d", localtime($lastweek);
-        if ($date >= $lastweek_date) {
+        my $yesterday = $today - 1 * 24 * 60 * 60; # current date - 1 days
+        my $yesterday_date=strftime "%Y-%m-%d", localtime($yesterday);
+        $self->packages->log->info("timestamp:".$date);
+        $self->packages->log->info("yesterday:".$yesterday_date);
+        if ($date >= $yesterday_date) {
             $self->packages->exporter->update($exporter_id, {status => "failed", errorstatus => "Component parts count not matching"});
         }
         $equal = 0;
