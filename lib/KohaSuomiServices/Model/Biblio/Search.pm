@@ -23,7 +23,7 @@ sub callInterface {
     
     return ($tx->res->code, $tx->res->body, $tx->res->error->{message}) if $tx->res->error;
     if ($tx->res->body ne '') {
-        return ($tx->res->code, from_json($tx->res->body), $tx->res->headers);    
+        return ($tx->res->code, decode_json($tx->res->body), $tx->res->headers);    
     } else {
         return ($tx->res->code, "Success", $tx->res->headers);
     }
