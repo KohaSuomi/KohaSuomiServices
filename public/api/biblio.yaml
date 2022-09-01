@@ -197,7 +197,7 @@ paths:
               fetch_interface:
                 type: [string, 'null']
               check:
-                type: boolean
+                type: [integer, 'null']
               componentparts_count:
                 type: [integer, 'null']
       responses:
