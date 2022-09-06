@@ -39,7 +39,7 @@ sub searchTarget {
     if ($interface->{interface} eq "SRU" && !$source_id) {
         my $matcher = $self->search_fields($record, %matchers);
         my $path;       
-        if(defined $matcher->{"024a"} && $matcher->{"024a"}) {
+        if(!$matcher->{"035a"} && !$matcher->{"020a"} && defined $matcher->{"024a"} && $matcher->{"024a"}) {
             my $tag = "024";
             my @matcher_array = $self->search_024_fields($record, $tag ,%matchers);
             my $value_count =  scalar @matcher_array;
