@@ -6,7 +6,6 @@ use DBI;
 
 use KohaSuomiServices::Model::Config;
 use KohaSuomiServices::Database::Biblio::Schema;
-use KohaSuomiServices::Database::Billing::Schema;
 
 
 use KohaSuomiServices::Model::Exception::NotFound;
@@ -76,10 +75,6 @@ sub get_columns {
 
 sub biblio {
     return "KohaSuomiServices::Database::Biblio::Schema";
-}
-
-sub billing {
-    return "KohaSuomiServices::Database::Billing::Schema";
 }
 
 1;

@@ -8,7 +8,6 @@ use KohaSuomiServices::Model::Convert;
 use KohaSuomiServices::Model::Compare;
 use KohaSuomiServices::Model::SRU;
 use KohaSuomiServices::Model::Biblio;
-use KohaSuomiServices::Model::Billing;
 use KohaSuomiServices::Model::Auth;
 use KohaSuomiServices::Model::Compiler;
 
@@ -52,9 +51,6 @@ sub startup {
     
   $self->helper(
     compiler => sub { state $compiler = KohaSuomiServices::Model::Compiler->new() });
-
-  $self->helper(
-    billing => sub { state $billing = KohaSuomiServices::Model::Billing->new() });
 
   $self->plugin(OpenAPI => {
     spec => $self->static->file("/api/auth.yaml")->path
