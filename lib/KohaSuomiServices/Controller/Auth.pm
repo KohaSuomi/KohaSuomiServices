@@ -47,7 +47,7 @@ sub setSession {
 
 sub isLoggedIn {
     my $self = shift;
-    return 1 if $self->auth->get($self->session('logged_in'));
+    return 1 if $self->session('logged_in') && $self->auth->get($self->session('logged_in'));
     $self->render(template => "auth/login",
         baseendpoint => $self->configs->load->{auth}->{baseendpoint} 
     );
