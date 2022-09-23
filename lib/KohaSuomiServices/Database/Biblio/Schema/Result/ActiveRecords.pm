@@ -12,6 +12,7 @@ __PACKAGE__->add_columns(
   identifier => { data_type => 'varchar', size => 100 },
   identifier_field => { data_type => 'varchar', size => 30 },
   target_id => { data_type => 'varchar', size => 50 },
+  blocked => {data_type => 'integer', is_boolean  => 1, default_value => 0, false_is => ['0', '-1']},
   updated => { data_type => 'datetime', is_nullable => 1},
   created => { data_type => 'datetime', default_value => \"current_timestamp", is_nullable => 0},
 );

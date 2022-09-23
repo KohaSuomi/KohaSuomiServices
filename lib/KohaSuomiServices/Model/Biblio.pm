@@ -90,7 +90,7 @@ sub broadcast {
     my $schema = $self->schema->client($self->config);
     my $added = 0;
     foreach my $activefield (@{$params->{activefields}}) {
-        my $results = $self->active->find($schema, {identifier => $activefield->{identifier}, identifier_field => $activefield->{identifier_field} });
+        my $results = $self->active->find($schema, {identifier => $activefield->{identifier}, identifier_field => $activefield->{identifier_field}, blocked => 0 });
         next unless defined $results && $results;
         foreach my $result (@{$results}) {
             my $exists = $self->active->checkActiveRecord($result->{interface_name}, $result->{target_id});
@@ -306,6 +306,14 @@ sub deleteActiveRecord {
     return {message => "Success"};
 }
 
+sub blockActiveRecord {
+    my ($self, $id) = @_;
+
+    my $schema = $self->schema->client($self->config);
+    $self->active->update($schema, $id, {blocked => 1});
+    return {message => "Success"};
+}
+
 sub addActive {
     my ($self, $params) = @_;
     
@@ -334,6 +342,9 @@ sub addActive {
     } else {
         my $newweight = $self->matchers->weightMatchers($params->{identifier_field});
         $exist = shift @{$exist};
+        if (length $params->{blocked} && $exist->{blocked} != $params->{blocked}) {
+            $self->active->update($schema, $exist->{id}, {blocked => $params->{blocked}});
+        }
         my $activeweight = $self->matchers->weightMatchers($exist->{identifier_field}) ? $self->matchers->weightMatchers($exist->{identifier_field}) : 4;
         if ($newweight <= $activeweight && $exist->{identifier} ne $params->{identifier}) {
             $self->active->update($schema, $exist->{id}, {identifier_field => $params->{identifier_field}, identifier => $params->{identifier}});
@@ -359,6 +370,9 @@ sub addActiveIdentifier {
             if ($newweight <= $activeweight && $exist->{identifier} ne $params->{identifier}) {
                 $self->active->update($schema, $exist->{id}, {identifier_field => $params->{identifier_field}, identifier => $params->{identifier}});
                 $self->log->info("Active record $exist->{id} updated");
+            }
+            if (length $params->{blocked} && $exist->{blocked} != $params->{blocked}) {
+                $self->active->update($schema, $exist->{id}, {blocked => $params->{blocked}});
             }     
         }
     }
@@ -370,7 +384,7 @@ sub updateActive {
     
     my $schema = $self->schema->client($self->config);
     my $dt = strftime "%Y-%m-%d 00:00:00", ( localtime(time) );
-    my $params = @interfaces ? {updated => undef, interface_name => \@interfaces} : {updated => undef};
+    my $params = @interfaces ? {updated => undef, interface_name => \@interfaces, blocked => 0} : {updated => undef, blocked => 0};
     my $results = $self->active->find($schema, $params);
     foreach my $result (@{$results}) {
         $self->active->updateActiveRecords($result->{id});

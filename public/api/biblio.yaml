@@ -309,6 +309,10 @@ paths:
               updated:
                 type: string
                 description: Datetime of record's update
+              blocked:
+                type: integer
+                description: Block record from replication
+                enum: [0, 1]
       responses:
         200:
           description: Ok status
@@ -358,6 +362,10 @@ paths:
                 updated:
                   type: string
                   description: Datetime of record's update
+                blocked:
+                  type: integer
+                  description: Block record from replication
+                  enum: [0, 1]
       responses:
         200:
           description: Ok status
@@ -395,6 +403,12 @@ paths:
           required: true
           type: string
           description: Record's identifier
+        - in: formData
+          name: blocked
+          required: false
+          type: integer
+          description: Block record from replication
+          enum: [0, 1]
       responses:
         200:
           description: Ok status
