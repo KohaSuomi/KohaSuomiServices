@@ -129,7 +129,7 @@ sub check {
         my $encoding_level;
         if ($data) {
             $encoding_level = $c->compare->encodingLevelCompare($biblio->{leader}, $data->{leader});
-            $mandatorynum = 1 if $encoding_level eq 'greater';
+            #$mandatorynum = 1 if $encoding_level eq 'greater';
         }
         $response = ((!$mandatorynum && $data) || ($encoding_level eq 'lower' && $data) || (ref($duplicatenum) eq "ARRAY" || ref($duplicatechar) eq "ARRAY")) ? {source_id => $target_id, targetrecord => $data, sourcerecord => $biblio, targetcomponentparts => $componentparts} : {target_id => $target_id, targetrecord => $data, sourcerecord => $biblio, targetcomponentparts => $componentparts};
         
