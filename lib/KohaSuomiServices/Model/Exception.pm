@@ -41,4 +41,4 @@ sub toTextMojo {
     return $e->verbose(1)->to_string;
 }
 
-return 1;
+1;
