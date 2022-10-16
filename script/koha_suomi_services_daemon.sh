@@ -57,6 +57,9 @@ reload_services() {
 test "$(whoami)" != "root" && die "You need to run this as root."
 
 case "$1" in
+    info)
+        echo "This service will use Hypnotoad as user $USER in basedir $basedir."
+      ;;
     start | stop | reload )
         $1_services ;;
     restart )
