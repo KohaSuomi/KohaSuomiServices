@@ -30,7 +30,7 @@
   </div>
 </div>
 <script>
-var servicepath = "<%= $config->{servicepath}%>";
+var servicepath = "<%= config->{servicepath} %>";
 var baseendpoint = '<%= $baseendpoint %>';
 </script>
-<script src="<%= $config->{servicepath}%>/js/auth/login.js"></script>
+<script src="<%= config->{servicepath} %>/js/auth/login.js"></script>
