@@ -18,6 +18,8 @@ paths:
       operationId: biblioList
       consumes:
         - application/json
+      produces:
+        - application/json
       parameters:
         - in: body
           name: body
@@ -43,6 +45,8 @@ paths:
       x-mojo-to: 'biblio#get'
       operationId: biblioGet
       consumes:
+        - application/json
+      produces:
         - application/json
       parameters:
         - in: path
@@ -71,6 +75,8 @@ paths:
       operationId: biblioRecord
       consumes:
         - application/json
+      produces:
+        - application/json
       parameters:
         - in: path
           name: id
@@ -97,6 +103,8 @@ paths:
       x-mojo-to: 'biblio#report'
       operationId: biblioInterface
       consumes:
+        - application/json
+      produces:
         - application/json
       parameters:
         - in: path
@@ -140,6 +148,8 @@ paths:
       x-mojo-to: 'biblio#force'
       operationId: biblioForceExport
       consumes:
+        - application/json
+      produces:
         - application/json
       parameters:
         - in: path
@@ -254,6 +264,8 @@ paths:
       x-mojo-to: 'biblio#getActiveRecord'
       operationId: biblioGetActiveRecord
       consumes:
+        - application/json
+      produces:
         - application/json
       parameters:
         - in: path
@@ -387,6 +399,8 @@ paths:
       operationId: biblioUpdateActiveRecord
       consumes:
         - application/json
+      produces:
+        - application/json
       parameters:
         - in: path
           name: id
@@ -429,6 +443,8 @@ paths:
       operationId: biblioDeleteActiveRecord
       consumes:
         - application/json
+      produces:
+        - application/json
       parameters:
         - in: path
           name: id
@@ -455,6 +471,8 @@ paths:
       x-mojo-to: 'biblio#lastrecord'
       operationId: biblioLastActiveRecord
       consumes:
+        - application/json
+      produces:
         - application/json
       parameters:
         - in: query

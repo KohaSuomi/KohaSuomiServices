@@ -16,6 +16,8 @@ paths:
       operationId: configGet
       consumes:
         - application/json
+      produces:
+        - application/json
       security:
         - APIKey: []
       parameters:
@@ -43,6 +45,8 @@ paths:
       operationId: configAdd
       consumes:
         - application/json
+      produces:
+        - application/json
       security:
         - APIKey: []
       parameters:
@@ -69,6 +73,8 @@ paths:
       x-mojo-to: 'config#update'
       operationId: configUpdate
       consumes:
+        - application/json
+      produces:
         - application/json
       security:
         - APIKey: []
@@ -126,6 +132,8 @@ paths:
       x-mojo-to: 'config#checkAuth'
       operationId: configCheckAuth
       consumes:
+        - application/json
+      produces:
         - application/json
       security:
         - APIKey: []
