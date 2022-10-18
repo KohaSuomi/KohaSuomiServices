@@ -14,8 +14,8 @@ __PACKAGE__->add_columns(
   method => { data_type => 'enum', is_enum => 1, is_nullable => 1, extra => { list => [qw/get post put patch delete/]} },
   format => { data_type => 'enum', is_enum => 1, is_nullable => 1, extra => { list => [qw/json form/]} },
   endpoint_url => { data_type => 'varchar', size => 255 },
-  auth_url => { data_type => 'varchar', size => 255 },
-  host => {data_type => 'integer', is_boolean  => 1, false_is    => ['0', '-1']},
+  auth_url => { data_type => 'varchar', size => 255, default_value => '' },
+  host => {data_type => 'integer', is_boolean  => 1, false_is    => ['0', '-1'], default_value => 0},
 );
 __PACKAGE__->set_primary_key('id');
 __PACKAGE__->add_unique_constraint("interface_type", ["name", "type"]);
