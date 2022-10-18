@@ -11,9 +11,9 @@ sub get {
 
     try {
         my $req  = $c->req->params->to_hash;
-        my @data = $c->sru->search($req);
-        if (length(@data)) {
-            $c->render(status => 200, openapi => @data);
+        my $data = $c->sru->search($req);
+        if ($data) {
+            $c->render(status => 200, openapi => $data);
         } else {
             $c->render(status => 404, openapi => {error => "Not found"});
         }

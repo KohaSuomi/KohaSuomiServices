@@ -66,8 +66,7 @@ sub get_columns {
     my @data;
 
     foreach my $rs (@rs) {
-        my $cols = { $rs->get_columns };
-        push @data, $cols;
+        push @data, { $rs->get_columns };
     }
 
     return \@data;

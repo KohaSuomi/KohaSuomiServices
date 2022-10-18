@@ -37,11 +37,11 @@ sub get {
         } else {
             @rs = $client->resultset($table)->all();
         }
-        
-        my @data = $c->schema->get_columns(@rs);
+
+        my $data = $c->schema->get_columns(@rs);
 
         if ($client) {
-            $c->render(status => 200, openapi => @data);
+            $c->render(status => 200, openapi => $data);
         } else {
             $c->render(status => 404, openapi => {message => "Not found"});
         }
