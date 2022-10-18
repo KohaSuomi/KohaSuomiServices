@@ -22,7 +22,8 @@ has cache => sub {Cache::FastMmap->new(share_file => '/tmp/ks_sessions', cache_s
 
 sub valid {
     my ($self, $token) = @_;
-    KohaSuomiServices::Model::Exception::Unauthorized->throw(error => "Unauthorized access") unless ($self->config->{apikey} eq $token);
+    KohaSuomiServices::Model::Exception::Unauthorized->throw(error => "Unauthorized access")
+        if ! $token or $self->config->{apikey} ne $token;
     return 1;
 }
 
