@@ -55,7 +55,7 @@ sub isLoggedIn {
 }
 
 sub api {
-    my $c = shift->openapi->valid_input or return;
+    my $c = shift;
 
     if ($c->req->method eq 'OPTIONS') {
         return 1;
@@ -65,7 +65,7 @@ sub api {
         return 1 if ($c->auth->valid($c->req->headers->authorization));
     } catch {
         my $e = $_;
-        $c->render(KohaSuomiServices::Model::Exception::handleDefaults($e));
+        $c->render(status => 401, json => {error => "Unauthorized access"});
         return 0;
     }
 }
