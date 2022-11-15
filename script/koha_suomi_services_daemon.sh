@@ -1,63 +1,67 @@
-#!/bin/bash
+#!/bin/sh
 
 ### BEGIN INIT INFO
 # Provides:          koha_suomi_services_daemon
-# Required-Start:    $syslog $remote_fs
-# Required-Stop:     $syslog $remote_fs
 # Default-Start:     2 3 4 5
 # Default-Stop:      0 1 6
 # Short-Description: Hypnotoad Mojolicious Server for handling API requests
 ### END INIT INFO
 
-BASEDIR="$(dirname "$(readlink --canonicalize "$0")")"
+basedir="$(dirname "$(readlink --canonicalize "$0")")"
 
-if [[ $EUID -ne 0 ]]; then
-    echo "You must run this script as 'root'";
-    exit 1;
-fi
+die() { echo "$@" ; exit 1 ; }
 
-function start {
-    echo "Starting Hypnotoad"
-    su -c "hypnotoad $BASEDIR/koha_suomi_services" $USER
-    echo "ALL GLORY TO THE HYPNOTOAD."
-    runscripts
+start_services() {
+
+    pgrep -f "\<koha_suomi_services\>" > /dev/null && die "Some background scripts already running, stop them first."
+    hypnotoad $basedir/koha_suomi_services
+    echo "Starting background scripts."
+    perl $basedir/background.pl
+    echo "Done."
+
 }
 
-function stop {
-    su -c "hypnotoad $BASEDIR/koha_suomi_services -s" $USER
-    killscripts
+stop_services() {
+
+    hypnotoad $basedir/koha_suomi_services -s
+    IFS='
+'
+    for killme in $(perl $basedir/background.pl -p); do pkill -f "$killme"; done
+    unset IFS
+
+    echo "Waiting for background scripts and hypnotoad to terminate."
+    while pgrep -f '\<koha_suomi_services\>' > /dev/null; do 
+        sleep 1
+        killcounter=$(($killcounter + 1))
+        test $killcounter -eq 15 && echo "15 seconds passed, still waiting."
+        test $killcounter -eq 30 && die "Failed to stop one or more of the background scripts."
+    done
+    echo "Done."
+
 }
 
-function runscripts {
-  echo "Start background scripts"
-  su -c "perl $BASEDIR/background.pl" $USER
+reload_services() {
+
+    pgrep -f "\<koha_suomi_services\>" > /dev/null || die "Services don't seem to be running, start them first."
+    echo "Reloading stopped background scripts."
+    IFS='
+'
+    for reload in $(perl $basedir/background.pl -p); do
+        pgrep -f "$reload" > /dev/null || sh -c "$reload &"
+    done
+    unset IFS
+    echo "Done."
+
 }
 
-function killscripts {
-  if test -n "$(printresults)"; then
-    echo "Killing background scripts"
-    ps aux  |  grep -i "$(printresults)"  |  awk '{print $2}'  |  xargs sudo kill
-  fi
-}
-
-function printresults {
-  su -c "perl $BASEDIR/background.pl -p" $USER
-}
+test "$(whoami)" != "root"  && die "You need to run this as root." 
 
 case "$1" in
-    start)
-        start
-      ;;
-    stop)
-        stop
-      ;;
-    restart)
-        echo "Restarting Hypnotoad"
-        stop
-        start
-      ;;
+    start | stop | reload )
+        $1_services ;;
+    restart )
+        stop_services
+        start_services ;; 
     *)
-      echo "Usage: /etc/init.d/$NAME {start|stop|restart}"
-      exit 1
-      ;;
+        die "Usage: $0 {start|stop|restart|reload}"
 esac
