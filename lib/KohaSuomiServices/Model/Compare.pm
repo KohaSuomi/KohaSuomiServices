@@ -366,6 +366,4 @@ sub comparePrepare {
     return ($fields, $tags);
 }
 
-
-
 1;

@@ -7,5 +7,4 @@ our $VERSION = defined KohaSuomiServices::Model::Config->new->service("biblio")-
 use base qw/DBIx::Class::Schema/;
 __PACKAGE__->load_namespaces();
 
-
 1;

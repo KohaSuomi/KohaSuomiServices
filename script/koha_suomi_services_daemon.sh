@@ -30,7 +30,7 @@ stop_services() {
     unset IFS
 
     echo "Waiting for background scripts and hypnotoad to terminate."
-    while pgrep -f '\<koha_suomi_services\>' > /dev/null; do 
+    while pgrep -f '\<koha_suomi_services\>' > /dev/null; do
         sleep 1
         killcounter=$(($killcounter + 1))
         test $killcounter -eq 15 && echo "15 seconds passed, still waiting."
@@ -54,14 +54,14 @@ reload_services() {
 
 }
 
-test "$(whoami)" != "root"  && die "You need to run this as root." 
+test "$(whoami)" != "root" && die "You need to run this as root."
 
 case "$1" in
     start | stop | reload )
         $1_services ;;
     restart )
         stop_services
-        start_services ;; 
+        start_services ;;
     *)
         die "Usage: $0 {start|stop|restart|reload}"
 esac
