@@ -47,7 +47,7 @@ sub setSession {
 
 sub isLoggedIn {
     my $self = shift;
-    return 1 if $self->auth->get($self->session('logged_in'));
+    return 1 if $self->session('logged_in') && $self->auth->get($self->session('logged_in'));
     $self->render(template => "auth/login",
         baseendpoint => $self->configs->load->{auth}->{baseendpoint} 
     );
@@ -55,7 +55,7 @@ sub isLoggedIn {
 }
 
 sub api {
-    my $c = shift->openapi->valid_input or return;
+    my $c = shift;
 
     if ($c->req->method eq 'OPTIONS') {
         return 1;
@@ -65,10 +65,9 @@ sub api {
         return 1 if ($c->auth->valid($c->req->headers->authorization));
     } catch {
         my $e = $_;
-        $c->render(KohaSuomiServices::Model::Exception::handleDefaults($e));
+        $c->render(status => 401, json => {error => "Unauthorized access"});
         return 0;
     }
 }
-
 
 1;

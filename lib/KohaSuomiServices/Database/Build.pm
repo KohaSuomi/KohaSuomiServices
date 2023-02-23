@@ -47,4 +47,5 @@ sub migrate {
         }
     }
 }
+
 1;

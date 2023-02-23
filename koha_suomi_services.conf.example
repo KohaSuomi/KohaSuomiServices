@@ -24,7 +24,7 @@
         }
       ],
       database => {
-        sharebase => "/home/foo/bar/", #DBIX share directory base path
+        sharebase => "/home/foo/bar/", #DBIX share directory base path, will be appened with 'share/$service-schema/'
         version => 1, # Database update version, increase this if schema changes
         host => 'localhost',
         user => 'username',

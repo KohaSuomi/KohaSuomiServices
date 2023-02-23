@@ -22,7 +22,8 @@ has cache => sub {Cache::FastMmap->new(share_file => '/tmp/ks_sessions', cache_s
 
 sub valid {
     my ($self, $token) = @_;
-    KohaSuomiServices::Model::Exception::Unauthorized->throw(error => "Unauthorized access") unless ($self->config->{apikey} eq $token);
+    KohaSuomiServices::Model::Exception::Unauthorized->throw(error => "Unauthorized access")
+        if ! $token or $self->config->{apikey} ne $token;
     return 1;
 }
 
@@ -32,7 +33,7 @@ sub login {
     $path = Mojo::URL->new($path)->userinfo($username.':'.$password);
     my $error;
     my $params = {userid => $username};
-    my $tx = $self->ua->build_tx(GET => $path => {Accept => 'application/x-www-form-urlencoded'} => form => $params);
+    my $tx = $self->ua->build_tx(GET => $path => {Accept => 'application/json'} => form => $params);
     $tx = $self->ua->start($tx);
     $error = {code => defined $tx->res->error->{code} && $tx->res->error->{code} ? $tx->res->error->{code} : 500, message => from_json($tx->res->body)} if defined $tx->res->error && $tx->res->error;
     my $user = decode_json($tx->res->body);

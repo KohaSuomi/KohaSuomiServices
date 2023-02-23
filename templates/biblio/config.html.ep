@@ -39,8 +39,8 @@
   var baseendpoint = '<%= $baseendpoint %>';
   var apitoken = '<%= $apikey %>';
 </script>
-<script src="<%= $config->{servicepath}%>/js/biblio/interfaceApp.js"></script>
-<script src="<%= $config->{servicepath}%>/js/biblio/parameterComponent.js"></script>
-<script src="<%= $config->{servicepath}%>/js/biblio/authComponent.js"></script>
-<script src="<%= $config->{servicepath}%>/js/biblio/responseComponent.js"></script>
-<script src="<%= $config->{servicepath}%>/js/biblio/matcherApp.js"></script>
+<script src="<%= config->{servicepath} %>/js/biblio/interfaceApp.js"></script>
+<script src="<%= config->{servicepath} %>/js/biblio/parameterComponent.js"></script>
+<script src="<%= config->{servicepath} %>/js/biblio/authComponent.js"></script>
+<script src="<%= config->{servicepath} %>/js/biblio/responseComponent.js"></script>
+<script src="<%= config->{servicepath} %>/js/biblio/matcherApp.js"></script>

@@ -78,4 +78,4 @@
   var baseendpoint = '<%= $baseendpoint %>';
   var apitoken = '<%= $apikey %>';
 </script>
-<script src="<%= $config->{servicepath}%>/js/biblio/viewApp.js"></script>
+<script src="<%= config->{servicepath} %>/js/biblio/viewApp.js"></script>
