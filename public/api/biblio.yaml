@@ -177,7 +177,9 @@ paths:
       x-mojo-to: 'biblio#export'
       operationId: biblioExport
       consumes:
-        - application/x-www-form-urlencoded
+        - application/json
+      produces:
+        - application/json
       parameters:
         - in: body
           name: body
@@ -230,7 +232,9 @@ paths:
       x-mojo-to: 'biblio#check'
       operationId: biblioExportCheck
       consumes:
-        - application/x-www-form-urlencoded
+        - application/json
+      produces:
+        - application/json
       parameters:
         - in: body
           name: body
@@ -298,7 +302,9 @@ paths:
       x-mojo-to: 'biblio#activate'
       operationId: biblioSetActive
       consumes:
-        - application/x-www-form-urlencoded
+        - application/json
+      produces:
+        - application/json
       parameters:
         - in: body
           name: body
@@ -345,7 +351,9 @@ paths:
       x-mojo-to: 'biblio#activateIdentifier'
       operationId: biblioSetActiveIdentifier
       consumes:
-        - application/x-www-form-urlencoded
+        - application/json
+      produces:
+        - application/json
       parameters:
         - in: body
           name: body
@@ -499,7 +507,9 @@ paths:
       x-mojo-to: 'biblio#broadcast'
       operationId: biblioBroadCast
       consumes:
-        - application/x-www-form-urlencoded
+        - application/json
+      produces:
+        - application/json
       parameters:
         - in: body
           name: body
@@ -546,7 +556,9 @@ paths:
       x-mojo-to: 'biblio#broadcastComponentParts'
       operationId: biblioBroadCastComponentParts
       consumes:
-        - application/x-www-form-urlencoded
+        - application/json
+      produces:
+        - application/json
       parameters:
         - in: body
           name: body
