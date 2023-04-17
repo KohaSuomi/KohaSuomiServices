@@ -7,7 +7,8 @@
 # Short-Description: Hypnotoad Mojolicious Server for handling API requests
 ### END INIT INFO
 
-basedir="$(dirname "$(readlink --canonicalize "$0")")"
+# basedir="$(dirname "$(readlink --canonicalize "$0")")"
+basedir="/home/koha/KohaSuomiServices/script"
 
 die() { echo "$@" ; exit 1 ; }
 
