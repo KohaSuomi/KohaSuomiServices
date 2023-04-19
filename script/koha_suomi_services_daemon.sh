@@ -48,7 +48,7 @@ reload_services() {
     IFS='
 '
     for reload in $(perl $basedir/background.pl -p); do
-        pgrep -f "$reload" > /dev/null || sh -c "$reload &"
+        pgrep -fx "$reload" > /dev/null || sh -c "$reload &"
     done
     unset IFS
     echo "Done."
