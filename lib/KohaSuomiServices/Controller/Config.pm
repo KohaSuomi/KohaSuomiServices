@@ -96,6 +96,8 @@ sub update {
         my $data = $client->resultset($table)->find($id);
         if ($params->{password}) {
             $params->{password} = encode_base64($params->{password});
+        } else {
+            $params->{password} = $data->password;
         }
         $data->update($params);
 
