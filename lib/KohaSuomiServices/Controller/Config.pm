@@ -97,7 +97,7 @@ sub update {
         if ($params->{password}) {
             $params->{password} = encode_base64($params->{password});
         } else {
-            $params->{password} = $data->password;
+            $params->{password} = $data->{password};
         }
         $data->update($params);
 
