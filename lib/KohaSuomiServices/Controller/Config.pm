@@ -29,7 +29,11 @@ sub get {
         if (defined $req->{id}) {
             @rs = $client->resultset($table)->search({id => $req->{id}});
         } elsif (defined $req->{interface_id}) {
-            @rs = $client->resultset($table)->search({interface_id => $req->{interface_id}});
+            if ($table eq "AuthUsers") {
+                @rs = $client->resultset($table)->search({interface_id => $req->{interface_id}, columns => ['id', 'interface_id', 'username']});
+            } else {
+                @rs = $client->resultset($table)->search({interface_id => $req->{interface_id}});
+            }
         } elsif (defined $req->{interface_name}) {
             @rs = $client->resultset($table)->search({interface_id => $req->{interface_id}});
         } elsif (defined $req->{authuser_id}) {
