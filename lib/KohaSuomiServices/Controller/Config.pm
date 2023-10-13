@@ -30,7 +30,7 @@ sub get {
             @rs = $client->resultset($table)->search({id => $req->{id}});
         } elsif (defined $req->{interface_id}) {
             if ($table eq "AuthUsers") {
-                @rs = $client->resultset($table)->search({interface_id => $req->{interface_id}, columns => ['id', 'interface_id', 'username']});
+                @rs = $client->resultset($table)->search({interface_id => $req->{interface_id}}, {columns => ['id', 'interface_id', 'username']});
             } else {
                 @rs = $client->resultset($table)->search({interface_id => $req->{interface_id}});
             }
