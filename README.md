@@ -1,3 +1,7 @@
+# The development of this repo has been terminated by Koha-Suomi on May 2024.
+If you are interested about importing and exporting between Koha library systems then check our plugin page
+https://github.com/KohaSuomi/koha-plugin-broadcast-biblios
+
 # Koha Suomi Services
 
 Koha Suomi services for different interfaces
